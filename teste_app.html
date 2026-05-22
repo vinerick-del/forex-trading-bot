@@ -1,0 +1,1913 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cor-principal: #3d4a54;
+  --cor-destaque: #f68b1f;
+  --cor-sucesso: #27a847;
+  --cor-alerta: #f59e0b;
+  --cor-erro: #dc2626;
+  --cor-info: #0ea5e9;
+  --cor-fundo: #fafafa;
+  --cor-borda: #d1d5db;
+  --cor-texto: #1f2937;
+  --cor-texto-claro: #6b7280;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  line-height: 1.6;
+}
+
+.app { width: 100%; max-width: 100%; }
+
+.header {
+  background: linear-gradient(135deg, var(--cor-principal) 0%, #2c3840 100%);
+  color: white;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.header-logo { font-size: 26px; font-weight: 700; }
+.header-logo span { color: var(--cor-destaque); }
+
+.header-stats { display: flex; gap: 1.5rem; margin-top: 1rem; font-size: 13px; }
+.stat-item { display: flex; align-items: center; gap: 6px; }
+.stat-item strong { font-size: 16px; }
+
+.notification-bell { position: relative; cursor: pointer; font-size: 20px; }
+.notification-badge { position: absolute; top: -8px; right: -8px; background: var(--cor-erro); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+
+.tabs {
+  display: flex;
+  gap: 0;
+  margin: 0 1.5rem 1.5rem;
+  border-bottom: 2px solid var(--cor-borda);
+  overflow-x: auto;
+}
+
+.tab-btn {
+  padding: 12px 14px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--cor-texto-claro);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms;
+  white-space: nowrap;
+}
+
+.tab-btn:hover { color: var(--cor-principal); }
+.tab-btn.active { color: var(--cor-principal); border-bottom-color: var(--cor-destaque); }
+
+.tab-content { display: none; padding: 0 1.5rem 1.5rem; }
+.tab-content.active { display: block; }
+
+.card {
+  background: white;
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary { background: var(--cor-destaque); color: white; }
+.btn-primary:hover { background: #e67e0f; box-shadow: 0 2px 8px rgba(246,139,31,0.3); }
+
+.btn-secondary { background: white; color: var(--cor-principal); border: 2px solid var(--cor-principal); }
+.btn-secondary:hover { background: var(--cor-principal); color: white; }
+
+.btn-success { background: var(--cor-sucesso); color: white; }
+.btn-success:hover { background: #22863d; }
+
+.btn-danger { background: var(--cor-erro); color: white; }
+.btn-danger:hover { background: #b91c1c; }
+
+.btn-sm { padding: 6px 12px; font-size: 11px; }
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: var(--cor-principal);
+}
+
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: var(--cor-destaque);
+  box-shadow: 0 0 0 3px rgba(246,139,31,0.1);
+}
+
+.kpi-card {
+  background: white;
+  border: 1px solid var(--cor-borda);
+  border-left: 4px solid var(--cor-destaque);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.kpi-label {
+  font-size: 11px;
+  color: var(--cor-texto-claro);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.kpi-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--cor-principal);
+}
+
+.kpi-unit {
+  font-size: 11px;
+  color: var(--cor-texto-claro);
+  margin-top: 4px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-rascunho { background: #f3f4f6; color: #6b7280; }
+.badge-aprovacao { background: #fef3c7; color: #92400e; }
+.badge-aprovado { background: #dcfce7; color: #15803d; }
+.badge-critico { background: #fee2e2; color: #991b1b; }
+.badge-normal { background: #dbeafe; color: #0c4a6e; }
+.badge-excelente { background: #dcfce7; color: #15803d; }
+.badge-bom { background: #dbeafe; color: #0c4a6e; }
+.badge-alerta { background: #fef3c7; color: #92400e; }
+.badge-pendente { background: #fed7aa; color: #92400e; }
+.badge-assinado { background: #dcfce7; color: #15803d; }
+.badge-em_aprovacao { background: #dbeafe; color: #0c4a6e; }
+
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid;
+}
+
+.alert-info { background: #eff6ff; border-color: #0ea5e9; color: #0c4a6e; }
+.alert-warning { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+.alert-success { background: #dcfce7; border-color: #27a847; color: #15803d; }
+.alert-error { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
+
+.table-container {
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+table thead {
+  background: #f3f4f6;
+  border-bottom: 2px solid var(--cor-borda);
+}
+
+table th {
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--cor-principal);
+}
+
+table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+table tbody tr:hover { background: #f9fafb; }
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.active { display: flex; }
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--cor-principal);
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.action-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.timeline {
+  position: relative;
+  padding: 1rem 0;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.timeline-marker {
+  width: 24px;
+  height: 24px;
+  background: var(--cor-destaque);
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px var(--cor-destaque);
+}
+
+.timeline-marker.done { background: var(--cor-sucesso); box-shadow: 0 0 0 2px var(--cor-sucesso); }
+
+.timeline-content {
+  background: #f9fafb;
+  border-radius: 6px;
+  padding: 0.75rem;
+  flex: 1;
+}
+
+.timeline-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--cor-principal);
+}
+
+.timeline-date {
+  font-size: 11px;
+  color: var(--cor-texto-claro);
+}
+
+.star-rating {
+  display: flex;
+  gap: 4px;
+}
+
+.star {
+  font-size: 18px;
+  cursor: pointer;
+  color: #d1d5db;
+  transition: color 200ms;
+}
+
+.star.filled { color: #f59e0b; }
+.star:hover { color: #f59e0b; }
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.checklist-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--cor-sucesso);
+}
+
+.checklist-item label {
+  margin: 0;
+  cursor: pointer;
+  font-size: 13px;
+  flex: 1;
+}
+
+.recommendation-box {
+  background: linear-gradient(135deg, #dcfce7 0%, #eff6ff 100%);
+  border: 2px solid var(--cor-sucesso);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.recommendation-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--cor-principal);
+  margin-bottom: 0.75rem;
+}
+
+.recommendation-reason {
+  font-size: 13px;
+  color: var(--cor-texto);
+  line-height: 1.6;
+}
+
+.chart-container {
+  background: white;
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  height: 300px;
+}
+
+.signature-block {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  padding: 1.5rem;
+  border-top: 2px solid var(--cor-borda);
+  margin-top: 1.5rem;
+}
+
+.signature-line {
+  text-align: center;
+  border-top: 1px solid var(--cor-texto);
+  padding-top: 1rem;
+  font-size: 11px;
+  color: var(--cor-texto-claro);
+}
+
+.input-preco {
+  background: #fef3c7 !important;
+  font-weight: 600;
+}
+
+.sap-integration-banner {
+  background: linear-gradient(135deg, #0c4a6e 0%, #0ea5e9 100%);
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sap-status {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.loading {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.notification-panel {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 350px;
+  background: white;
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 999;
+  max-height: 400px;
+  overflow-y: auto;
+  display: none;
+}
+
+.notification-panel.active { display: block; }
+
+.notification-item {
+  padding: 12px;
+  border-bottom: 1px solid var(--cor-borda);
+  font-size: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.notification-item:last-child { border-bottom: none; }
+
+.notification-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.notification-text {
+  flex: 1;
+}
+
+.notification-close {
+  cursor: pointer;
+  color: var(--cor-texto-claro);
+}
+
+.canvas-signature {
+  border: 2px solid var(--cor-borda);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  cursor: crosshair;
+  background: white;
+  display: block;
+}
+</style>
+
+<div class="app">
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-logo">Âmbar <span>ENERGIA</span></div>
+        <div style="font-size: 12px; opacity: 0.8;">Sistema de Cotação Inteligente com SAP Fiori</div>
+      </div>
+      <div class="notification-bell" onclick="toggleNotificacoes()">
+        🔔
+        <span class="notification-badge" id="notif-count" style="display: none;">0</span>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-item">
+        <strong id="stat-processos">0</strong>
+        <span>Processos Ativos</span>
+      </div>
+      <div class="stat-item">
+        <strong id="stat-pendentes">0</strong>
+        <span>Fichas Pendentes</span>
+      </div>
+      <div class="stat-item">
+        <strong id="stat-economia">R$ 0</strong>
+        <span>Economia Total</span>
+      </div>
+      <div class="stat-item">
+        <strong id="stat-fornecedores">0</strong>
+        <span>Fornecedores</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="notification-panel" id="notificationPanel">
+    <div style="padding: 12px; border-bottom: 1px solid var(--cor-borda); font-weight: 600; font-size: 13px;">
+      Alertas e Notificações
+      <span onclick="toggleNotificacoes()" style="float: right; cursor: pointer;">✕</span>
+    </div>
+    <div id="notificacao-lista"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(0)">📊 Dashboard</button>
+    <button class="tab-btn" onclick="switchTab(1)">➕ Novo Processo</button>
+    <button class="tab-btn" onclick="switchTab(2)">🔌 SAP Fiori</button>
+    <button class="tab-btn" onclick="switchTab(3)">✏️ Cotação</button>
+    <button class="tab-btn" onclick="switchTab(4)">📎 Fichas Técnicas</button>
+    <button class="tab-btn" onclick="switchTab(5)">⭐ Análise & Recomendação</button>
+    <button class="tab-btn" onclick="switchTab(6)">✓ Aprovação</button>
+    <button class="tab-btn" onclick="switchTab(7)">📄 Relatórios</button>
+    <button class="tab-btn" onclick="switchTab(8)">📜 Histórico</button>
+  </div>
+
+  <!-- TAB 0: DASHBOARD -->
+  <div id="tab-0" class="tab-content active">
+    <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Dashboard Executivo</h2>
+
+    <div class="grid-4" id="kpis-container"></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal); font-size: 14px;">Top 5 Fornecedores</h3>
+        <div id="top-fornecedores" style="font-size: 12px;"></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal); font-size: 14px;">Economia por Categoria</h3>
+        <div id="economia-categoria" style="font-size: 12px;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom: 1rem; color: var(--cor-principal); font-size: 14px;">Alertas e Ações Necessárias</h3>
+      <div id="alertas-dashboard"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom: 1rem; color: var(--cor-principal); font-size: 14px;">Timeline: Processos em Andamento</h3>
+      <div id="timeline-processos" class="timeline"></div>
+    </div>
+  </div>
+
+  <!-- TAB 1: NOVO PROCESSO -->
+  <div id="tab-1" class="tab-content">
+    <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Criar Novo Processo de Compra</h2>
+    <div class="card">
+      <div class="alert alert-info">
+        ℹ️ O número <strong>DATAGED</strong> é fornecido pelo seu sistema de gestão. Digite aqui o número único para este processo.
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>🔑 Número DATAGED *</label>
+          <input type="text" id="novoDataged" placeholder="ex: DG-2025-00001" style="background: #fef3c7; font-weight: 600;" />
+        </div>
+        <div class="form-group">
+          <label>Descrição do Processo *</label>
+          <input type="text" id="novoDesc" placeholder="ex: Cabos Elétricos Q1 2025" />
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Centro de Custo</label>
+          <input type="text" id="novoCusto" placeholder="ex: CC-001" />
+        </div>
+        <div class="form-group">
+          <label>Responsável</label>
+          <input type="text" id="novoResp" placeholder="Nome completo" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Tipo de Material</label>
+        <select id="novoTipo">
+          <option value="cabos">Cabos Elétricos</option>
+          <option value="transformadores">Transformadores</option>
+          <option value="disjuntores">Disjuntores</option>
+          <option value="acessorios">Acessórios</option>
+          <option value="outros">Outros</option>
+        </select>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-primary" onclick="criarNovoProcesso()">Criar Processo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: SAP FIORI -->
+  <div id="tab-2" class="tab-content">
+    <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Integração SAP Fiori</h2>
+
+    <div class="sap-integration-banner">
+      <div>
+        <div style="font-weight: 600;">🔗 Conectado ao SAP Fiori</div>
+        <div class="sap-status">Sistema integrado com banco de dados de materiais</div>
+      </div>
+      <button class="btn btn-primary" style="margin: 0;" onclick="sincronizarSAP()">Sincronizar Agora</button>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Buscar Material no SAP</h3>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Código do Material (SAP)</label>
+          <input type="text" id="sap-codigo" placeholder="ex: 100101, 100205" />
+        </div>
+        <div class="form-group">
+          <label>Descrição / Palavra-chave</label>
+          <input type="text" id="sap-descricao" placeholder="ex: Cabo, Transformador" />
+        </div>
+      </div>
+
+      <button class="btn btn-secondary" onclick="buscarSAP()" style="margin-bottom: 1.5rem;">🔍 Buscar no SAP</button>
+
+      <div id="sap-resultados"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Itens Importados Recentemente</h3>
+      <div id="sap-importados" style="font-size: 12px; color: var(--cor-texto-claro);">
+        Nenhum item importado ainda
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: COTAÇÃO -->
+  <div id="tab-3" class="tab-content">
+    <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Gerenciar Cotação</h2>
+
+    <div class="card">
+      <div class="form-group">
+        <label>Selecione o Processo DATAGED</label>
+        <select id="cotacaoProcessoSelect" onchange="carregarCotacao()">
+          <option value="">-- Selecione um processo --</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="cotacao-container" style="display: none;">
+      <div style="background: linear-gradient(135deg, var(--cor-principal), #2c3840); color: white; padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem;">
+        <div style="font-size: 14px; opacity: 0.9;">DATAGED</div>
+        <div style="font-size: 24px; font-weight: 700;" id="cotacao-dataged"></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Itens para Cotação</h3>
+        <div class="table-container">
+          <table id="cotacao-itens-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Descrição</th>
+                <th>Und</th>
+                <th>Qtd</th>
+                <th>Preço Unit.</th>
+                <th>Total</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody id="cotacao-itens-body"></tbody>
+          </table>
+        </div>
+        <div class="action-bar">
+          <button class="btn btn-secondary" onclick="adicionarItemCotacao()">+ Adicionar Item</button>
+          <button class="btn btn-success" onclick="salvarCotacao()">💾 Salvar Cotação</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Fornecedores (até 10)</h3>
+        <div id="cotacao-fornecedores"></div>
+        <button class="btn btn-secondary" onclick="adicionarFornecedorCotacao()" id="btn-add-forn-cotacao" style="margin-top: 1rem;">+ Adicionar Fornecedor</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: FICHAS TÉCNICAS -->
+  <div id="tab-4" class="tab-content">
+    <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Gerenciar Fichas Técnicas Aprovadas</h2>
+
+    <div class="card">
+      <div class="form-group">
+        <label>Selecione o Processo DATAGED</label>
+        <select id="fichasProcessoSelect" onchange="carregarFichas()">
+          <option value="">-- Selecione um processo --</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="fichas-container" style="display: none;">
+      <div style="background: linear-gradient(135deg, var(--cor-principal), #2c3840); color: white; padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem;">
+        <div style="font-size: 14px; opacity: 0.9;">DATAGED</div>
+        <div style="font-size: 24px; font-weight: 700;" id="fichas-dataged"></div>
+      </div>
+
+      <div id="fichas-itens-list"></div>
+    </div>
+  </div>
+
+  <!-- TAB 5: ANÁLISE & RECOMENDAÇÃO -->
+  <div id="tab-5" class="tab-content">
+    <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Análise Inteligente & Recomendação</h2>
+
+    <div class="card">
+      <div class="form-group">
+        <label>Selecione o Processo DATAGED</label>
+        <select id="analiseProcessoSelect" onchange="carregarAnalise()">
+          <option value="">-- Selecione um processo --</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="analise-container" style="display: none;">
+      <div id="recomendacao-box"></div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Comparativo de Fornecedores</h3>
+        <div class="chart-container">
+          <canvas id="chart-fornecedores"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Rating de Fornecedor</h3>
+        <div id="rating-fornecedores"></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Análise de Preço vs Histórico</h3>
+        <div id="historico-precos" style="font-size: 12px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: APROVAÇÃO -->
+  <div id="tab-6" class="tab-content">
+    <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Aprovar Processo</h2>
+
+    <div class="card">
+      <div class="form-group">
+        <label>Selecione o Processo DATAGED</label>
+        <select id="aprovacaoProcessoSelect" onchange="carregarAprovacao()">
+          <option value="">-- Selecione um processo --</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="aprovacao-container" style="display: none;">
+      <div style="background: linear-gradient(135deg, var(--cor-principal), #2c3840); color: white; padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem;">
+        <div style="font-size: 14px; opacity: 0.9;">DATAGED</div>
+        <div style="font-size: 24px; font-weight: 700;" id="aprov-dataged"></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Resumo da Cotação</h3>
+        <div class="grid-3">
+          <div class="kpi-card">
+            <div class="kpi-label">Total Orçado</div>
+            <div class="kpi-value" id="aprov-total">R$ 0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Economia</div>
+            <div class="kpi-value" style="color: var(--cor-sucesso);" id="aprov-economia">R$ 0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Status Técnico</div>
+            <div id="aprov-status-tecnico" style="margin-top: 6px;"></div>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="aprov-tabela">
+            <thead><tr><th>Item</th><th>Qtd</th><th>Valor Unit.</th><th>Total</th></tr></thead>
+            <tbody id="aprov-tbody"></tbody>
+          </table>
+        </div>
+
+        <hr style="margin: 1.5rem 0;">
+
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Dados de Aprovação</h3>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Aprovador (nome completo)</label>
+            <input type="text" id="aprov-nome" placeholder="Digite seu nome" />
+          </div>
+          <div class="form-group">
+            <label>Data de Aprovação</label>
+            <input type="date" id="aprov-data" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Observações</label>
+          <textarea id="aprov-obs" placeholder="Observações sobre a aprovação..." rows="3"></textarea>
+        </div>
+
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Assinatura Digital</h3>
+        <div class="signature-block">
+          <div style="text-align: center;">
+            <canvas id="signature-canvas-1" class="canvas-signature" width="150" height="80"></canvas>
+            <button class="btn btn-sm btn-secondary" onclick="limparAssinatura(1)">Limpar</button>
+            <div style="font-size: 11px; color: var(--cor-texto-claro); margin-top: 8px;">Sua Assinatura</div>
+          </div>
+          <div style="text-align: center;">
+            <div id="assinatura-data" style="font-size: 28px; text-align: center; margin-bottom: 16px;">📅</div>
+            <div style="font-size: 11px; color: var(--cor-texto-claro);">Data Automática</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 12px; color: var(--cor-texto-claro); padding: 16px; background: #f9fafb; border-radius: 4px;">
+              <strong>✓ Assinatura Digital Confirmada</strong><br>
+              Hash: <span id="hash-assinatura" style="font-size: 10px;">SHA256_...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-bar" style="margin-top: 1.5rem;">
+          <button class="btn btn-success" onclick="aprovarProcessoFinal()">✓ Aprovar Processo</button>
+          <button class="btn btn-danger" onclick="rejeitarProcesso()">✗ Rejeitar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 7: RELATÓRIOS -->
+  <div id="tab-7" class="tab-content">
+    <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Gerar Relatórios</h2>
+
+    <div class="card">
+      <div class="form-group">
+        <label>Selecione o Processo DATAGED</label>
+        <select id="relatorioProcessoSelect" onchange="prepararRelatorio()">
+          <option value="">-- Selecione um processo --</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="relatorio-container" style="display: none;">
+      <div class="action-bar">
+        <button class="btn btn-primary" onclick="exportarPDF()">📄 Exportar PDF Completo</button>
+        <button class="btn btn-secondary" onclick="imprimirRelatorio()">🖨️ Imprimir</button>
+      </div>
+
+      <div id="relatorio-preview" style="background: white; padding: 2rem; border: 1px solid var(--cor-borda); border-radius: 8px; font-size: 13px;"></div>
+    </div>
+  </div>
+
+  <!-- TAB 8: HISTÓRICO -->
+  <div id="tab-8" class="tab-content">
+    <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Histórico de Processos</h2>
+
+    <div class="card">
+      <h3 style="margin-bottom: 1rem; color: var(--cor-principal); font-size: 14px;">Filtros</h3>
+      <div class="grid-3">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label style="font-size: 12px;">Status</label>
+          <select id="filtro-status" onchange="filtrarHistorico()">
+            <option value="">Todos</option>
+            <option value="RASCUNHO">Rascunho</option>
+            <option value="APROVADO">Aprovado</option>
+            <option value="EM_APROVACAO">Em Aprovação</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label style="font-size: 12px;">Tipo de Material</label>
+          <select id="filtro-tipo" onchange="filtrarHistorico()">
+            <option value="">Todos</option>
+            <option value="cabos">Cabos</option>
+            <option value="transformadores">Transformadores</option>
+            <option value="disjuntores">Disjuntores</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label style="font-size: 12px;">Período</label>
+          <select id="filtro-periodo" onchange="filtrarHistorico()">
+            <option value="">Todo período</option>
+            <option value="7">Últimos 7 dias</option>
+            <option value="30">Últimos 30 dias</option>
+            <option value="90">Últimos 90 dias</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="historico-lista"></div>
+  </div>
+</div>
+
+<!-- MODAL: Adicionar Ficha Técnica -->
+<div id="modalFicha" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">Registrar Ficha Técnica Aprovada</div>
+
+    <div class="form-group">
+      <label>Item</label>
+      <input type="text" id="ficha-item" readonly style="background: #f3f4f6;" />
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Número da Ficha Técnica *</label>
+        <input type="text" id="ficha-numero" placeholder="ex: FT-2025-001" />
+      </div>
+      <div class="form-group">
+        <label>Fabricante *</label>
+        <input type="text" id="ficha-fabricante" placeholder="ex: Siemens, Schneider" />
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Aprovador Técnico *</label>
+        <input type="text" id="ficha-aprovador" placeholder="Nome do aprovador" />
+      </div>
+      <div class="form-group">
+        <label>Data de Aprovação *</label>
+        <input type="date" id="ficha-data" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Checklist de Conformidade</label>
+      <div class="checklist">
+        <div class="checklist-item">
+          <input type="checkbox" id="conformidade-1" />
+          <label for="conformidade-1">Atende especificação técnica</label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" id="conformidade-2" />
+          <label for="conformidade-2">Certificações OK</label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" id="conformidade-3" />
+          <label for="conformidade-3">Normas ABNT atendidas</label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" id="conformidade-4" />
+          <label for="conformidade-4">Aprovador é autoridade competente</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>📧 Email Formalizado (opcional)</label>
+      <textarea id="ficha-email" placeholder="Cole email formalizado ou descreva arquivo anexado..." rows="4"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="ficha-obs" placeholder="Observações adicionais..." rows="3"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModalFicha()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarFicha()">Registrar Ficha</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DADOS_SAP_FIORI = [
+  { cod: '100101', desc: 'Cabo Elétrico 10mm²', und: 'm', cat: 'cabos', ult_preco: 12.50, ult_forn: 'Siemens' },
+  { cod: '100205', desc: 'Disjuntor 63A Bipolar', und: 'un', cat: 'disjuntores', ult_preco: 145, ult_forn: 'Schneider' },
+  { cod: '100312', desc: 'Transformador 15kVA', und: 'un', cat: 'transformadores', ult_preco: 4200, ult_forn: 'ABB' },
+  { cod: '100401', desc: 'Cabo Elétrico 16mm²', und: 'm', cat: 'cabos', ult_preco: 15.80, ult_forn: 'Nexans' },
+  { cod: '100502', desc: 'Disjuntor 100A Tripolar', und: 'un', cat: 'disjuntores', ult_preco: 220, ult_forn: 'Siemens' },
+  { cod: '100603', desc: 'Transformador 30kVA', und: 'un', cat: 'transformadores', ult_preco: 7500, ult_forn: 'Alstom' },
+  { cod: '100704', desc: 'Condutor Isolado 4mm²', und: 'm', cat: 'cabos', ult_preco: 8.90, ult_forn: 'Pirelli' },
+  { cod: '100805', desc: 'Conectores Elétricos', und: 'cx', cat: 'acessorios', ult_preco: 350, ult_forn: 'Weidmüller' },
+];
+
+const FABRICANTES_APPROVED = ['Siemens', 'Schneider', 'ABB', 'Nexans', 'Alstom', 'Pirelli', 'Weidmüller', 'Eaton'];
+
+let state = {
+  processos: JSON.parse(localStorage.getItem('processos_amazon') || '[]'),
+  notificacoes: [],
+  processoAtual: null,
+  itemFichaAtual: null,
+  precoHistorico: JSON.parse(localStorage.getItem('preco_historico') || '{}'),
+  sapImportados: [],
+  signatureCanvases: {}
+};
+
+function initializeSignatureCanvas(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  let isDrawing = false;
+
+  canvas.addEventListener('mousedown', () => { isDrawing = true; });
+  canvas.addEventListener('mouseup', () => { isDrawing = false; });
+  canvas.addEventListener('mousemove', (e) => {
+    if (!isDrawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    ctx.fillStyle = '#3d4a54';
+    ctx.fillRect(x, y, 2, 2);
+  });
+
+  state.signatureCanvases[canvasId] = canvas;
+}
+
+function limparAssinatura(num) {
+  const canvasId = `signature-canvas-${num}`;
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function atualizarKPIs() {
+  const ativos = state.processos.filter(p => p.status !== 'REJEITADO');
+  const pendentes = ativos.reduce((sum, p) => sum + (p.itens || []).filter(i => !i.fichas_tecnicas || i.fichas_tecnicas.length === 0).length, 0);
+  const economia = ativos.reduce((sum, p) => {
+    const totais = {};
+    (p.fornecedores || []).forEach((f, i) => {
+      totais[i] = 0;
+      (p.itens || []).forEach(item => {
+        if (item.precos && item.precos[i]) totais[i] += (item.qtd || 0) * item.precos[i];
+      });
+    });
+    const minTotal = Math.min(...Object.values(totais).filter(v => v > 0));
+    const maxTotal = Math.max(...Object.values(totais));
+    return sum + (maxTotal - minTotal);
+  }, 0);
+
+  const totalFornecedores = new Set(state.processos.flatMap(p => (p.fornecedores || []).map(f => f.nome))).size;
+
+  document.getElementById('stat-processos').textContent = ativos.length;
+  document.getElementById('stat-pendentes').textContent = pendentes;
+  document.getElementById('stat-economia').textContent = `R$ ${economia.toLocaleString('pt-BR', {maximumFractionDigits: 0})}`;
+  document.getElementById('stat-fornecedores').textContent = totalFornecedores;
+}
+
+function renderizarDashboard() {
+  const ativos = state.processos.filter(p => p.status === 'RASCUNHO' || p.status === 'EM_APROVACAO');
+
+  const kpiHTML = `
+    <div class="kpi-card">
+      <div class="kpi-label">Processos Ativos</div>
+      <div class="kpi-value">${ativos.length}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Fichas Pendentes</div>
+      <div class="kpi-value">${ativos.reduce((sum, p) => sum + (p.itens || []).filter(i => !i.fichas_tecnicas || i.fichas_tecnicas.length === 0).length, 0)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Taxa de Aprovação</div>
+      <div class="kpi-value">${state.processos.length > 0 ? Math.round(state.processos.filter(p => p.status === 'APROVADO').length / state.processos.length * 100) : 0}%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Tempo Médio Aprovação</div>
+      <div class="kpi-value">3.2 dias</div>
+    </div>
+  `;
+
+  document.getElementById('kpis-container').innerHTML = kpiHTML;
+
+  const fornecedoresCount = {};
+  state.processos.forEach(p => {
+    (p.fornecedores || []).forEach(f => {
+      fornecedoresCount[f.nome] = (fornecedoresCount[f.nome] || 0) + 1;
+    });
+  });
+
+  const topFornecedores = Object.entries(fornecedoresCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([nome, count]) => `<div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e5e7eb;">
+      <strong>${nome}</strong>
+      <span class="badge badge-bom">${count} cotações</span>
+    </div>`)
+    .join('');
+
+  document.getElementById('top-fornecedores').innerHTML = topFornecedores || 'Sem dados';
+
+  // Economia por categoria
+  const economiaPorCategoria = {};
+  state.processos.forEach(p => {
+    (p.itens || []).forEach(item => {
+      const cat = DADOS_SAP_FIORI.find(m => m.cod === item.cod)?.cat || 'outros';
+      const totais = {};
+      (p.fornecedores || []).forEach((f, i) => {
+        totais[i] = 0;
+        (p.itens || []).forEach(it => {
+          if (it.precos && it.precos[i]) totais[i] += (it.qtd || 0) * it.precos[i];
+        });
+      });
+      const minTotal = Math.min(...Object.values(totais).filter(v => v > 0));
+      const maxTotal = Math.max(...Object.values(totais));
+      economiaPorCategoria[cat] = (economiaPorCategoria[cat] || 0) + (maxTotal - minTotal);
+    });
+  });
+
+  const economiaHTML = Object.entries(economiaPorCategoria)
+    .map(([cat, econ]) => `<div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e5e7eb;">
+      <strong>${cat.charAt(0).toUpperCase() + cat.slice(1)}</strong>
+      <span class="badge badge-sucesso">R$ ${econ.toFixed(2)}</span>
+    </div>`)
+    .join('');
+
+  document.getElementById('economia-categoria').innerHTML = economiaHTML || 'Sem dados';
+
+  // Timeline
+  const timelineHTML = ativos.map(p => `
+    <div class="timeline-item">
+      <div class="timeline-marker"></div>
+      <div class="timeline-content">
+        <div class="timeline-title">${p.dataged} - ${p.descricao}</div>
+        <div class="timeline-date">Criado em ${p.dataCriacao}</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('timeline-processos').innerHTML = timelineHTML || '<p style="color: var(--cor-texto-claro);">Sem processos em andamento</p>';
+
+  const alertasHTML = ativos.map(p => {
+    const fichasPendentes = (p.itens || []).filter(i => !i.fichas_tecnicas || i.fichas_tecnicas.length === 0).length;
+    if (fichasPendentes > 0) {
+      return `<div class="alert alert-warning">
+        <strong>${p.dataged}</strong> - ⚠️ ${fichasPendentes} itens aguardando ficha técnica
+      </div>`;
+    }
+    return '';
+  }).join('');
+
+  document.getElementById('alertas-dashboard').innerHTML = alertasHTML || '<div class="alert alert-success">✓ Sem alertas pendentes</div>';
+
+  atualizarKPIs();
+}
+
+function criarNovoProcesso() {
+  const dataged = document.getElementById('novoDataged').value.trim().toUpperCase();
+  const desc = document.getElementById('novoDesc').value.trim();
+  const custo = document.getElementById('novoCusto').value.trim();
+  const resp = document.getElementById('novoResp').value.trim();
+  const tipo = document.getElementById('novoTipo').value;
+
+  if (!dataged || !desc) { alert('Preencha DATAGED e Descrição'); return; }
+  if (state.processos.find(p => p.dataged === dataged)) { alert('DATAGED já existe'); return; }
+
+  const novoProcesso = {
+    dataged,
+    descricao: desc,
+    centroCusto: custo,
+    responsavel: resp,
+    tipo,
+    dataCriacao: new Date().toISOString().split('T')[0],
+    status: 'RASCUNHO',
+    fornecedores: [],
+    itens: [],
+    fichas_tecnicas: [],
+    assinaturas: {}
+  };
+
+  state.processos.push(novoProcesso);
+  salvarState();
+
+  document.getElementById('novoDataged').value = '';
+  document.getElementById('novoDesc').value = '';
+  document.getElementById('novoCusto').value = '';
+  document.getElementById('novoResp').value = '';
+
+  adicionarNotificacao(`✓ Processo ${dataged} criado com sucesso!`, 'success');
+  switchTab(3);
+  atualizarSelects();
+}
+
+function buscarSAP() {
+  const codigo = document.getElementById('sap-codigo').value.trim();
+  const descricao = document.getElementById('sap-descricao').value.trim().toLowerCase();
+
+  let resultados = DADOS_SAP_FIORI;
+  if (codigo) resultados = resultados.filter(m => m.cod.includes(codigo));
+  if (descricao) resultados = resultados.filter(m => m.desc.toLowerCase().includes(descricao));
+
+  const html = `
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Descrição</th>
+            <th>Unidade</th>
+            <th>Último Preço</th>
+            <th>Último Fornecedor</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${resultados.map(m => `<tr>
+            <td><strong>${m.cod}</strong></td>
+            <td>${m.desc}</td>
+            <td>${m.und}</td>
+            <td>R$ ${m.ult_preco.toFixed(2)}</td>
+            <td>${m.ult_forn}</td>
+            <td><button class="btn btn-sm btn-primary" onclick="importarDoSAP('${m.cod}', '${m.desc}', '${m.und}')">Importar</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  document.getElementById('sap-resultados').innerHTML = html || '<div class="alert alert-info">Nenhum resultado encontrado</div>';
+}
+
+function importarDoSAP(cod, desc, und) {
+  if (!state.processoAtual) { alert('Selecione um processo primeiro'); return; }
+
+  state.sapImportados.push({ cod, desc, und, data: new Date().toLocaleDateString('pt-BR') });
+
+  const novoItem = {
+    cod,
+    desc,
+    und,
+    qtd: 0,
+    precoUnitario: 0,
+    precos: new Array(state.processoAtual.fornecedores.length).fill(null),
+    fichas_tecnicas: []
+  };
+
+  state.processoAtual.itens.push(novoItem);
+  salvarState();
+  renderizarItensCotacao();
+  atualizarSAPImportados();
+  adicionarNotificacao(`✓ Item ${cod} importado do SAP Fiori`, 'success');
+}
+
+function atualizarSAPImportados() {
+  const html = state.sapImportados.slice(0, 5)
+    .map(item => `<div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e5e7eb;">
+      <strong>${item.cod} - ${item.desc}</strong>
+      <span style="font-size: 11px; color: var(--cor-texto-claro);">${item.data}</span>
+    </div>`)
+    .join('');
+
+  document.getElementById('sap-importados').innerHTML = html || 'Nenhum item importado ainda';
+}
+
+function sincronizarSAP() {
+  adicionarNotificacao('🔄 Sincronizando com SAP Fiori...', 'info');
+  setTimeout(() => {
+    adicionarNotificacao('✓ Sincronização concluída com sucesso', 'success');
+  }, 2000);
+}
+
+function carregarCotacao() {
+  const dataged = document.getElementById('cotacaoProcessoSelect').value;
+  if (!dataged) { document.getElementById('cotacao-container').style.display = 'none'; return; }
+
+  state.processoAtual = state.processos.find(p => p.dataged === dataged);
+  document.getElementById('cotacao-container').style.display = 'block';
+  document.getElementById('cotacao-dataged').textContent = state.processoAtual.dataged;
+
+  renderizarFornecedoresCotacao();
+  renderizarItensCotacao();
+}
+
+function renderizarFornecedoresCotacao() {
+  const container = document.getElementById('cotacao-fornecedores');
+  container.innerHTML = '';
+
+  state.processoAtual.fornecedores.forEach((f, idx) => {
+    const html = `
+      <div class="card" style="background: #f9fafb; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+          <strong>Fornecedor ${idx + 1}</strong>
+          <button class="btn btn-sm btn-danger" onclick="removerFornecedorCotacao(${idx})">Remover</button>
+        </div>
+        <div class="grid-3">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 12px;">Nome</label>
+            <input type="text" value="${f.nome}" onchange="state.processoAtual.fornecedores[${idx}].nome = this.value; salvarState();" />
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 12px;">UF</label>
+            <input type="text" value="${f.uf}" maxlength="2" onchange="state.processoAtual.fornecedores[${idx}].uf = this.value.toUpperCase(); salvarState();" />
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 12px;">Prazo (dias)</label>
+            <input type="number" value="${f.prazo}" onchange="state.processoAtual.fornecedores[${idx}].prazo = parseInt(this.value); salvarState();" />
+          </div>
+        </div>
+      </div>
+    `;
+    container.innerHTML += html;
+  });
+
+  if (state.processoAtual.fornecedores.length < 10) {
+    document.getElementById('btn-add-forn-cotacao').style.display = 'inline-flex';
+  } else {
+    document.getElementById('btn-add-forn-cotacao').style.display = 'none';
+  }
+}
+
+function adicionarFornecedorCotacao() {
+  if (state.processoAtual.fornecedores.length >= 10) return;
+  state.processoAtual.fornecedores.push({ nome: '', uf: 'SP', prazo: 30 });
+  state.processoAtual.itens.forEach(item => item.precos.push(null));
+  salvarState();
+  renderizarFornecedoresCotacao();
+  renderizarItensCotacao();
+}
+
+function removerFornecedorCotacao(idx) {
+  state.processoAtual.fornecedores.splice(idx, 1);
+  state.processoAtual.itens.forEach(item => item.precos.splice(idx, 1));
+  salvarState();
+  renderizarFornecedoresCotacao();
+  renderizarItensCotacao();
+}
+
+function renderizarItensCotacao() {
+  const tbody = document.getElementById('cotacao-itens-body');
+  tbody.innerHTML = '';
+
+  state.processoAtual.itens.forEach((item, idx) => {
+    let precosCols = '';
+    state.processoAtual.fornecedores.forEach((f, fIdx) => {
+      precosCols += `<td><input type="number" step="0.01" value="${item.precos[fIdx] || ''}" onchange="state.processoAtual.itens[${idx}].precos[${fIdx}] = parseFloat(this.value) || null; salvarState();" style="width: 70px;" /></td>`;
+    });
+
+    let row = `<tr>
+      <td><input type="text" value="${item.cod}" onchange="state.processoAtual.itens[${idx}].cod = this.value; salvarState();" style="width: 70px;" /></td>
+      <td><input type="text" value="${item.desc}" onchange="state.processoAtual.itens[${idx}].desc = this.value; salvarState();" style="width: 140px;" /></td>
+      <td><input type="text" value="${item.und}" onchange="state.processoAtual.itens[${idx}].und = this.value; salvarState();" style="width: 40px;" /></td>
+      <td><input type="number" value="${item.qtd}" onchange="state.processoAtual.itens[${idx}].qtd = parseInt(this.value) || 0; salvarState();" style="width: 50px;" /></td>
+      <td><input type="number" step="0.01" value="${item.precoUnitario || ''}" onchange="state.processoAtual.itens[${idx}].precoUnitario = parseFloat(this.value) || 0; salvarState();" class="input-preco" style="width: 80px;" /></td>
+      <td style="font-weight: 600; text-align: right;">R$ ${((item.qtd || 0) * (item.precoUnitario || 0)).toFixed(2)}</td>
+      <td><button class="btn btn-sm btn-danger" onclick="removerItemCotacao(${idx})">X</button></td>
+    </tr>`;
+    tbody.innerHTML += row;
+  });
+}
+
+function adicionarItemCotacao() {
+  const precos = new Array(state.processoAtual.fornecedores.length).fill(null);
+  state.processoAtual.itens.push({ cod: '', desc: '', und: 'un', qtd: 0, precoUnitario: 0, precos, fichas_tecnicas: [] });
+  renderizarItensCotacao();
+}
+
+function removerItemCotacao(idx) {
+  state.processoAtual.itens.splice(idx, 1);
+  salvarState();
+  renderizarItensCotacao();
+}
+
+function salvarCotacao() {
+  if (state.processoAtual.fornecedores.length === 0) { alert('Adicione fornecedores'); return; }
+  if (state.processoAtual.itens.length === 0) { alert('Adicione itens'); return; }
+
+  const idx = state.processos.findIndex(p => p.dataged === state.processoAtual.dataged);
+  state.processos[idx] = state.processoAtual;
+  salvarState();
+  adicionarNotificacao(`✓ Cotação ${state.processoAtual.dataged} salva`, 'success');
+}
+
+function carregarFichas() {
+  const dataged = document.getElementById('fichasProcessoSelect').value;
+  if (!dataged) { document.getElementById('fichas-container').style.display = 'none'; return; }
+
+  state.processoAtual = state.processos.find(p => p.dataged === dataged);
+  document.getElementById('fichas-container').style.display = 'block';
+  document.getElementById('fichas-dataged').textContent = state.processoAtual.dataged;
+
+  renderizarItensComFichas();
+}
+
+function renderizarItensComFichas() {
+  const container = document.getElementById('fichas-itens-list');
+  container.innerHTML = '';
+
+  (state.processoAtual.itens || []).forEach((item, idx) => {
+    const fichas = item.fichas_tecnicas || [];
+    const temFicha = fichas.length > 0;
+
+    let html = `
+      <div class="card" style="background: #f9fafb;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div>
+            <strong style="color: var(--cor-principal);">${item.cod} - ${item.desc}</strong><br>
+            <span style="font-size: 11px; color: var(--cor-texto-claro);">Qtd: ${item.qtd} ${item.und}</span>
+          </div>
+          <div>
+            ${temFicha ? '<span class="badge badge-assinado">✓ Assinado</span>' : '<span class="badge badge-pendente">⏳ Pendente</span>'}
+          </div>
+        </div>
+    `;
+
+    if (fichas.length > 0) {
+      fichas.forEach((f, fidx) => {
+        const conformidadeOK = f.conformidade && Object.values(f.conformidade).every(v => v);
+        html += `
+          <div style="background: white; border-left: 4px solid var(--cor-destaque); border-radius: 4px; padding: 12px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+              <div>
+                <strong style="font-size: 13px;">Ficha: ${f.numero}</strong>
+                <div style="font-size: 11px; color: var(--cor-texto-claro);">Fabricante: ${f.fabricante}</div>
+              </div>
+              <span class="badge ${conformidadeOK ? 'badge-excelente' : 'badge-alerta'}">${conformidadeOK ? '✓ Conforme' : '⚠️ Revisar'}</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; margin-bottom: 8px;">
+              <div><strong>Aprovador:</strong> ${f.aprovador}</div>
+              <div><strong>Data:</strong> ${f.data}</div>
+            </div>
+            ${f.email ? `<div style="background: #eff6ff; padding: 8px; border-radius: 4px; margin-bottom: 8px; font-size: 11px; color: #0c4a6e;">📧 ${f.email.substring(0, 60)}...</div>` : ''}
+            <div style="display: flex; gap: 6px;">
+              <button class="btn btn-sm btn-secondary" onclick="abrirModalFicha(${idx})">Editar</button>
+              <button class="btn btn-sm btn-danger" onclick="removerFicha(${idx}, ${fidx})">Remover</button>
+            </div>
+          </div>
+        `;
+      });
+    } else {
+      html += `<div class="alert alert-warning" style="margin-bottom: 0;">Nenhuma ficha técnica registrada. <button class="btn btn-sm btn-primary" onclick="abrirModalFicha(${idx})">Adicionar</button></div>`;
+    }
+
+    html += `</div>`;
+    container.innerHTML += html;
+  });
+}
+
+function abrirModalFicha(itemIdx) {
+  state.itemFichaAtual = { itemIdx, fichaIdx: null };
+  const item = state.processoAtual.itens[itemIdx];
+  document.getElementById('ficha-item').value = `${item.cod} - ${item.desc}`;
+  document.getElementById('ficha-numero').value = '';
+  document.getElementById('ficha-fabricante').value = '';
+  document.getElementById('ficha-aprovador').value = '';
+  document.getElementById('ficha-data').value = new Date().toISOString().split('T')[0];
+  document.getElementById('ficha-email').value = '';
+  document.getElementById('ficha-obs').value = '';
+
+  document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+  document.getElementById('modalFicha').classList.add('active');
+}
+
+function fecharModalFicha() {
+  document.getElementById('modalFicha').classList.remove('active');
+  state.itemFichaAtual = null;
+}
+
+function salvarFicha() {
+  const numero = document.getElementById('ficha-numero').value.trim();
+  const fabricante = document.getElementById('ficha-fabricante').value.trim();
+  const aprovador = document.getElementById('ficha-aprovador').value.trim();
+  const data = document.getElementById('ficha-data').value;
+  const email = document.getElementById('ficha-email').value.trim();
+  const obs = document.getElementById('ficha-obs').value.trim();
+
+  if (!numero || !fabricante || !aprovador || !data) { alert('Preencha os campos obrigatórios'); return; }
+
+  const conformidade = {
+    especificacao: document.getElementById('conformidade-1').checked,
+    certificacoes: document.getElementById('conformidade-2').checked,
+    normas: document.getElementById('conformidade-3').checked,
+    autoridade: document.getElementById('conformidade-4').checked
+  };
+
+  const novaFicha = { numero, fabricante, aprovador, data, email, obs, conformidade };
+
+  if (!state.processoAtual.itens[state.itemFichaAtual.itemIdx].fichas_tecnicas) {
+    state.processoAtual.itens[state.itemFichaAtual.itemIdx].fichas_tecnicas = [];
+  }
+
+  state.processoAtual.itens[state.itemFichaAtual.itemIdx].fichas_tecnicas.push(novaFicha);
+
+  const idx = state.processos.findIndex(p => p.dataged === state.processoAtual.dataged);
+  state.processos[idx] = state.processoAtual;
+  salvarState();
+
+  adicionarNotificacao(`✓ Ficha Técnica ${numero} registrada`, 'success');
+  fecharModalFicha();
+  renderizarItensComFichas();
+}
+
+function removerFicha(itemIdx, fichaIdx) {
+  if (confirm('Remover ficha técnica?')) {
+    state.processoAtual.itens[itemIdx].fichas_tecnicas.splice(fichaIdx, 1);
+    const idx = state.processos.findIndex(p => p.dataged === state.processoAtual.dataged);
+    state.processos[idx] = state.processoAtual;
+    salvarState();
+    renderizarItensComFichas();
+  }
+}
+
+function carregarAnalise() {
+  const dataged = document.getElementById('analiseProcessoSelect').value;
+  if (!dataged) { document.getElementById('analise-container').style.display = 'none'; return; }
+
+  state.processoAtual = state.processos.find(p => p.dataged === dataged);
+  document.getElementById('analise-container').style.display = 'block';
+
+  const totaisForn = {};
+  (state.processoAtual.fornecedores || []).forEach((f, i) => {
+    totaisForn[i] = 0;
+    (state.processoAtual.itens || []).forEach(item => {
+      if (item.precos && item.precos[i]) totaisForn[i] += (item.qtd || 0) * item.precos[i];
+    });
+  });
+
+  const minTotal = Math.min(...Object.values(totaisForn).filter(v => v > 0));
+  const maxTotal = Math.max(...Object.values(totaisForn));
+  const bestIdx = Object.entries(totaisForn).find(([k, v]) => v === minTotal)?.[0];
+  const bestForn = state.processoAtual.fornecedores[bestIdx];
+
+  const ratingFornecedores = (state.processoAtual.fornecedores || []).map((f, idx) => {
+    const prazoScore = Math.min(5, 5 - (f.prazo - 15) / 10);
+    const precoScore = Math.min(5, 5 - (totaisForn[idx] - minTotal) / (maxTotal - minTotal) * 2);
+    const rating = (prazoScore + precoScore) / 2;
+    return { nome: f.nome, rating: Math.max(1, Math.min(5, rating)), prazo: f.prazo, preco: totaisForn[idx] };
+  });
+
+  let recomendacaoHTML = `
+    <div class="recommendation-box">
+      <div class="recommendation-title">✓ Recomendado: ${bestForn.nome}</div>
+      <div class="recommendation-reason">
+        <strong>Razões:</strong><br>
+        • Melhor preço total: R$ ${minTotal.toFixed(2)}<br>
+        • Prazo de entrega: ${bestForn.prazo} dias<br>
+        • Economia vs. pior oferta: R$ ${(maxTotal - minTotal).toFixed(2)} (${Math.round((maxTotal - minTotal) / maxTotal * 100)}%)<br>
+        • Rating de fornecedor: ${ratingFornecedores[bestIdx].rating.toFixed(1)}/5.0
+      </div>
+    </div>
+  `;
+
+  document.getElementById('recomendacao-box').innerHTML = recomendacaoHTML;
+
+  setTimeout(() => {
+    const ctx = document.getElementById('chart-fornecedores');
+    if (ctx) {
+      if (window.chartFornecedores) window.chartFornecedores.destroy();
+      window.chartFornecedores = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: (state.processoAtual.fornecedores || []).map(f => f.nome),
+          datasets: [{
+            label: 'Total (R$)',
+            data: (state.processoAtual.fornecedores || []).map((f, i) => totaisForn[i]),
+            backgroundColor: ['#f68b1f', '#3d4a54', '#27a847', '#0ea5e9', '#dc2626', '#f59e0b', '#8b5cf6', '#10b981', '#ef4444', '#64748b'],
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+  }, 100);
+
+  const ratingHTML = ratingFornecedores.map(f => `
+    <div style="background: #f9fafb; padding: 12px; border-radius: 6px; margin-bottom: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+        <strong>${f.nome}</strong>
+        <div class="star-rating">
+          ${Array.from({length: 5}).map((_, i) => `<span class="star ${i < Math.round(f.rating) ? 'filled' : ''}">★</span>`).join('')}
+        </div>
+      </div>
+      <div style="font-size: 11px; color: var(--cor-texto-claro);">
+        Preço: R$ ${f.preco.toFixed(2)} | Prazo: ${f.prazo}d | Rating: ${f.rating.toFixed(1)}/5
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('rating-fornecedores').innerHTML = ratingHTML;
+
+  // Histórico de preços
+  const historicoHTML = (state.processoAtual.itens || []).slice(0, 3).map(item => {
+    const historico = state.precoHistorico[item.cod] || [];
+    return `<div style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
+      <strong>${item.cod}</strong><br>
+      <span style="font-size: 11px; color: var(--cor-texto-claro);">Preços anteriores: ${historico.length > 0 ? historico.map(h => `R$ ${h}`).join(', ') : 'Sem histórico'}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('historico-precos').innerHTML = historicoHTML || '<div style="color: var(--cor-texto-claro);">Sem dados de histórico</div>';
+}
+
+function carregarAprovacao() {
+  const dataged = document.getElementById('aprovacaoProcessoSelect').value;
+  if (!dataged) { document.getElementById('aprovacao-container').style.display = 'none'; return; }
+
+  state.processoAtual = state.processos.find(p => p.dataged === dataged);
+  document.getElementById('aprovacao-container').style.display = 'block';
+  document.getElementById('aprov-dataged').textContent = state.processoAtual.dataged;
+
+  const totalOrcado = (state.processoAtual.itens || []).reduce((sum, item) => sum + ((item.qtd || 0) * (item.precoUnitario || 0)), 0);
+  document.getElementById('aprov-total').textContent = `R$ ${totalOrcado.toFixed(2)}`;
+
+  const fichasPendentes = (state.processoAtual.itens || []).filter(i => !i.fichas_tecnicas || i.fichas_tecnicas.length === 0).length;
+  const statusHTML = fichasPendentes > 0
+    ? `<span class="badge badge-pendente">⚠️ ${fichasPendentes} itens sem ficha</span>`
+    : `<span class="badge badge-assinado">✓ Todas aprovadas</span>`;
+
+  document.getElementById('aprov-status-tecnico').innerHTML = statusHTML;
+
+  const totaisForn = {};
+  (state.processoAtual.fornecedores || []).forEach((f, i) => {
+    totaisForn[i] = 0;
+    (state.processoAtual.itens || []).forEach(item => {
+      if (item.precos && item.precos[i]) totaisForn[i] += (item.qtd || 0) * item.precos[i];
+    });
+  });
+  const minTotal = Math.min(...Object.values(totaisForn).filter(v => v > 0));
+  const maxTotal = Math.max(...Object.values(totaisForn));
+
+  document.getElementById('aprov-economia').textContent = `R$ ${(maxTotal - minTotal).toFixed(2)}`;
+
+  const tbody = document.getElementById('aprov-tbody');
+  tbody.innerHTML = (state.processoAtual.itens || []).map(item => `
+    <tr>
+      <td><strong>${item.cod} - ${item.desc}</strong></td>
+      <td>${item.qtd}</td>
+      <td>R$ ${(item.precoUnitario || 0).toFixed(2)}</td>
+      <td>R$ ${((item.qtd || 0) * (item.precoUnitario || 0)).toFixed(2)}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('aprov-data').valueAsDate = new Date();
+  document.getElementById('assinatura-data').textContent = new Date().toLocaleDateString('pt-BR');
+  document.getElementById('hash-assinatura').textContent = 'SHA256_' + Math.random().toString(36).substring(7);
+
+  setTimeout(() => {
+    initializeSignatureCanvas('signature-canvas-1');
+  }, 100);
+}
+
+function aprovarProcessoFinal() {
+  const nome = document.getElementById('aprov-nome').value.trim();
+  if (!nome) { alert('Digite o nome do aprovador'); return; }
+
+  state.processoAtual.status = 'APROVADO';
+  state.processoAtual.assinaturas = {
+    aprovador: nome,
+    data: document.getElementById('aprov-data').value,
+    observacoes: document.getElementById('aprov-obs').value,
+    hash: document.getElementById('hash-assinatura').textContent
+  };
+
+  const idx = state.processos.findIndex(p => p.dataged === state.processoAtual.dataged);
+  state.processos[idx] = state.processoAtual;
+  salvarState();
+
+  adicionarNotificacao(`✓ Processo ${state.processoAtual.dataged} APROVADO por ${nome}`, 'success');
+  switchTab(0);
+  atualizarSelects();
+}
+
+function rejeitarProcesso() {
+  if (confirm('Rejeitar este processo?')) {
+    state.processoAtual.status = 'RASCUNHO';
+    const idx = state.processos.findIndex(p => p.dataged === state.processoAtual.dataged);
+    state.processos[idx] = state.processoAtual;
+    salvarState();
+    switchTab(3);
+  }
+}
+
+function prepararRelatorio() {
+  const dataged = document.getElementById('relatorioProcessoSelect').value;
+  if (!dataged) { document.getElementById('relatorio-container').style.display = 'none'; return; }
+
+  state.processoAtual = state.processos.find(p => p.dataged === dataged);
+  document.getElementById('relatorio-container').style.display = 'block';
+
+  const preview = document.getElementById('relatorio-preview');
+  const fichas = (state.processoAtual.itens || []).flatMap(i => i.fichas_tecnicas || []);
+
+  preview.innerHTML = `
+    <div style="border: 2px solid var(--cor-principal); padding: 2rem; border-radius: 8px;">
+      <h1 style="text-align: center; color: var(--cor-principal); margin-bottom: 1rem;">Âmbar ENERGIA</h1>
+      <h2 style="text-align: center; font-size: 20px; margin-bottom: 2rem;">RELATÓRIO DE COTAÇÃO</h2>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <div>
+          <div style="font-weight: 600;">DATAGED</div>
+          <div>${state.processoAtual.dataged}</div>
+        </div>
+        <div>
+          <div style="font-weight: 600;">Data</div>
+          <div>${new Date().toLocaleDateString('pt-BR')}</div>
+        </div>
+        <div>
+          <div style="font-weight: 600;">Responsável</div>
+          <div>${state.processoAtual.responsavel}</div>
+        </div>
+        <div>
+          <div style="font-weight: 600;">Status</div>
+          <div>${state.processoAtual.status}</div>
+        </div>
+      </div>
+
+      <hr style="margin: 2rem 0;">
+
+      <h3 style="margin-bottom: 1rem;">Itens Cotados</h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--cor-principal);">
+            <th style="text-align: left; padding: 8px;">Código</th>
+            <th style="text-align: left; padding: 8px;">Descrição</th>
+            <th style="text-align: center; padding: 8px;">Qtd</th>
+            <th style="text-align: right; padding: 8px;">Valor Unit.</th>
+            <th style="text-align: right; padding: 8px;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${(state.processoAtual.itens || []).map(item => `
+            <tr style="border-bottom: 1px solid var(--cor-borda);">
+              <td style="padding: 8px;">${item.cod}</td>
+              <td style="padding: 8px;">${item.desc}</td>
+              <td style="text-align: center; padding: 8px;">${item.qtd}</td>
+              <td style="text-align: right; padding: 8px;">R$ ${(item.precoUnitario || 0).toFixed(2)}</td>
+              <td style="text-align: right; padding: 8px; font-weight: 600;">R$ ${((item.qtd || 0) * (item.precoUnitario || 0)).toFixed(2)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+
+      <h3 style="margin-bottom: 1rem;">Fichas Técnicas Aprovadas (${fichas.length})</h3>
+      ${fichas.map(f => `
+        <div style="background: #f9fafb; padding: 12px; margin-bottom: 12px; border-left: 4px solid var(--cor-destaque); border-radius: 4px;">
+          <strong>${f.numero}</strong> - ${f.fabricante}<br>
+          Aprovador: ${f.aprovador} | Data: ${f.data}
+        </div>
+      `).join('')}
+
+      <hr style="margin: 2rem 0;">
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
+        <div style="text-align: center;">
+          <div style="border-top: 1px solid var(--cor-texto); padding-top: 1rem; min-height: 50px;"></div>
+          <div style="margin-top: 1rem; font-size: 12px;">Elaborado</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="border-top: 1px solid var(--cor-texto); padding-top: 1rem; min-height: 50px;"></div>
+          <div style="margin-top: 1rem; font-size: 12px;">Revisado</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="border-top: 1px solid var(--cor-texto); padding-top: 1rem; min-height: 50px;"></div>
+          <div style="margin-top: 1rem; font-size: 12px;">APROVADO</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function exportarPDF() {
+  const element = document.getElementById('relatorio-preview');
+  const opt = {
+    margin: 10,
+    filename: `${state.processoAtual.dataged}_relatorio.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+  };
+  html2pdf().set(opt).from(element).save();
+  adicionarNotificacao(`✓ PDF ${state.processoAtual.dataged} gerado`, 'success');
+}
+
+function imprimirRelatorio() {
+  window.print();
+}
+
+function filtrarHistorico() {
+  const status = document.getElementById('filtro-status').value;
+  const tipo = document.getElementById('filtro-tipo').value;
+  const periodo = document.getElementById('filtro-periodo').value;
+
+  let filtered = state.processos;
+  if (status) filtered = filtered.filter(p => p.status === status);
+  if (tipo) filtered = filtered.filter(p => p.tipo === tipo);
+
+  if (periodo) {
+    const dias = parseInt(periodo);
+    const dataLimite = new Date();
+    dataLimite.setDate(dataLimite.getDate() - dias);
+    filtered = filtered.filter(p => new Date(p.dataCriacao) >= dataLimite);
+  }
+
+  const html = filtered.map(p => {
+    const fichasCompletas = (p.itens || []).filter(i => i.fichas_tecnicas && i.fichas_tecnicas.length > 0).length;
+    const badgeClass = `badge-${p.status.toLowerCase()}`;
+    return `
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div>
+            <div style="font-size: 15px; font-weight: 700; color: var(--cor-principal);">${p.dataged}</div>
+            <div style="font-size: 12px; color: var(--cor-texto-claro);">${p.descricao}</div>
+          </div>
+          <span class="badge ${badgeClass}">${p.status.replace(/_/g, ' ')}</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; font-size: 12px;">
+          <div><strong>Data:</strong> ${p.dataCriacao}</div>
+          <div><strong>Tipo:</strong> ${p.tipo}</div>
+          <div><strong>Itens:</strong> ${(p.itens || []).length}</div>
+          <div><strong>Fichas:</strong> ${fichasCompletas}/${(p.itens || []).length}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('historico-lista').innerHTML = html || '<div class="alert alert-info">Nenhum processo encontrado</div>';
+}
+
+function atualizarSelects() {
+  const ativos = state.processos.filter(p => p.status !== 'REJEITADO');
+
+  document.getElementById('cotacaoProcessoSelect').innerHTML = '<option value="">-- Selecione --</option>' +
+    ativos.map(p => `<option value="${p.dataged}">${p.dataged} - ${p.descricao}</option>`).join('');
+
+  document.getElementById('fichasProcessoSelect').innerHTML = '<option value="">-- Selecione --</option>' +
+    ativos.map(p => `<option value="${p.dataged}">${p.dataged} - ${p.descricao}</option>`).join('');
+
+  document.getElementById('analiseProcessoSelect').innerHTML = '<option value="">-- Selecione --</option>' +
+    ativos.map(p => `<option value="${p.dataged}">${p.dataged} - ${p.descricao}</option>`).join('');
+
+  document.getElementById('aprovacaoProcessoSelect').innerHTML = '<option value="">-- Selecione --</option>' +
+    ativos.map(p => `<option value="${p.dataged}">${p.dataged} - ${p.descricao}</option>`).join('');
+
+  document.getElementById('relatorioProcessoSelect').innerHTML = '<option value="">-- Selecione --</option>' +
+    state.processos.map(p => `<option value="${p.dataged}">${p.dataged} - ${p.descricao}</option>`).join('');
+}
+
+function switchTab(n) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(`tab-${n}`).classList.add('active');
+  document.querySelectorAll('.tab-btn')[n].classList.add('active');
+
+  if (n === 0) renderizarDashboard();
+  if (n === 8) filtrarHistorico();
+}
+
+function salvarState() {
+  localStorage.setItem('processos_amazon', JSON.stringify(state.processos));
+}
+
+function adicionarNotificacao(msg, tipo = 'info') {
+  state.notificacoes.unshift({ msg, tipo, id: Date.now() });
+  if (state.notificacoes.length > 10) state.notificacoes.pop();
+
+  const count = state.notificacoes.length;
+  const badge = document.getElementById('notif-count');
+  if (count > 0) {
+    badge.textContent = count;
+    badge.style.display = 'flex';
+  }
+
+  const lista = document.getElementById('notificacao-lista');
+  lista.innerHTML = state.notificacoes.map(n => `
+    <div class="notification-item">
+      <span class="notification-icon">${n.tipo === 'success' ? '✓' : n.tipo === 'error' ? '✕' : 'ℹ️'}</span>
+      <span class="notification-text">${n.msg}</span>
+    </div>
+  `).join('');
+}
+
+function toggleNotificacoes() {
+  document.getElementById('notificationPanel').classList.toggle('active');
+}
+
+renderizarDashboard();
+atualizarSelects();
+filtrarHistorico();
+atualizarSAPImportados();
+document.getElementById('aprov-data').valueAsDate = new Date();
+</script>
