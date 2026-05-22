@@ -683,22 +683,14 @@ table tbody tr:hover { background: #f9fafb; }
         <div style="font-size: 24px; font-weight: 700;" id="cotacao-dataged"></div>
       </div>
 
-      <!-- SEÇÃO 1: FORNECEDORES -->
+      <!-- TABELA INTEGRADA: ITENS + FORNECEDORES + PREÇOS + TOTAIS -->
       <div class="card">
-        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">📋 Fornecedores (até 10)</h3>
-        <div id="cotacao-fornecedores-resumo" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;"></div>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <button class="btn btn-secondary" onclick="adicionarFornecedorCotacao()" id="btn-add-forn-cotacao">+ Adicionar Fornecedor</button>
-          <button class="btn btn-primary" onclick="renderizarMatrizCotacao()" style="margin-left: auto;">🔄 Atualizar Tabela</button>
-        </div>
-      </div>
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">💰 Cotação - Item × Fornecedor</h3>
 
-      <!-- SEÇÃO 2: MATRIZ DE PREÇOS (ITENS × FORNECEDORES) -->
-      <div class="card">
-        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">💰 Matriz de Preços - Item × Fornecedor</h3>
         <div style="display: flex; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap;">
-          <button class="btn btn-secondary" onclick="adicionarItemCotacao()">+ Adicionar Item</button>
-          <button class="btn btn-success" onclick="salvarCotacao()">💾 Salvar Cotação</button>
+          <button class="btn btn-secondary" onclick="adicionarItemCotacao()">+ Item</button>
+          <button class="btn btn-secondary" onclick="adicionarFornecedorCotacao()" id="btn-add-forn-cotacao">+ Fornecedor</button>
+          <button class="btn btn-success" onclick="salvarCotacao()" style="margin-left: auto;">💾 Salvar</button>
         </div>
 
         <div id="cotacao-matriz-container" style="overflow-x: auto; border: 1px solid var(--cor-borda); border-radius: 8px;"></div>
@@ -1291,81 +1283,61 @@ function carregarCotacao() {
   document.getElementById('cotacao-container').style.display = 'block';
   document.getElementById('cotacao-dataged').textContent = state.processoAtual.dataged;
 
-  renderizarFornecedoresCotacao();
   renderizarMatrizCotacao();
   atualizarTotaisCotacao();
 }
 
-function renderizarFornecedoresCotacao() {
-  // Resumo visual dos fornecedores
-  const resumoContainer = document.getElementById('cotacao-fornecedores-resumo');
-  resumoContainer.innerHTML = '';
-
-  state.processoAtual.fornecedores.forEach((f, idx) => {
-    const html = `
-      <div style="background: #f9fafb; border: 2px solid var(--cor-borda); border-radius: 8px; padding: 12px; position: relative;">
-        <button class="btn btn-sm btn-danger" onclick="removerFornecedorCotacao(${idx})" style="position: absolute; top: 8px; right: 8px;">✕</button>
-        <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--cor-principal); padding-right: 30px;">
-          F${idx + 1}: ${f.nome}
-        </div>
-        <div style="font-size: 11px; color: var(--cor-texto-claro); display: grid; gap: 4px;">
-          <div><strong>UF:</strong> ${f.uf}</div>
-          <div><strong>Prazo:</strong> ${f.prazo} dias</div>
-        </div>
-        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--cor-borda);">
-          <input type="text" placeholder="Nome" value="${f.nome}" onchange="state.processoAtual.fornecedores[${idx}].nome = this.value; salvarState(); renderizarFornecedoresCotacao();" style="width: 100%; margin-bottom: 4px; padding: 4px; font-size: 11px;"/>
-          <input type="text" placeholder="UF" value="${f.uf}" maxlength="2" onchange="state.processoAtual.fornecedores[${idx}].uf = this.value.toUpperCase(); salvarState(); renderizarFornecedoresCotacao();" style="width: 48%; margin-right: 2%; padding: 4px; font-size: 11px;"/>
-          <input type="number" placeholder="Prazo" value="${f.prazo}" onchange="state.processoAtual.fornecedores[${idx}].prazo = parseInt(this.value); salvarState();" style="width: 50%; padding: 4px; font-size: 11px;"/>
-        </div>
-      </div>
-    `;
-    resumoContainer.innerHTML += html;
-  });
-
-  if (state.processoAtual.fornecedores.length < 10) {
-    document.getElementById('btn-add-forn-cotacao').style.display = 'inline-flex';
-  } else {
-    document.getElementById('btn-add-forn-cotacao').style.display = 'none';
-  }
-}
 
 function renderizarMatrizCotacao() {
   const container = document.getElementById('cotacao-matriz-container');
 
-  if (state.processoAtual.fornecedores.length === 0) {
-    container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione fornecedores primeiro</div>';
-    return;
-  }
-
   if (state.processoAtual.itens.length === 0) {
-    container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione itens primeiro</div>';
+    container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione itens à cotação</div>';
     return;
   }
 
-  let html = `<table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-    <thead style="background: #f3f4f6; border-bottom: 2px solid var(--cor-borda);">
-      <tr>
-        <th style="padding: 10px; text-align: left; min-width: 200px; border-right: 2px solid var(--cor-borda);">
-          <strong>ITEM</strong>
-        </th>`;
+  if (state.processoAtual.fornecedores.length === 0) {
+    container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione fornecedores à cotação</div>';
+    return;
+  }
 
-  // Cabeçalho com fornecedores
+  let html = `<table style="width: 100%; border-collapse: collapse; font-size: 12px;">`;
+
+  // CABEÇALHO COM NOME, UF, PRAZO DOS FORNECEDORES
+  html += `<thead style="background: #f3f4f6; border-bottom: 2px solid var(--cor-borda);">
+    <tr>
+      <th style="padding: 10px; text-align: left; min-width: 180px; border-right: 2px solid var(--cor-borda);">
+        <strong>ITEM / QTD</strong>
+      </th>`;
+
   state.processoAtual.fornecedores.forEach((f, fIdx) => {
-    html += `<th style="padding: 10px; text-align: center; border-right: 1px solid var(--cor-borda); min-width: 120px;">
-      <div style="font-weight: 600; color: var(--cor-principal);">F${fIdx + 1}</div>
-      <div style="font-size: 10px; color: var(--cor-texto-claro);">${f.nome.substring(0, 15)}</div>
+    html += `<th style="padding: 10px; text-align: center; border-right: 1px solid var(--cor-borda); min-width: 160px; background: #e8f4f8; border: 1px solid #0ea5e9;">
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <input type="text" placeholder="Nome" value="${f.nome}"
+               onchange="state.processoAtual.fornecedores[${fIdx}].nome = this.value; salvarState(); renderizarMatrizCotacao(); atualizarTotaisCotacao();"
+               style="width: 95%; padding: 4px; border: 1px solid #0ea5e9; border-radius: 3px; font-weight: 600; text-align: center; font-size: 11px;" />
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+          <input type="text" placeholder="UF" value="${f.uf}" maxlength="2"
+                 onchange="state.processoAtual.fornecedores[${fIdx}].uf = this.value.toUpperCase(); salvarState();"
+                 style="padding: 3px; border: 1px solid #ccc; border-radius: 3px; text-align: center; font-size: 10px;" />
+          <input type="number" placeholder="Dias" value="${f.prazo}"
+                 onchange="state.processoAtual.fornecedores[${fIdx}].prazo = parseInt(this.value); salvarState();"
+                 style="padding: 3px; border: 1px solid #ccc; border-radius: 3px; text-align: center; font-size: 10px;" />
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="removerFornecedorCotacao(${fIdx})" style="padding: 3px 6px; font-size: 10px; margin-top: 2px;">✕ Remover</button>
+      </div>
     </th>`;
   });
 
-  html += `<th style="padding: 10px; text-align: center; min-width: 100px; background: #eff6ff;">
+  html += `<th style="padding: 10px; text-align: center; min-width: 100px; background: #eff6ff; border: 1px solid #0ea5e9;">
     <strong>TOTAL</strong>
   </th>
-  <th style="padding: 10px; text-align: center; min-width: 80px;">AÇÃO</th>
+  <th style="padding: 10px; text-align: center; min-width: 70px;">AÇÃO</th>
   </tr>
-    </thead>
-    <tbody>`;
+  </thead>
+  <tbody>`;
 
-  // Linhas com itens
+  // LINHAS COM ITENS E PREÇOS
   state.processoAtual.itens.forEach((item, itemIdx) => {
     const totaisPorForn = {};
     let temPrecosCompletos = true;
@@ -1377,39 +1349,43 @@ function renderizarMatrizCotacao() {
       if (!preco) temPrecosCompletos = false;
     });
 
+    const minTotal = Math.min(...Object.values(totaisPorForn).filter(v => v > 0));
     const totalItem = Object.values(totaisPorForn).reduce((a, b) => a + b, 0);
 
     html += `<tr style="border-bottom: 1px solid var(--cor-borda); background: ${itemIdx % 2 === 0 ? '#fafafa' : 'white'};">
-      <td style="padding: 10px; border-right: 2px solid var(--cor-borda); font-weight: 600;">
-        <div style="color: var(--cor-principal); font-weight: 700;">${item.cod}</div>
-        <div style="color: var(--cor-texto); font-size: 11px; margin: 4px 0;">${item.desc}</div>
+      <td style="padding: 12px; border-right: 2px solid var(--cor-borda); font-weight: 600; vertical-align: top;">
+        <div style="color: var(--cor-principal); font-weight: 700; margin-bottom: 4px;">${item.cod}</div>
+        <div style="color: var(--cor-texto); font-size: 11px; margin-bottom: 6px;">${item.desc}</div>
         <div style="color: var(--cor-texto-claro); font-size: 10px;">
-          Qtd: <strong>${item.qtd}</strong> ${item.und}
+          <input type="number" placeholder="Qtd" value="${item.qtd}"
+                 onchange="state.processoAtual.itens[${itemIdx}].qtd = parseInt(this.value) || 0; salvarState(); renderizarMatrizCotacao(); atualizarTotaisCotacao();"
+                 style="width: 60px; padding: 4px; border: 1px solid var(--cor-borda); border-radius: 3px; text-align: center;" />
+          <span style="margin-left: 4px;">${item.und}</span>
         </div>
       </td>`;
 
-    // Colunas de preço por fornecedor
+    // COLUNAS DE PREÇO POR FORNECEDOR
     state.processoAtual.fornecedores.forEach((f, fIdx) => {
       const preco = item.precos[fIdx];
       const total = totaisPorForn[fIdx];
-      const isBestPrice = temPrecosCompletos && total === Math.min(...Object.values(totaisPorForn));
+      const isBestPrice = temPrecosCompletos && total === minTotal && minTotal > 0;
 
       html += `<td style="padding: 8px; text-align: center; border-right: 1px solid var(--cor-borda); ${isBestPrice ? 'background: #dcfce7; border: 2px solid var(--cor-sucesso);' : ''}">
         <input type="number" step="0.01" placeholder="R$" value="${preco || ''}"
                onchange="state.processoAtual.itens[${itemIdx}].precos[${fIdx}] = parseFloat(this.value) || null; salvarState(); renderizarMatrizCotacao(); atualizarTotaisCotacao();"
-               style="width: 90%; padding: 6px; border: 1px solid var(--cor-borda); border-radius: 4px; text-align: center; font-weight: ${isBestPrice ? '700' : '400'}; background: ${isBestPrice ? '#dcfce7' : 'white'};" />
-        <div style="font-size: 10px; color: var(--cor-texto-claro); margin-top: 4px;">
-          ${preco ? `R$ ${total.toFixed(2)}` : '-'}
+               style="width: 85%; padding: 6px; border: 1px solid ${isBestPrice ? 'var(--cor-sucesso)' : 'var(--cor-borda)'}; border-radius: 4px; text-align: center; font-weight: ${isBestPrice ? '700' : '500'}; background: ${isBestPrice ? '#dcfce7' : 'white'}; font-size: 12px;" />
+        <div style="font-size: 10px; color: ${isBestPrice ? 'var(--cor-sucesso)' : 'var(--cor-texto-claro)'}; margin-top: 4px; font-weight: ${isBestPrice ? '700' : '400'};">
+          ${preco ? `${isBestPrice ? '✓ ' : ''}R$ ${total.toFixed(2)}` : '-'}
         </div>
       </td>`;
     });
 
-    // Total do item
-    html += `<td style="padding: 10px; text-align: center; background: #eff6ff; font-weight: 700; color: var(--cor-principal);">
+    // TOTAL DO ITEM
+    html += `<td style="padding: 10px; text-align: center; background: #eff6ff; font-weight: 700; color: var(--cor-principal); border: 1px solid #0ea5e9;">
       R$ ${totalItem.toFixed(2)}
     </td>
-    <td style="padding: 10px; text-align: center;">
-      <button class="btn btn-sm btn-danger" onclick="removerItemCotacao(${itemIdx})">Remover</button>
+    <td style="padding: 8px; text-align: center; vertical-align: top;">
+      <button class="btn btn-sm btn-danger" onclick="removerItemCotacao(${itemIdx})" style="padding: 4px 6px; font-size: 10px;">X</button>
     </td>
     </tr>`;
   });
@@ -1472,18 +1448,16 @@ function adicionarFornecedorCotacao() {
   state.processoAtual.fornecedores.push({ nome: `Fornecedor ${state.processoAtual.fornecedores.length + 1}`, uf: 'SP', prazo: 30 });
   state.processoAtual.itens.forEach(item => item.precos.push(null));
   salvarState();
-  renderizarFornecedoresCotacao();
   renderizarMatrizCotacao();
   atualizarTotaisCotacao();
   adicionarNotificacao(`✓ Fornecedor adicionado`, 'success');
 }
 
 function removerFornecedorCotacao(idx) {
-  if (confirm(`Remover fornecedor F${idx + 1}? Todos os preços serão deletados.`)) {
+  if (confirm(`Remover fornecedor? Todos os preços desta coluna serão deletados.`)) {
     state.processoAtual.fornecedores.splice(idx, 1);
     state.processoAtual.itens.forEach(item => item.precos.splice(idx, 1));
     salvarState();
-    renderizarFornecedoresCotacao();
     renderizarMatrizCotacao();
     atualizarTotaisCotacao();
     adicionarNotificacao(`✓ Fornecedor removido`, 'success');
