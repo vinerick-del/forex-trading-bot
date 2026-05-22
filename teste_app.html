@@ -683,34 +683,31 @@ table tbody tr:hover { background: #f9fafb; }
         <div style="font-size: 24px; font-weight: 700;" id="cotacao-dataged"></div>
       </div>
 
+      <!-- SEÇÃO 1: FORNECEDORES -->
       <div class="card">
-        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Itens para Cotação</h3>
-        <div class="table-container">
-          <table id="cotacao-itens-table">
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Descrição</th>
-                <th>Und</th>
-                <th>Qtd</th>
-                <th>Preço Unit.</th>
-                <th>Total</th>
-                <th>Ação</th>
-              </tr>
-            </thead>
-            <tbody id="cotacao-itens-body"></tbody>
-          </table>
-        </div>
-        <div class="action-bar">
-          <button class="btn btn-secondary" onclick="adicionarItemCotacao()">+ Adicionar Item</button>
-          <button class="btn btn-success" onclick="salvarCotacao()">💾 Salvar Cotação</button>
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">📋 Fornecedores (até 10)</h3>
+        <div id="cotacao-fornecedores-resumo" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;"></div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" onclick="adicionarFornecedorCotacao()" id="btn-add-forn-cotacao">+ Adicionar Fornecedor</button>
+          <button class="btn btn-primary" onclick="renderizarMatrizCotacao()" style="margin-left: auto;">🔄 Atualizar Tabela</button>
         </div>
       </div>
 
+      <!-- SEÇÃO 2: MATRIZ DE PREÇOS (ITENS × FORNECEDORES) -->
       <div class="card">
-        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Fornecedores (até 10)</h3>
-        <div id="cotacao-fornecedores"></div>
-        <button class="btn btn-secondary" onclick="adicionarFornecedorCotacao()" id="btn-add-forn-cotacao" style="margin-top: 1rem;">+ Adicionar Fornecedor</button>
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">💰 Matriz de Preços - Item × Fornecedor</h3>
+        <div style="display: flex; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap;">
+          <button class="btn btn-secondary" onclick="adicionarItemCotacao()">+ Adicionar Item</button>
+          <button class="btn btn-success" onclick="salvarCotacao()">💾 Salvar Cotação</button>
+        </div>
+
+        <div id="cotacao-matriz-container" style="overflow-x: auto; border: 1px solid var(--cor-borda); border-radius: 8px;"></div>
+      </div>
+
+      <!-- SEÇÃO 3: RESUMO DE TOTAIS -->
+      <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">📊 Resumo Total por Fornecedor</h3>
+        <div id="cotacao-totais-resumo" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;"></div>
       </div>
     </div>
   </div>
@@ -1295,37 +1292,34 @@ function carregarCotacao() {
   document.getElementById('cotacao-dataged').textContent = state.processoAtual.dataged;
 
   renderizarFornecedoresCotacao();
-  renderizarItensCotacao();
+  renderizarMatrizCotacao();
+  atualizarTotaisCotacao();
 }
 
 function renderizarFornecedoresCotacao() {
-  const container = document.getElementById('cotacao-fornecedores');
-  container.innerHTML = '';
+  // Resumo visual dos fornecedores
+  const resumoContainer = document.getElementById('cotacao-fornecedores-resumo');
+  resumoContainer.innerHTML = '';
 
   state.processoAtual.fornecedores.forEach((f, idx) => {
     const html = `
-      <div class="card" style="background: #f9fafb; margin-bottom: 12px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-          <strong>Fornecedor ${idx + 1}</strong>
-          <button class="btn btn-sm btn-danger" onclick="removerFornecedorCotacao(${idx})">Remover</button>
+      <div style="background: #f9fafb; border: 2px solid var(--cor-borda); border-radius: 8px; padding: 12px; position: relative;">
+        <button class="btn btn-sm btn-danger" onclick="removerFornecedorCotacao(${idx})" style="position: absolute; top: 8px; right: 8px;">✕</button>
+        <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--cor-principal); padding-right: 30px;">
+          F${idx + 1}: ${f.nome}
         </div>
-        <div class="grid-3">
-          <div class="form-group" style="margin-bottom: 0;">
-            <label style="font-size: 12px;">Nome</label>
-            <input type="text" value="${f.nome}" onchange="state.processoAtual.fornecedores[${idx}].nome = this.value; salvarState();" />
-          </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label style="font-size: 12px;">UF</label>
-            <input type="text" value="${f.uf}" maxlength="2" onchange="state.processoAtual.fornecedores[${idx}].uf = this.value.toUpperCase(); salvarState();" />
-          </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label style="font-size: 12px;">Prazo (dias)</label>
-            <input type="number" value="${f.prazo}" onchange="state.processoAtual.fornecedores[${idx}].prazo = parseInt(this.value); salvarState();" />
-          </div>
+        <div style="font-size: 11px; color: var(--cor-texto-claro); display: grid; gap: 4px;">
+          <div><strong>UF:</strong> ${f.uf}</div>
+          <div><strong>Prazo:</strong> ${f.prazo} dias</div>
+        </div>
+        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--cor-borda);">
+          <input type="text" placeholder="Nome" value="${f.nome}" onchange="state.processoAtual.fornecedores[${idx}].nome = this.value; salvarState(); renderizarFornecedoresCotacao();" style="width: 100%; margin-bottom: 4px; padding: 4px; font-size: 11px;"/>
+          <input type="text" placeholder="UF" value="${f.uf}" maxlength="2" onchange="state.processoAtual.fornecedores[${idx}].uf = this.value.toUpperCase(); salvarState(); renderizarFornecedoresCotacao();" style="width: 48%; margin-right: 2%; padding: 4px; font-size: 11px;"/>
+          <input type="number" placeholder="Prazo" value="${f.prazo}" onchange="state.processoAtual.fornecedores[${idx}].prazo = parseInt(this.value); salvarState();" style="width: 50%; padding: 4px; font-size: 11px;"/>
         </div>
       </div>
     `;
-    container.innerHTML += html;
+    resumoContainer.innerHTML += html;
   });
 
   if (state.processoAtual.fornecedores.length < 10) {
@@ -1335,56 +1329,189 @@ function renderizarFornecedoresCotacao() {
   }
 }
 
+function renderizarMatrizCotacao() {
+  const container = document.getElementById('cotacao-matriz-container');
+
+  if (state.processoAtual.fornecedores.length === 0) {
+    container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione fornecedores primeiro</div>';
+    return;
+  }
+
+  if (state.processoAtual.itens.length === 0) {
+    container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione itens primeiro</div>';
+    return;
+  }
+
+  let html = `<table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+    <thead style="background: #f3f4f6; border-bottom: 2px solid var(--cor-borda);">
+      <tr>
+        <th style="padding: 10px; text-align: left; min-width: 200px; border-right: 2px solid var(--cor-borda);">
+          <strong>ITEM</strong>
+        </th>`;
+
+  // Cabeçalho com fornecedores
+  state.processoAtual.fornecedores.forEach((f, fIdx) => {
+    html += `<th style="padding: 10px; text-align: center; border-right: 1px solid var(--cor-borda); min-width: 120px;">
+      <div style="font-weight: 600; color: var(--cor-principal);">F${fIdx + 1}</div>
+      <div style="font-size: 10px; color: var(--cor-texto-claro);">${f.nome.substring(0, 15)}</div>
+    </th>`;
+  });
+
+  html += `<th style="padding: 10px; text-align: center; min-width: 100px; background: #eff6ff;">
+    <strong>TOTAL</strong>
+  </th>
+  <th style="padding: 10px; text-align: center; min-width: 80px;">AÇÃO</th>
+  </tr>
+    </thead>
+    <tbody>`;
+
+  // Linhas com itens
+  state.processoAtual.itens.forEach((item, itemIdx) => {
+    const totaisPorForn = {};
+    let temPrecosCompletos = true;
+
+    state.processoAtual.fornecedores.forEach((f, fIdx) => {
+      const preco = item.precos[fIdx];
+      const total = (item.qtd || 0) * (preco || 0);
+      totaisPorForn[fIdx] = total;
+      if (!preco) temPrecosCompletos = false;
+    });
+
+    const totalItem = Object.values(totaisPorForn).reduce((a, b) => a + b, 0);
+
+    html += `<tr style="border-bottom: 1px solid var(--cor-borda); background: ${itemIdx % 2 === 0 ? '#fafafa' : 'white'};">
+      <td style="padding: 10px; border-right: 2px solid var(--cor-borda); font-weight: 600;">
+        <div style="color: var(--cor-principal); font-weight: 700;">${item.cod}</div>
+        <div style="color: var(--cor-texto); font-size: 11px; margin: 4px 0;">${item.desc}</div>
+        <div style="color: var(--cor-texto-claro); font-size: 10px;">
+          Qtd: <strong>${item.qtd}</strong> ${item.und}
+        </div>
+      </td>`;
+
+    // Colunas de preço por fornecedor
+    state.processoAtual.fornecedores.forEach((f, fIdx) => {
+      const preco = item.precos[fIdx];
+      const total = totaisPorForn[fIdx];
+      const isBestPrice = temPrecosCompletos && total === Math.min(...Object.values(totaisPorForn));
+
+      html += `<td style="padding: 8px; text-align: center; border-right: 1px solid var(--cor-borda); ${isBestPrice ? 'background: #dcfce7; border: 2px solid var(--cor-sucesso);' : ''}">
+        <input type="number" step="0.01" placeholder="R$" value="${preco || ''}"
+               onchange="state.processoAtual.itens[${itemIdx}].precos[${fIdx}] = parseFloat(this.value) || null; salvarState(); renderizarMatrizCotacao(); atualizarTotaisCotacao();"
+               style="width: 90%; padding: 6px; border: 1px solid var(--cor-borda); border-radius: 4px; text-align: center; font-weight: ${isBestPrice ? '700' : '400'}; background: ${isBestPrice ? '#dcfce7' : 'white'};" />
+        <div style="font-size: 10px; color: var(--cor-texto-claro); margin-top: 4px;">
+          ${preco ? `R$ ${total.toFixed(2)}` : '-'}
+        </div>
+      </td>`;
+    });
+
+    // Total do item
+    html += `<td style="padding: 10px; text-align: center; background: #eff6ff; font-weight: 700; color: var(--cor-principal);">
+      R$ ${totalItem.toFixed(2)}
+    </td>
+    <td style="padding: 10px; text-align: center;">
+      <button class="btn btn-sm btn-danger" onclick="removerItemCotacao(${itemIdx})">Remover</button>
+    </td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+function atualizarTotaisCotacao() {
+  const container = document.getElementById('cotacao-totais-resumo');
+
+  if (state.processoAtual.fornecedores.length === 0 || state.processoAtual.itens.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const totaisPorForn = {};
+  state.processoAtual.fornecedores.forEach((f, fIdx) => {
+    totaisPorForn[fIdx] = 0;
+    state.processoAtual.itens.forEach(item => {
+      if (item.precos && item.precos[fIdx]) {
+        totaisPorForn[fIdx] += (item.qtd || 0) * item.precos[fIdx];
+      }
+    });
+  });
+
+  const minTotal = Math.min(...Object.values(totaisPorForn).filter(v => v > 0));
+  const maxTotal = Math.max(...Object.values(totaisPorForn));
+
+  let html = '';
+  state.processoAtual.fornecedores.forEach((f, fIdx) => {
+    const total = totaisPorForn[fIdx];
+    const isBest = total === minTotal && total > 0;
+    const economia = maxTotal - total;
+
+    html += `
+      <div style="padding: 12px; border: 2px solid ${isBest ? 'var(--cor-sucesso)' : 'var(--cor-borda)'}; border-radius: 8px; background: ${isBest ? '#dcfce7' : '#f9fafb'};">
+        <div style="font-weight: 700; font-size: 14px; color: var(--cor-principal); margin-bottom: 8px;">
+          F${fIdx + 1}: ${f.nome}
+        </div>
+        <div style="font-size: 13px; font-weight: 600; color: ${total > 0 ? 'var(--cor-principal)' : 'var(--cor-texto-claro)'}; margin-bottom: 8px;">
+          R$ ${total.toFixed(2)}
+        </div>
+        <div style="font-size: 11px; color: var(--cor-texto-claro); padding-top: 8px; border-top: 1px solid ${isBest ? 'var(--cor-sucesso)' : 'var(--cor-borda)'};">
+          <div><strong>Prazo:</strong> ${f.prazo} dias</div>
+          ${isBest ? `<div style="color: var(--cor-sucesso); font-weight: 600; margin-top: 4px;">✓ Melhor preço</div>` : `<div>Diferença: +R$ ${economia.toFixed(2)}</div>`}
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
 function adicionarFornecedorCotacao() {
-  if (state.processoAtual.fornecedores.length >= 10) return;
-  state.processoAtual.fornecedores.push({ nome: '', uf: 'SP', prazo: 30 });
+  if (state.processoAtual.fornecedores.length >= 10) {
+    alert('Máximo de 10 fornecedores atingido');
+    return;
+  }
+  state.processoAtual.fornecedores.push({ nome: `Fornecedor ${state.processoAtual.fornecedores.length + 1}`, uf: 'SP', prazo: 30 });
   state.processoAtual.itens.forEach(item => item.precos.push(null));
   salvarState();
   renderizarFornecedoresCotacao();
-  renderizarItensCotacao();
+  renderizarMatrizCotacao();
+  atualizarTotaisCotacao();
+  adicionarNotificacao(`✓ Fornecedor adicionado`, 'success');
 }
 
 function removerFornecedorCotacao(idx) {
-  state.processoAtual.fornecedores.splice(idx, 1);
-  state.processoAtual.itens.forEach(item => item.precos.splice(idx, 1));
-  salvarState();
-  renderizarFornecedoresCotacao();
-  renderizarItensCotacao();
+  if (confirm(`Remover fornecedor F${idx + 1}? Todos os preços serão deletados.`)) {
+    state.processoAtual.fornecedores.splice(idx, 1);
+    state.processoAtual.itens.forEach(item => item.precos.splice(idx, 1));
+    salvarState();
+    renderizarFornecedoresCotacao();
+    renderizarMatrizCotacao();
+    atualizarTotaisCotacao();
+    adicionarNotificacao(`✓ Fornecedor removido`, 'success');
+  }
 }
 
-function renderizarItensCotacao() {
-  const tbody = document.getElementById('cotacao-itens-body');
-  tbody.innerHTML = '';
-
-  state.processoAtual.itens.forEach((item, idx) => {
-    let precosCols = '';
-    state.processoAtual.fornecedores.forEach((f, fIdx) => {
-      precosCols += `<td><input type="number" step="0.01" value="${item.precos[fIdx] || ''}" onchange="state.processoAtual.itens[${idx}].precos[${fIdx}] = parseFloat(this.value) || null; salvarState();" style="width: 70px;" /></td>`;
-    });
-
-    let row = `<tr>
-      <td><input type="text" value="${item.cod}" onchange="state.processoAtual.itens[${idx}].cod = this.value; salvarState();" style="width: 70px;" /></td>
-      <td><input type="text" value="${item.desc}" onchange="state.processoAtual.itens[${idx}].desc = this.value; salvarState();" style="width: 140px;" /></td>
-      <td><input type="text" value="${item.und}" onchange="state.processoAtual.itens[${idx}].und = this.value; salvarState();" style="width: 40px;" /></td>
-      <td><input type="number" value="${item.qtd}" onchange="state.processoAtual.itens[${idx}].qtd = parseInt(this.value) || 0; salvarState();" style="width: 50px;" /></td>
-      <td><input type="number" step="0.01" value="${item.precoUnitario || ''}" onchange="state.processoAtual.itens[${idx}].precoUnitario = parseFloat(this.value) || 0; salvarState();" class="input-preco" style="width: 80px;" /></td>
-      <td style="font-weight: 600; text-align: right;">R$ ${((item.qtd || 0) * (item.precoUnitario || 0)).toFixed(2)}</td>
-      <td><button class="btn btn-sm btn-danger" onclick="removerItemCotacao(${idx})">X</button></td>
-    </tr>`;
-    tbody.innerHTML += row;
-  });
-}
 
 function adicionarItemCotacao() {
+  if (state.processoAtual.fornecedores.length === 0) {
+    alert('Adicione fornecedores antes de adicionar itens');
+    return;
+  }
   const precos = new Array(state.processoAtual.fornecedores.length).fill(null);
   state.processoAtual.itens.push({ cod: '', desc: '', und: 'un', qtd: 0, precoUnitario: 0, precos, fichas_tecnicas: [] });
-  renderizarItensCotacao();
+  salvarState();
+  renderizarMatrizCotacao();
+  atualizarTotaisCotacao();
+  adicionarNotificacao(`✓ Item adicionado`, 'success');
 }
 
 function removerItemCotacao(idx) {
-  state.processoAtual.itens.splice(idx, 1);
-  salvarState();
-  renderizarItensCotacao();
+  if (confirm('Remover este item da cotação?')) {
+    state.processoAtual.itens.splice(idx, 1);
+    salvarState();
+    renderizarMatrizCotacao();
+    atualizarTotaisCotacao();
+    adicionarNotificacao(`✓ Item removido`, 'success');
+  }
 }
 
 function salvarCotacao() {
