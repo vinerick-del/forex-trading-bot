@@ -541,13 +541,14 @@ table tbody tr:hover { background: #f9fafb; }
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab(0)">📊 Dashboard</button>
     <button class="tab-btn" onclick="switchTab(1)">➕ Novo Processo</button>
-    <button class="tab-btn" onclick="switchTab(2)">🔌 SAP Fiori</button>
-    <button class="tab-btn" onclick="switchTab(3)">✏️ Cotação</button>
-    <button class="tab-btn" onclick="switchTab(4)">📎 Fichas Técnicas</button>
-    <button class="tab-btn" onclick="switchTab(5)">⭐ Análise & Recomendação</button>
-    <button class="tab-btn" onclick="switchTab(6)">✓ Aprovação</button>
-    <button class="tab-btn" onclick="switchTab(7)">📄 Relatórios</button>
-    <button class="tab-btn" onclick="switchTab(8)">📜 Histórico</button>
+    <button class="tab-btn" onclick="switchTab(2)">🏢 Cadastro Fornecedor</button>
+    <button class="tab-btn" onclick="switchTab(3)">🔌 SAP Fiori</button>
+    <button class="tab-btn" onclick="switchTab(4)">⚖️ Equalização</button>
+    <button class="tab-btn" onclick="switchTab(5)">📎 Fichas Técnicas</button>
+    <button class="tab-btn" onclick="switchTab(6)">⭐ Análise & Recomendação</button>
+    <button class="tab-btn" onclick="switchTab(7)">✓ Aprovação</button>
+    <button class="tab-btn" onclick="switchTab(8)">📄 Relatórios</button>
+    <button class="tab-btn" onclick="switchTab(9)">📜 Histórico</button>
   </div>
 
   <!-- TAB 0: DASHBOARD -->
@@ -626,7 +627,82 @@ table tbody tr:hover { background: #f9fafb; }
     </div>
   </div>
 
-  <!-- TAB 2: SAP FIORI -->
+  <!-- TAB 2: CADASTRO FORNECEDOR -->
+  <div id="tab-2" class="tab-content">
+    <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">🏢 Cadastro de Fornecedor</h2>
+
+    <div class="card">
+      <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Cadastrar Novo Fornecedor</h3>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Nome do Fornecedor *</label>
+          <input type="text" id="cad-nome" placeholder="ex: Siemens do Brasil" />
+        </div>
+        <div class="form-group">
+          <label>Data da Proposta *</label>
+          <input type="date" id="cad-data" />
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Prazo de Entrega (dias) *</label>
+          <input type="number" id="cad-prazo" placeholder="ex: 15" min="1" />
+        </div>
+        <div class="form-group">
+          <label>UF *</label>
+          <input type="text" id="cad-uf" placeholder="ex: SP" maxlength="2" />
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Condição de Pagamento *</label>
+          <select id="cad-pagamento">
+            <option value="">-- Selecione --</option>
+            <option value="À vista">À vista</option>
+            <option value="15 dias">15 dias</option>
+            <option value="30 dias">30 dias</option>
+            <option value="45 dias">45 dias</option>
+            <option value="60 dias">60 dias</option>
+            <option value="90 dias">90 dias</option>
+            <option value="Customizado">Customizado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Garantia *</label>
+          <select id="cad-garantia">
+            <option value="">-- Selecione --</option>
+            <option value="3 meses">3 meses</option>
+            <option value="6 meses">6 meses</option>
+            <option value="12 meses">12 meses</option>
+            <option value="24 meses">24 meses</option>
+            <option value="36 meses">36 meses</option>
+            <option value="Sem garantia">Sem garantia</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Observações</label>
+        <textarea id="cad-obs" placeholder="Observações adicionais..." rows="3"></textarea>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-primary" onclick="salvarFornecedor()">✓ Cadastrar Fornecedor</button>
+        <button class="btn btn-secondary" onclick="limparCadastroFornecedor()">Limpar</button>
+      </div>
+    </div>
+
+    <!-- LISTAGEM DE FORNECEDORES CADASTRADOS -->
+    <div class="card">
+      <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Fornecedores Cadastrados</h3>
+      <div id="lista-fornecedores"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: SAP FIORI -->
   <div id="tab-2" class="tab-content">
     <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Integração SAP Fiori</h2>
 
@@ -664,47 +740,46 @@ table tbody tr:hover { background: #f9fafb; }
     </div>
   </div>
 
-  <!-- TAB 3: COTAÇÃO -->
-  <div id="tab-3" class="tab-content">
-    <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Gerenciar Cotação</h2>
+  <!-- TAB 4: EQUALIZAÇÃO -->
+  <div id="tab-4" class="tab-content">
+    <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">⚖️ Equalização de Fornecedor</h2>
 
     <div class="card">
       <div class="form-group">
         <label>Selecione o Processo DATAGED</label>
-        <select id="cotacaoProcessoSelect" onchange="carregarCotacao()">
+        <select id="equalizacaoProcessoSelect" onchange="carregarEqualizacao()">
           <option value="">-- Selecione um processo --</option>
         </select>
       </div>
     </div>
 
-    <div id="cotacao-container" style="display: none;">
+    <div id="equalizacao-container" style="display: none;">
       <div style="background: linear-gradient(135deg, var(--cor-principal), #2c3840); color: white; padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem;">
         <div style="font-size: 14px; opacity: 0.9;">DATAGED</div>
-        <div style="font-size: 24px; font-weight: 700;" id="cotacao-dataged"></div>
+        <div style="font-size: 24px; font-weight: 700;" id="equalizacao-dataged"></div>
       </div>
 
-      <!-- TABELA INTEGRADA: ITENS + FORNECEDORES + PREÇOS + TOTAIS -->
+      <!-- PARTE SUPERIOR: TABELA DE ITENS COM FORNECEDORES E RESUMO DE CONDIÇÕES -->
       <div class="card">
-        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">💰 Cotação - Item × Fornecedor</h3>
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">📋 Equalização - Item × Fornecedor</h3>
 
         <div style="display: flex; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap;">
-          <button class="btn btn-secondary" onclick="adicionarItemCotacao()">+ Item</button>
-          <button class="btn btn-secondary" onclick="adicionarFornecedorCotacao()" id="btn-add-forn-cotacao">+ Fornecedor</button>
-          <button class="btn btn-success" onclick="salvarCotacao()" style="margin-left: auto;">💾 Salvar</button>
+          <button class="btn btn-secondary" onclick="adicionarItemEqualizacao()">+ Item</button>
+          <button class="btn btn-success" onclick="salvarEqualizacao()" style="margin-left: auto;">💾 Salvar</button>
         </div>
 
-        <div id="cotacao-matriz-container" style="overflow-x: auto; border: 1px solid var(--cor-borda); border-radius: 8px;"></div>
+        <div id="equalizacao-tabela-container" style="overflow-x: auto; border: 1px solid var(--cor-borda); border-radius: 8px;"></div>
       </div>
 
-      <!-- SEÇÃO 3: RESUMO DE TOTAIS -->
-      <div class="card">
-        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">📊 Resumo Total por Fornecedor</h3>
-        <div id="cotacao-totais-resumo" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;"></div>
+      <!-- PARTE INFERIOR: DETALHES DO FORNECEDOR VENCEDOR -->
+      <div class="card" id="equalizacao-detalhe-vencedor" style="display: none; background: linear-gradient(135deg, #dcfce7, #eff6ff); border: 2px solid var(--cor-sucesso);">
+        <h3 style="margin-bottom: 1rem; color: var(--cor-sucesso); font-size: 18px;">✓ Fornecedor Vencedor</h3>
+        <div id="equalizacao-detalhe-conteudo"></div>
       </div>
     </div>
   </div>
 
-  <!-- TAB 4: FICHAS TÉCNICAS -->
+  <!-- TAB 5: FICHAS TÉCNICAS -->
   <div id="tab-4" class="tab-content">
     <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Gerenciar Fichas Técnicas Aprovadas</h2>
 
@@ -727,7 +802,7 @@ table tbody tr:hover { background: #f9fafb; }
     </div>
   </div>
 
-  <!-- TAB 5: ANÁLISE & RECOMENDAÇÃO -->
+  <!-- TAB 6: ANÁLISE & RECOMENDAÇÃO -->
   <div id="tab-5" class="tab-content">
     <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Análise Inteligente & Recomendação</h2>
 
@@ -762,7 +837,7 @@ table tbody tr:hover { background: #f9fafb; }
     </div>
   </div>
 
-  <!-- TAB 6: APROVAÇÃO -->
+  <!-- TAB 7: APROVAÇÃO -->
   <div id="tab-6" class="tab-content">
     <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Aprovar Processo</h2>
 
@@ -851,7 +926,7 @@ table tbody tr:hover { background: #f9fafb; }
     </div>
   </div>
 
-  <!-- TAB 7: RELATÓRIOS -->
+  <!-- TAB 8: RELATÓRIOS -->
   <div id="tab-7" class="tab-content">
     <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Gerar Relatórios</h2>
 
@@ -874,7 +949,7 @@ table tbody tr:hover { background: #f9fafb; }
     </div>
   </div>
 
-  <!-- TAB 8: HISTÓRICO -->
+  <!-- TAB 9: HISTÓRICO -->
   <div id="tab-8" class="tab-content">
     <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Histórico de Processos</h2>
 
@@ -1001,6 +1076,7 @@ const DADOS_SAP_FIORI = [
 const FABRICANTES_APPROVED = ['Siemens', 'Schneider', 'ABB', 'Nexans', 'Alstom', 'Pirelli', 'Weidmüller', 'Eaton'];
 
 let state = {
+  fornecedores: JSON.parse(localStorage.getItem('fornecedores_ambar') || '[]'),
   processos: JSON.parse(localStorage.getItem('processos_amazon') || '[]'),
   notificacoes: [],
   processoAtual: null,
@@ -1037,6 +1113,310 @@ function limparAssinatura(num) {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FUNÇÕES DE CADASTRO DE FORNECEDOR
+// ═══════════════════════════════════════════════════════════════
+
+function salvarFornecedor() {
+  const nome = document.getElementById('cad-nome').value.trim().toUpperCase();
+  const dataProposta = document.getElementById('cad-data').value;
+  const prazoEntrega = parseInt(document.getElementById('cad-prazo').value);
+  const uf = document.getElementById('cad-uf').value.trim().toUpperCase();
+  const condicaoPagamento = document.getElementById('cad-pagamento').value;
+  const garantia = document.getElementById('cad-garantia').value;
+  const obs = document.getElementById('cad-obs').value.trim();
+
+  if (!nome || !dataProposta || !prazoEntrega || !uf || !condicaoPagamento || !garantia) {
+    alert('Preencha todos os campos obrigatórios (*)');
+    return;
+  }
+
+  if (uf.length !== 2) {
+    alert('UF deve ter 2 caracteres (ex: SP, RJ)');
+    return;
+  }
+
+  if (state.fornecedores.find(f => f.nome === nome)) {
+    alert('Fornecedor já cadastrado');
+    return;
+  }
+
+  const novoFornecedor = {
+    id: Date.now(),
+    nome,
+    dataProposta,
+    prazoEntrega,
+    uf,
+    condicaoPagamento,
+    garantia,
+    obs,
+    dataCadastro: new Date().toISOString().split('T')[0]
+  };
+
+  state.fornecedores.push(novoFornecedor);
+  salvarState();
+  limparCadastroFornecedor();
+  renderizarListaFornecedores();
+  atualizarSelects();
+  adicionarNotificacao(`✓ Fornecedor ${nome} cadastrado com sucesso!`, 'success');
+}
+
+function limparCadastroFornecedor() {
+  document.getElementById('cad-nome').value = '';
+  document.getElementById('cad-data').value = new Date().toISOString().split('T')[0];
+  document.getElementById('cad-prazo').value = '';
+  document.getElementById('cad-uf').value = '';
+  document.getElementById('cad-pagamento').value = '';
+  document.getElementById('cad-garantia').value = '';
+  document.getElementById('cad-obs').value = '';
+}
+
+function renderizarListaFornecedores() {
+  const container = document.getElementById('lista-fornecedores');
+
+  if (state.fornecedores.length === 0) {
+    container.innerHTML = '<div class="alert alert-info">ℹ️ Nenhum fornecedor cadastrado ainda</div>';
+    return;
+  }
+
+  const html = state.fornecedores.map(f => `
+    <div class="card" style="background: #f9fafb; margin-bottom: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+        <div>
+          <div style="font-size: 16px; font-weight: 700; color: var(--cor-principal); margin-bottom: 4px;">${f.nome}</div>
+          <div style="font-size: 11px; color: var(--cor-texto-claro);">Cadastrado em ${f.dataCadastro}</div>
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="removerFornecedor(${f.id})">Remover</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; font-size: 12px;">
+        <div>
+          <span style="color: var(--cor-texto-claro);">Proposta:</span><br>
+          <strong>${f.dataProposta}</strong>
+        </div>
+        <div>
+          <span style="color: var(--cor-texto-claro);">Prazo:</span><br>
+          <strong>${f.prazoEntrega} dias</strong>
+        </div>
+        <div>
+          <span style="color: var(--cor-texto-claro);">UF:</span><br>
+          <strong>${f.uf}</strong>
+        </div>
+        <div>
+          <span style="color: var(--cor-texto-claro);">Pagamento:</span><br>
+          <strong>${f.condicaoPagamento}</strong>
+        </div>
+        <div>
+          <span style="color: var(--cor-texto-claro);">Garantia:</span><br>
+          <strong>${f.garantia}</strong>
+        </div>
+      </div>
+
+      ${f.obs ? `<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cor-borda); font-size: 12px; color: var(--cor-texto);">
+        <strong>Observações:</strong> ${f.obs}
+      </div>` : ''}
+    </div>
+  `).join('');
+
+  container.innerHTML = html;
+}
+
+function removerFornecedor(id) {
+  if (confirm('Remover este fornecedor? Esta ação não pode ser desfeita.')) {
+    state.fornecedores = state.fornecedores.filter(f => f.id !== id);
+    salvarState();
+    renderizarListaFornecedores();
+    atualizarSelects();
+    adicionarNotificacao(`✓ Fornecedor removido`, 'success');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FUNÇÕES DE EQUALIZAÇÃO
+// ═══════════════════════════════════════════════════════════════
+
+function carregarEqualizacao() {
+  const dataged = document.getElementById('equalizacaoProcessoSelect').value;
+  if (!dataged) { document.getElementById('equalizacao-container').style.display = 'none'; return; }
+
+  state.processoAtual = state.processos.find(p => p.dataged === dataged);
+  document.getElementById('equalizacao-container').style.display = 'block';
+  document.getElementById('equalizacao-dataged').textContent = state.processoAtual.dataged;
+
+  // Inicializar itens se não existir
+  if (!state.processoAtual.equalizacao) {
+    state.processoAtual.equalizacao = [];
+  }
+
+  renderizarTabelaEqualizacao();
+}
+
+function renderizarTabelaEqualizacao() {
+  const container = document.getElementById('equalizacao-tabela-container');
+
+  if (state.processoAtual.equalizacao.length === 0) {
+    container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione itens à equalização</div>';
+    return;
+  }
+
+  let html = `<table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+    <thead style="background: #f3f4f6; border-bottom: 2px solid var(--cor-borda);">
+      <tr>
+        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 60px;"><strong>ITEM</strong></th>
+        <th style="padding: 10px; text-align: left; border-right: 2px solid var(--cor-borda); min-width: 150px;"><strong>CÓDIGO</strong></th>
+        <th style="padding: 10px; text-align: left; border-right: 2px solid var(--cor-borda); min-width: 200px;"><strong>DESCRIÇÃO</strong></th>
+        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 140px;"><strong>FORNECEDOR</strong></th>
+        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 120px;"><strong>PREÇO</strong></th>
+        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 100px;"><strong>PRAZO</strong></th>
+        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 100px;"><strong>PAGAMENTO</strong></th>
+        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 100px;"><strong>GARANTIA</strong></th>
+        <th style="padding: 10px; text-align: center;"><strong>AÇÃO</strong></th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+  state.processoAtual.equalizacao.forEach((item, idx) => {
+    const fornecedor = state.fornecedores.find(f => f.id === item.fornecedorId);
+
+    html += `<tr style="border-bottom: 1px solid var(--cor-borda); background: ${idx % 2 === 0 ? '#fafafa' : 'white'};">
+      <td style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); font-weight: 700; color: var(--cor-principal);">
+        ${idx + 1}
+      </td>
+      <td style="padding: 10px; border-right: 2px solid var(--cor-borda); font-weight: 600;">
+        <input type="text" placeholder="Código" value="${item.codigo || ''}"
+               onchange="state.processoAtual.equalizacao[${idx}].codigo = this.value; salvarState();"
+               style="width: 90%; padding: 6px; border: 1px solid var(--cor-borda); border-radius: 4px;" />
+      </td>
+      <td style="padding: 10px; border-right: 2px solid var(--cor-borda);">
+        <input type="text" placeholder="Descrição" value="${item.descricao || ''}"
+               onchange="state.processoAtual.equalizacao[${idx}].descricao = this.value; salvarState();"
+               style="width: 90%; padding: 6px; border: 1px solid var(--cor-borda); border-radius: 4px;" />
+      </td>
+      <td style="padding: 10px; border-right: 2px solid var(--cor-borda);">
+        <select onchange="state.processoAtual.equalizacao[${idx}].fornecedorId = parseInt(this.value); salvarState(); renderizarTabelaEqualizacao();"
+                style="width: 90%; padding: 6px; border: 1px solid var(--cor-borda); border-radius: 4px;">
+          <option value="">-- Selecione --</option>
+          ${state.fornecedores.map(f => `<option value="${f.id}" ${item.fornecedorId === f.id ? 'selected' : ''}>${f.nome}</option>`).join('')}
+        </select>
+      </td>
+      <td style="padding: 10px; border-right: 2px solid var(--cor-borda); text-align: right; font-weight: 600;">
+        ${fornecedor ? `<div style="color: var(--cor-principal);">R$ ${(item.preco || 0).toFixed(2)}</div>` : '-'}
+      </td>
+      <td style="padding: 10px; border-right: 2px solid var(--cor-borda); text-align: center;">
+        ${fornecedor ? `<span style="background: #dbeafe; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">${fornecedor.prazoEntrega}d</span>` : '-'}
+      </td>
+      <td style="padding: 10px; border-right: 2px solid var(--cor-borda); text-align: center;">
+        ${fornecedor ? `<span style="font-size: 11px;">${fornecedor.condicaoPagamento}</span>` : '-'}
+      </td>
+      <td style="padding: 10px; border-right: 2px solid var(--cor-borda); text-align: center;">
+        ${fornecedor ? `<span style="font-size: 11px;">${fornecedor.garantia}</span>` : '-'}
+      </td>
+      <td style="padding: 10px; text-align: center;">
+        <button class="btn btn-sm btn-danger" onclick="removerItemEqualizacao(${idx})">X</button>
+      </td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+
+  // Renderizar detalhes do vencedor (primeiro com fornecedor selecionado)
+  const vencedor = state.processoAtual.equalizacao.find(item => item.fornecedorId);
+  if (vencedor) {
+    const fornecedorVencedor = state.fornecedores.find(f => f.id === vencedor.fornecedorId);
+    if (fornecedorVencedor) {
+      renderizarDetalheFornecedorVencedor(fornecedorVencedor);
+    }
+  }
+}
+
+function renderizarDetalheFornecedorVencedor(fornecedor) {
+  const container = document.getElementById('equalizacao-detalhe-vencedor');
+  const conteudo = document.getElementById('equalizacao-detalhe-conteudo');
+
+  const html = `
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+      <div>
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Nome</div>
+        <div style="font-size: 18px; font-weight: 700; color: var(--cor-principal);">${fornecedor.nome}</div>
+      </div>
+
+      <div>
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Data da Proposta</div>
+        <div style="font-size: 16px; font-weight: 600;">${fornecedor.dataProposta}</div>
+      </div>
+
+      <div>
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Prazo de Entrega</div>
+        <div style="font-size: 16px; font-weight: 600; color: var(--cor-destaque);">${fornecedor.prazoEntrega} dias</div>
+      </div>
+
+      <div>
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Localização (UF)</div>
+        <div style="font-size: 16px; font-weight: 600;">${fornecedor.uf}</div>
+      </div>
+
+      <div>
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Condição de Pagamento</div>
+        <div style="font-size: 16px; font-weight: 600; color: var(--cor-sucesso);">${fornecedor.condicaoPagamento}</div>
+      </div>
+
+      <div>
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Garantia</div>
+        <div style="font-size: 16px; font-weight: 600;">${fornecedor.garantia}</div>
+      </div>
+    </div>
+
+    ${fornecedor.obs ? `
+      <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid rgba(255,255,255,0.3);">
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Observações</div>
+        <div style="font-size: 14px; color: var(--cor-principal); line-height: 1.6;">${fornecedor.obs}</div>
+      </div>
+    ` : ''}
+  `;
+
+  conteudo.innerHTML = html;
+  container.style.display = 'block';
+}
+
+function adicionarItemEqualizacao() {
+  if (!state.processoAtual.equalizacao) {
+    state.processoAtual.equalizacao = [];
+  }
+
+  state.processoAtual.equalizacao.push({
+    codigo: '',
+    descricao: '',
+    fornecedorId: null,
+    preco: 0
+  });
+
+  salvarState();
+  renderizarTabelaEqualizacao();
+  adicionarNotificacao(`✓ Item adicionado`, 'success');
+}
+
+function removerItemEqualizacao(idx) {
+  if (confirm('Remover este item?')) {
+    state.processoAtual.equalizacao.splice(idx, 1);
+    salvarState();
+    renderizarTabelaEqualizacao();
+    adicionarNotificacao(`✓ Item removido`, 'success');
+  }
+}
+
+function salvarEqualizacao() {
+  if (!state.processoAtual.equalizacao || state.processoAtual.equalizacao.length === 0) {
+    alert('Adicione itens à equalização');
+    return;
+  }
+
+  const idx = state.processos.findIndex(p => p.dataged === state.processoAtual.dataged);
+  state.processos[idx] = state.processoAtual;
+  salvarState();
+  adicionarNotificacao(`✓ Equalização ${state.processoAtual.dataged} salva`, 'success');
 }
 
 function atualizarKPIs() {
@@ -1952,7 +2332,7 @@ function filtrarHistorico() {
 function atualizarSelects() {
   const ativos = state.processos.filter(p => p.status !== 'REJEITADO');
 
-  document.getElementById('cotacaoProcessoSelect').innerHTML = '<option value="">-- Selecione --</option>' +
+  document.getElementById('equalizacaoProcessoSelect').innerHTML = '<option value="">-- Selecione --</option>' +
     ativos.map(p => `<option value="${p.dataged}">${p.dataged} - ${p.descricao}</option>`).join('');
 
   document.getElementById('fichasProcessoSelect').innerHTML = '<option value="">-- Selecione --</option>' +
@@ -1975,10 +2355,12 @@ function switchTab(n) {
   document.querySelectorAll('.tab-btn')[n].classList.add('active');
 
   if (n === 0) renderizarDashboard();
-  if (n === 8) filtrarHistorico();
+  if (n === 2) renderizarListaFornecedores();
+  if (n === 9) filtrarHistorico();
 }
 
 function salvarState() {
+  localStorage.setItem('fornecedores_ambar', JSON.stringify(state.fornecedores));
   localStorage.setItem('processos_amazon', JSON.stringify(state.processos));
 }
 
@@ -2011,4 +2393,5 @@ atualizarSelects();
 filtrarHistorico();
 atualizarSAPImportados();
 document.getElementById('aprov-data').valueAsDate = new Date();
+document.getElementById('cad-data').valueAsDate = new Date();
 </script>
