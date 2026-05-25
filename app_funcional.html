@@ -780,19 +780,12 @@ table tbody tr:hover {
           </div>
 
           <div id="equalizacao-container" style="display:none;">
-            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
-              <div style="font-weight: 600; color: #1e40af; margin-bottom: 0.5rem;">📋 Passo 1: Criar Itens</div>
-              <div style="font-size: 13px; color: #374151; margin-bottom: 1rem;">Adicione os itens que deseja cotaremtrar com fornecedores</div>
+            <div style="display: flex; gap: 10px; margin-bottom: 1.5rem;">
               <button class="btn btn-primary" onclick="adicionarItemEqualizacao()">+ Adicionar Item</button>
+              <button class="btn btn-secondary" onclick="adicionarPropostaEqualizacao()">+ Adicionar Fornecedor</button>
             </div>
 
             <div id="equalizacao-comparativo-container" style="margin-bottom: 1.5rem;"></div>
-
-            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
-              <div style="font-weight: 600; color: #059669; margin-bottom: 0.5rem;">🏢 Passo 2: Adicionar Fornecedores</div>
-              <div style="font-size: 13px; color: #374151; margin-bottom: 1rem;">Adicione fornecedores para comparar preços</div>
-              <button class="btn btn-secondary" onclick="adicionarPropostaEqualizacao()">+ Adicionar Fornecedor</button>
-            </div>
 
             <div style="margin-top: 2rem;">
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
