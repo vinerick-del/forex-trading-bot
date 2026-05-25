@@ -632,6 +632,10 @@ table tbody tr:hover { background: #f9fafb; }
     <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">🏢 Cadastro de Fornecedor</h2>
 
     <div class="card">
+      <div class="alert alert-info">
+        ℹ️ <strong>Cadastro Básico:</strong> As condições de fornecimento (prazo, pagamento, garantia) são específicas por processo de compra e serão preenchidas na tela de Equalização.
+      </div>
+
       <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">Cadastrar Novo Fornecedor</h3>
 
       <div class="grid-2">
@@ -640,53 +644,36 @@ table tbody tr:hover { background: #f9fafb; }
           <input type="text" id="cad-nome" placeholder="ex: Siemens do Brasil" />
         </div>
         <div class="form-group">
-          <label>Data da Proposta *</label>
-          <input type="date" id="cad-data" />
+          <label>Email Comercial</label>
+          <input type="email" id="cad-email" placeholder="ex: vendas@siemens.com.br" />
         </div>
       </div>
 
       <div class="grid-2">
         <div class="form-group">
-          <label>Prazo de Entrega (dias) *</label>
-          <input type="number" id="cad-prazo" placeholder="ex: 15" min="1" />
+          <label>Telefone</label>
+          <input type="text" id="cad-telefone" placeholder="ex: (11) 3000-0000" />
         </div>
         <div class="form-group">
-          <label>UF *</label>
-          <input type="text" id="cad-uf" placeholder="ex: SP" maxlength="2" />
+          <label>Responsável de Vendas</label>
+          <input type="text" id="cad-responsavel" placeholder="Nome do contato" />
         </div>
       </div>
 
       <div class="grid-2">
         <div class="form-group">
-          <label>Condição de Pagamento *</label>
-          <select id="cad-pagamento">
-            <option value="">-- Selecione --</option>
-            <option value="À vista">À vista</option>
-            <option value="15 dias">15 dias</option>
-            <option value="30 dias">30 dias</option>
-            <option value="45 dias">45 dias</option>
-            <option value="60 dias">60 dias</option>
-            <option value="90 dias">90 dias</option>
-            <option value="Customizado">Customizado</option>
-          </select>
+          <label>CNPJ</label>
+          <input type="text" id="cad-cnpj" placeholder="00.000.000/0000-00" />
         </div>
         <div class="form-group">
-          <label>Garantia *</label>
-          <select id="cad-garantia">
-            <option value="">-- Selecione --</option>
-            <option value="3 meses">3 meses</option>
-            <option value="6 meses">6 meses</option>
-            <option value="12 meses">12 meses</option>
-            <option value="24 meses">24 meses</option>
-            <option value="36 meses">36 meses</option>
-            <option value="Sem garantia">Sem garantia</option>
-          </select>
+          <label>Cidade/UF Sede</label>
+          <input type="text" id="cad-cidade" placeholder="ex: São Paulo, SP" />
         </div>
       </div>
 
       <div class="form-group">
         <label>Observações</label>
-        <textarea id="cad-obs" placeholder="Observações adicionais..." rows="3"></textarea>
+        <textarea id="cad-obs" placeholder="Histórico, informações relevantes..." rows="3"></textarea>
       </div>
 
       <div class="action-bar">
@@ -1086,6 +1073,42 @@ let state = {
   signatureCanvases: {}
 };
 
+// Estrutura de dados:
+// state.processos[].propostas = [
+//   {
+//     id: timestamp,
+//     numeroCotacao: "COT-001",
+//     dataCotacao: "2025-05-22",
+//     responsavelCompra: "João Silva",
+//     fornecedorId: 123,
+//     itens: [
+//       {
+//         numero: 01,
+//         tipomaterial: "Cabo Elétrico",
+//         codigo: "100101",
+//         descricao: "Cabo 10mm²",
+//         unidade: "m",
+//         quantidade: 100,
+//         precoUnitario: 9.50,
+//         precoTotal: 950.00,
+//         icms: 0.18,
+//         ipi: 0,
+//         pis_cofins: 0.0765,
+//         frete: 50.00,
+//         incoterm: "CIF",
+//         tco: 0,  // Total Cost of Ownership
+//         notas: { especificacao: 4, prazo: 5, qualidade: 4 }
+//       }
+//     ],
+//     condicaoPagamento: "30 dias",
+//     prazoEntrega: 15,
+//     validadeProposta: "2025-06-22",
+//     garantia: "12 meses",
+//     compliance: "Sim",
+//     notaAvaliacao: 4.2  // Score final (0-5)
+//   }
+// ]
+
 function initializeSignatureCanvas(canvasId) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
@@ -1121,20 +1144,15 @@ function limparAssinatura(num) {
 
 function salvarFornecedor() {
   const nome = document.getElementById('cad-nome').value.trim().toUpperCase();
-  const dataProposta = document.getElementById('cad-data').value;
-  const prazoEntrega = parseInt(document.getElementById('cad-prazo').value);
-  const uf = document.getElementById('cad-uf').value.trim().toUpperCase();
-  const condicaoPagamento = document.getElementById('cad-pagamento').value;
-  const garantia = document.getElementById('cad-garantia').value;
+  const email = document.getElementById('cad-email').value.trim();
+  const telefone = document.getElementById('cad-telefone').value.trim();
+  const responsavel = document.getElementById('cad-responsavel').value.trim();
+  const cnpj = document.getElementById('cad-cnpj').value.trim();
+  const cidade = document.getElementById('cad-cidade').value.trim();
   const obs = document.getElementById('cad-obs').value.trim();
 
-  if (!nome || !dataProposta || !prazoEntrega || !uf || !condicaoPagamento || !garantia) {
-    alert('Preencha todos os campos obrigatórios (*)');
-    return;
-  }
-
-  if (uf.length !== 2) {
-    alert('UF deve ter 2 caracteres (ex: SP, RJ)');
+  if (!nome) {
+    alert('Preencha o nome do fornecedor (*)');
     return;
   }
 
@@ -1146,11 +1164,11 @@ function salvarFornecedor() {
   const novoFornecedor = {
     id: Date.now(),
     nome,
-    dataProposta,
-    prazoEntrega,
-    uf,
-    condicaoPagamento,
-    garantia,
+    email,
+    telefone,
+    responsavel,
+    cnpj,
+    cidade,
     obs,
     dataCadastro: new Date().toISOString().split('T')[0]
   };
@@ -1165,11 +1183,11 @@ function salvarFornecedor() {
 
 function limparCadastroFornecedor() {
   document.getElementById('cad-nome').value = '';
-  document.getElementById('cad-data').value = new Date().toISOString().split('T')[0];
-  document.getElementById('cad-prazo').value = '';
-  document.getElementById('cad-uf').value = '';
-  document.getElementById('cad-pagamento').value = '';
-  document.getElementById('cad-garantia').value = '';
+  document.getElementById('cad-email').value = '';
+  document.getElementById('cad-telefone').value = '';
+  document.getElementById('cad-responsavel').value = '';
+  document.getElementById('cad-cnpj').value = '';
+  document.getElementById('cad-cidade').value = '';
   document.getElementById('cad-obs').value = '';
 }
 
@@ -1191,27 +1209,12 @@ function renderizarListaFornecedores() {
         <button class="btn btn-sm btn-danger" onclick="removerFornecedor(${f.id})">Remover</button>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; font-size: 12px;">
-        <div>
-          <span style="color: var(--cor-texto-claro);">Proposta:</span><br>
-          <strong>${f.dataProposta}</strong>
-        </div>
-        <div>
-          <span style="color: var(--cor-texto-claro);">Prazo:</span><br>
-          <strong>${f.prazoEntrega} dias</strong>
-        </div>
-        <div>
-          <span style="color: var(--cor-texto-claro);">UF:</span><br>
-          <strong>${f.uf}</strong>
-        </div>
-        <div>
-          <span style="color: var(--cor-texto-claro);">Pagamento:</span><br>
-          <strong>${f.condicaoPagamento}</strong>
-        </div>
-        <div>
-          <span style="color: var(--cor-texto-claro);">Garantia:</span><br>
-          <strong>${f.garantia}</strong>
-        </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; font-size: 12px;">
+        ${f.email ? `<div><span style="color: var(--cor-texto-claro);">Email:</span><br><strong>${f.email}</strong></div>` : ''}
+        ${f.telefone ? `<div><span style="color: var(--cor-texto-claro);">Telefone:</span><br><strong>${f.telefone}</strong></div>` : ''}
+        ${f.responsavel ? `<div><span style="color: var(--cor-texto-claro);">Responsável:</span><br><strong>${f.responsavel}</strong></div>` : ''}
+        ${f.cnpj ? `<div><span style="color: var(--cor-texto-claro);">CNPJ:</span><br><strong>${f.cnpj}</strong></div>` : ''}
+        ${f.cidade ? `<div><span style="color: var(--cor-texto-claro);">Cidade/UF:</span><br><strong>${f.cidade}</strong></div>` : ''}
       </div>
 
       ${f.obs ? `<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cor-borda); font-size: 12px; color: var(--cor-texto);">
