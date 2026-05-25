@@ -1315,8 +1315,8 @@ function carregarEqualizacao() {
 }
 
 function adicionarPropostaEqualizacao() {
-  if (state.fornecedores.length === 0) {
-    alert('Cadastre fornecedores primeiro (Tab 2)');
+  if (!state.processoAtual) {
+    alert('Selecione um processo primeiro');
     return;
   }
 
