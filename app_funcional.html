@@ -1363,30 +1363,43 @@ function renderizarComparativoEqualizacao() {
 
   const propostas = state.processoAtual.propostas.filter(p => p.fornecedorId);
 
-  let html = `<table><thead><tr>
-    <th>#</th><th>Tipo</th><th>Código</th><th>Descrição</th><th>Qtd</th><th>Del</th>`;
+  // TABELA DE ITENS PROFISSIONAL
+  let html = `
+    <div style="margin-bottom: 2rem;">
+      <div style="background: #1e40af; color: white; padding: 1rem; border-radius: 6px 6px 0 0; font-weight: 600;">
+        📋 Comparativo de Preços - Análise Detalhada
+      </div>
+      <table style="width: 100%; border-collapse: collapse; background: white;">
+        <thead style="background: #f3f4f6; border-bottom: 2px solid #d1d5db;">
+          <tr>
+            <th style="padding: 12px; text-align: left; font-weight: 600; border-right: 1px solid #e5e7eb;">Item</th>
+            <th style="padding: 12px; text-align: left; font-weight: 600; border-right: 1px solid #e5e7eb;">Código</th>
+            <th style="padding: 12px; text-align: left; font-weight: 600; border-right: 1px solid #e5e7eb;">Descrição</th>
+            <th style="padding: 12px; text-align: center; font-weight: 600; border-right: 1px solid #e5e7eb;">Qtd</th>
+  `;
 
-  state.processoAtual.propostas.forEach((prop, pIdx) => {
-    if (!prop.fornecedorId) return;
+  propostas.forEach(prop => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
-    const fornName = forn ? forn.nome : 'Fornecedor ' + (pIdx + 1);
-    html += `<th style="background: #e8f4f8;">${fornName.substring(0, 15)}<br>
-      <button onclick="excluirProposta(${pIdx})" style="background: #ff6b6b; color: white; border: none; padding: 2px 4px; border-radius: 2px; cursor: pointer; font-size: 10px;">✕</button></th>`;
+    const fornName = forn ? forn.nome.substring(0, 12) : 'Fornecedor';
+    html += `<th style="padding: 12px; text-align: center; font-weight: 600; border-right: 1px solid #e5e7eb; background: #e8f4f8;">${fornName}</th>`;
   });
 
-  html += `</tr></thead><tbody>`;
+  html += `<th style="padding: 12px; text-align: center; font-weight: 600;">Ações</th></tr></thead><tbody>`;
 
   itens.forEach((item, itemIdx) => {
-    html += `<tr>
-      <td>${itemIdx + 1}</td>
-      <td><input type="text" value="${item.tipoMaterial || ''}" onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].tipoMaterial = this.value); salvarState();" style="width: 80%; padding: 4px; font-size: 11px;"></td>
-      <td><input type="text" value="${item.codigo || ''}" onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].codigo = this.value); salvarState();" style="width: 80%; padding: 4px; font-size: 11px;"></td>
-      <td><input type="text" value="${item.descricao || ''}" onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].descricao = this.value); salvarState();" style="width: 100%; padding: 4px; font-size: 11px;"></td>
-      <td><input type="number" value="${item.quantidade || 1}" onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].quantidade = parseInt(this.value) || 1); salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();" style="width: 70%; padding: 4px; font-size: 11px;"></td>
-      <td><button onclick="excluirItem(${itemIdx})" style="background: #ff6b6b; color: white; border: none; padding: 4px 6px; border-radius: 2px; cursor: pointer;">✕</button></td>`;
+    html += `<tr style="border-bottom: 1px solid #e5e7eb;">
+      <td style="padding: 12px; border-right: 1px solid #e5e7eb;"><strong>${itemIdx + 1}</strong></td>
+      <td style="padding: 12px; border-right: 1px solid #e5e7eb; font-size: 12px;">
+        <input type="text" value="${item.codigo || ''}" onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].codigo = this.value); salvarState();" style="width: 90%; padding: 4px; border: 1px solid #d1d5db; border-radius: 3px;">
+      </td>
+      <td style="padding: 12px; border-right: 1px solid #e5e7eb;">
+        <input type="text" value="${item.descricao || ''}" onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].descricao = this.value); salvarState();" style="width: 100%; padding: 4px; border: 1px solid #d1d5db; border-radius: 3px;">
+      </td>
+      <td style="padding: 12px; border-right: 1px solid #e5e7eb; text-align: center;">
+        <input type="number" value="${item.quantidade || 1}" onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].quantidade = parseInt(this.value) || 1); salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();" style="width: 60px; padding: 4px; border: 1px solid #d1d5db; border-radius: 3px; text-align: center;">
+      </td>`;
 
-    state.processoAtual.propostas.forEach((prop, pIdx) => {
-      if (!prop.fornecedorId) return;
+    propostas.forEach((prop, pIdx) => {
       const itemProp = prop.itens[itemIdx];
       const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
       const ufFornecedor = forn?.uf;
@@ -1411,20 +1424,47 @@ function renderizarComparativoEqualizacao() {
       const menorPreco = totais.length > 0 ? Math.min(...totais) : null;
       const isBest = menorPreco !== null && totalComTributos > 0 && totalComTributos === menorPreco;
 
-      html += `<td style="text-align: center; ${isBest ? 'background: #dcfce7; border-left: 4px solid #10b981;' : 'background: #f9fafb;'} padding: 4px; font-size: 11px;">
-        <div style="margin-bottom: 2px; font-weight: bold;">
-          <input type="number" step="0.01" value="${precoUnitario || ''}" onchange="state.processoAtual.propostas[${pIdx}].itens[${itemIdx}].precoUnitario = parseFloat(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();" style="width: 100%; padding: 2px; font-size: 11px; text-align: center; border: 1px solid ${isBest ? '#10b981' : '#ddd'}; border-radius: 2px;">
+      html += `<td style="padding: 12px; border-right: 1px solid #e5e7eb; text-align: center; background: ${isBest ? '#dcfce7' : '#f9fafb'};">
+        <div style="margin-bottom: 4px;">
+          <input type="number" step="0.01" value="${precoUnitario || ''}" onchange="state.processoAtual.propostas[${pIdx}].itens[${itemIdx}].precoUnitario = parseFloat(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();" style="width: 70px; padding: 4px; border: 1px solid ${isBest ? '#10b981' : '#d1d5db'}; border-radius: 3px; text-align: right; font-weight: ${isBest ? '700' : '400'};">
         </div>
-        <div style="background: ${isBest ? '#e8f5e9' : '#e8e8e8'}; padding: 2px; border-radius: 2px; font-weight: bold; color: ${isBest ? '#059669' : '#333'}; font-size: 10px;">
+        <div style="font-size: 11px; color: ${isBest ? '#059669' : '#666'}; font-weight: ${isBest ? '700' : '400'};">
           R$ ${totalComTributos.toFixed(2)} ${isBest ? '✓' : ''}
         </div>
       </td>`;
     });
 
-    html += `</tr>`;
+    html += `<td style="padding: 12px; text-align: center;">
+      <button onclick="excluirItem(${itemIdx})" style="background: #ff6b6b; color: white; border: none; padding: 6px 8px; border-radius: 3px; cursor: pointer; font-size: 12px;">✕</button>
+    </td></tr>`;
   });
 
-  html += `</tbody></table>`;
+  html += `</tbody></table></div>`;
+
+  // SEÇÃO DE CONDIÇÕES
+  html += `
+    <div style="background: #f9fafb; padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem; border: 1px solid #e5e7eb;">
+      <div style="font-weight: 600; font-size: 14px; margin-bottom: 1.5rem; color: #111827;">⚙️ Condições de Fornecimento por Fornecedor</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+  `;
+
+  propostas.forEach(prop => {
+    const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
+    html += `
+      <div style="background: white; padding: 1rem; border-radius: 4px; border-left: 4px solid #1e40af; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="font-weight: 700; margin-bottom: 1rem; color: #1e40af; font-size: 13px;">${forn?.nome || 'Fornecedor'}</div>
+        <div style="font-size: 12px; line-height: 1.8; color: #374151;">
+          <div style="margin-bottom: 0.5rem;"><strong>📅 Prazo Entrega:</strong> <span style="color: #666;">${prop.prazoEntrega || '-'}</span></div>
+          <div style="margin-bottom: 0.5rem;"><strong>💳 Prazo Pagamento:</strong> <span style="color: #666;">${prop.prazoPagamento || '-'}</span></div>
+          <div style="margin-bottom: 0.5rem;"><strong>🚚 Tipo Frete:</strong> <span style="color: #666;">${prop.tipoFrete || 'CIF'}</span></div>
+          <div><strong>🛡️ Garantia:</strong> <span style="color: #666;">${prop.garantiasMeses ? prop.garantiasMeses + ' meses' : '-'}</span></div>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div></div>`;
+
   container.innerHTML = html;
 }
 
@@ -1438,61 +1478,103 @@ function renderizarResumos() {
 
   const itens = primeiraPropo.itens;
 
-  // Resumo por Valor
+  // Calcular totais por fornecedor
   const resumoValor = {};
   propostas.forEach(prop => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const fornName = forn ? forn.nome : 'Sem fornecedor';
     const ufFornecedor = forn?.uf;
 
-    let totalComDifal = 0;
+    let subtotal = 0;
+    let totalDifal = 0;
+
     (prop.itens || []).forEach(item => {
-      const subtotal = (item.precoUnitario || 0) * (item.quantidade || 0);
-      const difal = ufFornecedor ? calcularDIFAL(ufFornecedor, subtotal) : { difal: 0 };
-      totalComDifal += subtotal + difal.difal;
+      const itemSubtotal = (item.precoUnitario || 0) * (item.quantidade || 0);
+      subtotal += itemSubtotal;
+      const difal = ufFornecedor ? calcularDIFAL(ufFornecedor, itemSubtotal) : { difal: 0 };
+      totalDifal += difal.difal;
     });
 
-    resumoValor[fornName] = totalComDifal;
+    const total = subtotal + totalDifal;
+    resumoValor[fornName] = { subtotal, difal: totalDifal, total };
   });
 
-  let htmlValor = '';
-  const valores = Object.values(resumoValor).filter(v => v > 0);
+  // Montar resumos HTML
+  let htmlValor = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+  const valores = Object.values(resumoValor).map(v => v.total).filter(v => v > 0);
   const menorValor = valores.length > 0 ? Math.min(...valores) : null;
 
-  Object.entries(resumoValor).forEach(([nome, valor]) => {
-    const isMelhor = menorValor && valor === menorValor;
-    htmlValor += `<div style="padding: 8px; border-bottom: 1px solid #eee; ${isMelhor ? 'background: #dcfce7; font-weight: 700; color: #059669;' : ''}">
-      ${nome}: <strong>R$ ${valor.toFixed(2)}</strong> ${isMelhor ? '✓' : ''}
-    </div>`;
+  Object.entries(resumoValor).forEach(([nome, dados]) => {
+    const isMelhor = menorValor && dados.total === menorValor;
+    htmlValor += `
+      <div style="padding: 10px; border-radius: 4px; ${isMelhor ? 'background: #dcfce7; border-left: 4px solid #10b981;' : 'background: #f9fafb; border-left: 4px solid #d1d5db;'}">
+        <div style="font-weight: 600; color: ${isMelhor ? '#059669' : '#374151'}; margin-bottom: 4px;">${nome}</div>
+        <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+          <div>Subtotal: R$ ${dados.subtotal.toFixed(2)}</div>
+          <div>DIFAL: R$ ${dados.difal.toFixed(2)}</div>
+        </div>
+        <div style="font-size: 14px; font-weight: 700; color: ${isMelhor ? '#059669' : '#111827'};">
+          Total: R$ ${dados.total.toFixed(2)} ${isMelhor ? '✓' : ''}
+        </div>
+      </div>
+    `;
   });
-
+  htmlValor += '</div>';
   document.getElementById('resumo-valor-conteudo').innerHTML = htmlValor;
 
-  // Resumo por Material
-  let htmlMaterial = '';
+  // Resumo por Material (Melhor Preço)
+  let htmlMaterial = '<div style="display: flex; flex-direction: column; gap: 8px;">';
   itens.forEach((item, idx) => {
     const precos = propostas.map(p => (p.itens[idx]?.precoUnitario || 0)).filter(v => v > 0);
     if (precos.length === 0) return;
 
     const menorPreço = Math.min(...precos);
-    htmlMaterial += `<div style="padding: 8px; border-bottom: 1px solid #eee; background: #dcfce7; color: #059669; font-weight: 700;">
-      ${item.codigo}: <strong>R$ ${menorPreço.toFixed(2)}</strong> ✓
-    </div>`;
+    htmlMaterial += `
+      <div style="padding: 10px; background: #dcfce7; border-left: 4px solid #10b981; border-radius: 4px;">
+        <div style="font-weight: 600; color: #059669; margin-bottom: 4px;">${item.codigo || 'Item'}</div>
+        <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+          ${item.descricao || 'Sem descrição'}
+        </div>
+        <div style="font-size: 14px; font-weight: 700; color: #059669;">
+          Melhor Preço: R$ ${menorPreço.toFixed(2)} ✓
+        </div>
+      </div>
+    `;
   });
+  htmlMaterial += '</div>';
+  document.getElementById('resumo-material-conteudo').innerHTML = htmlMaterial || '<div style="padding: 10px; color: #999; text-align: center;">Adicione itens e preços para ver resumo</div>';
 
-  document.getElementById('resumo-material-conteudo').innerHTML = htmlMaterial || '<div style="padding: 8px; color: #999;">Sem dados</div>';
-
-  // Recomendação
-  let recomendacao = '<div style="color: #059669; font-size: 14px; font-weight: 700; margin-bottom: 10px;">🎯 Melhor Fornecedor</div>';
+  // Recomendação Equilibrada
+  let recomendacao = '';
   if (menorValor && resumoValor) {
-    const melhorFornecedor = Object.entries(resumoValor).find(([_, v]) => v === menorValor)?.[0];
+    const melhorFornecedor = Object.entries(resumoValor).find(([_, v]) => v.total === menorValor)?.[0];
     if (melhorFornecedor) {
-      recomendacao += `<div style="font-size: 13px; line-height: 1.8;">
-        <strong>${melhorFornecedor}</strong><br>
-        Valor Total: <strong>R$ ${menorValor.toFixed(2)}</strong><br>
-        <span style="color: #059669; font-weight: 700;">✓ Recomendado</span>
-      </div>`;
+      const melhorDados = resumoValor[melhorFornecedor];
+      const economia = Object.values(resumoValor).map(v => v.total);
+      const segundoMenor = economia.sort((a, b) => a - b)[1] || 0;
+      const economiaValor = segundoMenor - melhorDados.total;
+      const economiaPercent = segundoMenor > 0 ? ((economiaValor / segundoMenor) * 100).toFixed(1) : 0;
+
+      recomendacao = `
+        <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-left: 4px solid #10b981; padding: 1rem; border-radius: 4px;">
+          <div style="color: #059669; font-size: 14px; font-weight: 700; margin-bottom: 1rem;">🎯 Fornecedor Recomendado</div>
+          <div style="font-size: 13px; line-height: 1.8; color: #374151;">
+            <div style="font-weight: 700; margin-bottom: 0.5rem; color: #059669;">${melhorFornecedor}</div>
+            <div style="margin-bottom: 0.5rem;"><strong>Valor Total:</strong> R$ ${melhorDados.total.toFixed(2)}</div>
+            <div style="margin-bottom: 0.5rem;"><strong>Subtotal:</strong> R$ ${melhorDados.subtotal.toFixed(2)}</div>
+            <div style="margin-bottom: 1rem;"><strong>DIFAL:</strong> R$ ${melhorDados.difal.toFixed(2)}</div>
+            <div style="background: white; padding: 0.75rem; border-radius: 3px; text-align: center;">
+              <div style="font-weight: 700; color: #059669;">💰 Economia</div>
+              <div style="font-size: 16px; font-weight: 700; color: #059669;">
+                R$ ${economiaValor.toFixed(2)} (${economiaPercent}%)
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
     }
+  } else {
+    recomendacao = '<div style="padding: 1rem; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 4px; color: #1e40af; text-align: center;">ℹ️ Configure fornecedores e preços para obter recomendação</div>';
   }
 
   document.getElementById('recomendacao-conteudo').innerHTML = recomendacao;
