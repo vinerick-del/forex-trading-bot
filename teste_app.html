@@ -1170,12 +1170,12 @@ const UF_COMPRADORA = 'AM';
 const ALIQUOTA_COMPRADORA = ALIQUOTAS_ICMS[UF_COMPRADORA]; // 18%
 
 let state = {
-  fornecedores: JSON.parse(localStorage.getItem('fornecedores_ambar') || '[]'),
-  processos: JSON.parse(localStorage.getItem('processos_amazon') || '[]'),
+  fornecedores: (() => { try { return JSON.parse(localStorage.getItem('fornecedores_ambar') || '[]'); } catch(e) { return []; } })(),
+  processos: (() => { try { return JSON.parse(localStorage.getItem('processos_amazon') || '[]'); } catch(e) { return []; } })(),
   notificacoes: [],
   processoAtual: null,
   itemFichaAtual: null,
-  precoHistorico: JSON.parse(localStorage.getItem('preco_historico') || '{}'),
+  precoHistorico: (() => { try { return JSON.parse(localStorage.getItem('preco_historico') || '{}'); } catch(e) { return {}; } })(),
   sapImportados: [],
   signatureCanvases: {}
 };
@@ -2975,8 +2975,8 @@ renderizarDashboard();
 atualizarSelects();
 filtrarHistorico();
 atualizarSAPImportados();
-document.getElementById('aprov-data').valueAsDate = new Date();
-document.getElementById('cad-data').valueAsDate = new Date();
+if (document.getElementById('aprov-data')) document.getElementById('aprov-data').valueAsDate = new Date();
+if (document.getElementById('cad-data')) document.getElementById('cad-data').valueAsDate = new Date();
 </script>
 
 </body>
