@@ -1535,8 +1535,8 @@ function renderizarComparativoEqualizacao() {
                    style="font-size: 8px; padding: 2px; border: 1px solid var(--cor-borda); border-radius: 2px;" />
 
             <label style="font-weight: bold; color: var(--cor-principal);">Pagamento (d):</label>
-            <input type="number" value="${prop.prazoPaygamento || ''}" placeholder="dias"
-                   onchange="state.processoAtual.propostas[${pIdx}].prazoPaygamento = parseInt(this.value) || 0; salvarState(); renderizarResumos();"
+            <input type="number" value="${prop.prazoPagamento || ''}" placeholder="dias"
+                   onchange="state.processoAtual.propostas[${pIdx}].prazoPagamento = parseInt(this.value) || 0; salvarState(); renderizarResumos();"
                    style="font-size: 8px; padding: 2px; border: 1px solid var(--cor-borda); border-radius: 2px;" />
 
             <label style="font-weight: bold; color: var(--cor-principal);">Frete:</label>
@@ -1663,7 +1663,6 @@ function renderizarComparativoEqualizacao() {
           </div>
         </div>
       </td>`;
-    });
     });
 
     // Coluna de seleção de vencedor
@@ -1808,7 +1807,7 @@ function renderizarRecomendacao() {
     return {
       nome: forn ? forn.nome : 'Sem Fornecedor',
       prazoEntrega: prop.prazoEntrega || 999,
-      prazoPaygamento: prop.prazoPaygamento || 0,
+      prazoPagamento: prop.prazoPagamento || 0,
       garantiasMeses: prop.garantiasMeses || 0,
       tipoFrete: prop.tipoFrete || '-',
       preco: totalComTributos,
@@ -1839,7 +1838,7 @@ function renderizarRecomendacao() {
       <div>
         <strong>Custo Total:</strong> R$ ${recomendado.preco.toFixed(2)}<br/>
         <strong>Prazo Entrega:</strong> ${recomendado.prazoEntrega} dias<br/>
-        <strong>Prazo Pagamento:</strong> ${recomendado.prazoPaygamento} dias<br/>
+        <strong>Prazo Pagamento:</strong> ${recomendado.prazoPagamento} dias<br/>
         <strong>Garantia:</strong> ${recomendado.garantiasMeses} meses<br/>
         <strong>Frete:</strong> ${recomendado.tipoFrete}
       </div>
@@ -1873,7 +1872,7 @@ function calcularRiscoOperacional(proposta, fornecedor) {
   }
 
   // Prazo de pagamento longo (> 60 dias) = risco financeiro
-  if (proposta.prazoPaygamento && proposta.prazoPaygamento > 60) {
+  if (proposta.prazoPagamento && proposta.prazoPagamento > 60) {
     risco += 12;
     descricao.push('⚠️ Prazo de pagamento longo (caixa)');
   }
