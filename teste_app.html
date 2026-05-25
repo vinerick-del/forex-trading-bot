@@ -855,16 +855,6 @@ table tbody tr:hover { background: #f9fafb; }
       </div>
 
       <!-- ANÁLISE DE RISCO -->
-      <!-- BOTÕES DE APROVAÇÃO -->
-      <div class="card" style="background: linear-gradient(135deg, #eff6ff, #f0f9ff); border: 2px solid var(--cor-info);">
-        <h3 style="color: var(--cor-principal); margin-bottom: 1rem;">✓ Aprovar Equalização</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-          <button class="btn btn-success" onclick="aprovarPorMelhorPreco()" style="font-size: 12px; padding: 12px;">💰 Melhor Preço</button>
-          <button class="btn btn-success" onclick="aprovarPorMelhorPrazo()" style="font-size: 12px; padding: 12px;">⏱️ Melhor Prazo</button>
-          <button class="btn btn-success" onclick="aprovarPorMelhorGarantia()" style="font-size: 12px; padding: 12px;">🛡️ Melhor Garantia</button>
-          <button class="btn btn-primary" onclick="aprovarManual()" style="font-size: 12px; padding: 12px; margin-left: auto;">👤 Aprovação Manual</button>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -1534,9 +1524,9 @@ function renderizarComparativoEqualizacao() {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const fornName = forn ? forn.nome : 'Fornecedor ' + (pIdx + 1);
 
-    const resumoCondicoes = `Ent.: ${prop.prazoEntrega || '-'}d / Pgto.: ${prop.prazoPagamento || '-'}d / Gar.: ${prop.garantiasMeses || '-'}m / Frete: ${prop.tipoFrete || 'CIF'}`;
+    const resumoCondicoes = `${prop.prazoEntrega || '-'}d/${prop.prazoPagamento || '-'}d/${prop.garantiasMeses || '-'}m/${prop.tipoFrete || 'CIF'}`;
 
-    html += `<th style="padding: 6px; text-align: center; border-right: 1px solid var(--cor-borda); min-width: 200px; background: #e8f4f8; vertical-align: top;">
+    html += `<th style="padding: 6px; text-align: center; border-right: 1px solid var(--cor-borda); min-width: 240px; background: #e8f4f8; vertical-align: top;">
       <div style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; gap: 4px;">
         <strong style="font-size: 9px; flex: 1;">${fornName.substring(0, 11)}</strong>
         <button onclick="event.stopPropagation(); const cond = document.getElementById('cond-${pIdx}'); const isHidden = cond.style.display === 'none'; cond.style.display = isHidden ? 'block' : 'none'; this.textContent = isHidden ? '▶' : '▼'; document.getElementById('res-${pIdx}').style.display = isHidden ? 'none' : 'block';"
@@ -1586,8 +1576,7 @@ function renderizarComparativoEqualizacao() {
     </th>`;
   });
 
-  html += `<th style="padding: 10px; text-align: center; min-width: 60px;"><strong>Vencedor</strong></th>
-    </tr>
+  html += `</tr>
     </thead>
     <tbody>`;
 
@@ -1792,7 +1781,7 @@ function renderizarResumos() {
   let htmlGarantia = '';
   propostas.forEach(prop => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
-    const garantia = prop.garantia || '-';
+    const garantia = prop.garantiasMeses ? `${prop.garantiasMeses} meses` : '-';
     htmlGarantia += `<div style="padding: 8px; border-bottom: 1px solid #eee;">
       ${forn ? forn.nome : 'Sem Fornecedor'}: <strong>${garantia}</strong>
     </div>`;
