@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Âmbar ENERGIA - Sistema de Compras Inteligente</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary: #1e40af;
+  --primary-light: #3b82f6;
+  --primary-dark: #1e3a8a;
+  --success: #059669;
+  --success-light: #10b981;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --info: #0ea5e9;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  --border-color: #e5e7eb;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  background: #f3f4f6;
+  color: var(--gray-900);
+  line-height: 1.6;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  background: #f3f4f6;
+}
+
+/* ============ SIDEBAR ============ */
+.sidebar {
+  width: 260px;
+  background: var(--gray-900);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-logo {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.sidebar-logo span {
+  color: var(--primary-light);
+}
+
+.sidebar-menu {
+  flex: 1;
+  padding: 1rem 0;
+  overflow-y: auto;
+}
+
+.menu-section {
+  padding: 0.5rem 0;
+  margin: 1rem 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.menu-section-title {
+  padding: 0.75rem 1.5rem;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.5px;
+}
+
+.menu-item {
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all 200ms;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+}
+
+.menu-item:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.menu-item.active {
+  background: var(--primary-light);
+  color: white;
+  border-left: 4px solid var(--warning);
+}
+
+.menu-item-icon {
+  font-size: 18px;
+  min-width: 24px;
+}
+
+.sidebar-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+}
+
+/* ============ MAIN CONTENT ============ */
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ============ TOP HEADER ============ */
+.top-header {
+  background: white;
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.breadcrumb {
+  font-size: 13px;
+  color: var(--gray-600);
+}
+
+.breadcrumb strong {
+  color: var(--gray-900);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--gray-50);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 200ms;
+}
+
+.user-menu:hover {
+  background: var(--gray-100);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--primary-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+}
+
+/* ============ CONTENT AREA ============ */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: var(--gray-600);
+}
+
+/* ============ DASHBOARD ============ */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: all 200ms;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--primary-light);
+}
+
+.kpi-card.success::before { background: var(--success-light); }
+.kpi-card.warning::before { background: var(--warning); }
+.kpi-card.danger::before { background: var(--danger); }
+
+.kpi-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.kpi-info {
+  flex: 1;
+}
+
+.kpi-label {
+  font-size: 12px;
+  color: var(--gray-600);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gray-900);
+  line-height: 1;
+}
+
+.kpi-unit {
+  font-size: 11px;
+  color: var(--gray-600);
+  margin-top: 0.5rem;
+}
+
+.kpi-icon {
+  font-size: 28px;
+  opacity: 0.3;
+}
+
+/* ============ CARDS ============ */
+.card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-900);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ============ BUTTONS ============ */
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--primary-light);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+.btn-secondary {
+  background: var(--gray-100);
+  color: var(--gray-900);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--gray-200);
+}
+
+.btn-success {
+  background: var(--success-light);
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: var(--success);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 11px;
+}
+
+.btn-icon {
+  padding: 0.5rem;
+  min-width: auto;
+}
+
+/* ============ FORMS ============ */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  font-size: 13px;
+  margin-bottom: 0.5rem;
+  color: var(--gray-900);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 200ms;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ============ TABLES ============ */
+.table-container {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: white;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+table thead {
+  background: var(--gray-50);
+  border-bottom: 2px solid var(--border-color);
+}
+
+table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--gray-900);
+  white-space: nowrap;
+}
+
+table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+table tbody tr:hover {
+  background: var(--gray-50);
+}
+
+/* ============ BADGES ============ */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-primary { background: #dbeafe; color: #0c4a6e; }
+.badge-success { background: #d1fae5; color: #065f46; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-danger { background: #fee2e2; color: #7f1d1d; }
+.badge-gray { background: #f3f4f6; color: #6b7280; }
+
+/* ============ ALERTS ============ */
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.alert-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-title {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 0.25rem;
+}
+
+.alert-message {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.alert-info {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #0c4a6e;
+}
+
+.alert-success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #065f46;
+}
+
+.alert-warning {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  color: #92400e;
+}
+
+.alert-danger {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #7f1d1d;
+}
+
+/* ============ MODAL ============ */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--gray-900);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* ============ TABS ============ */
+.tabs-container {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--gray-600);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: var(--gray-900);
+}
+
+.tab-btn.active {
+  color: var(--primary-light);
+  border-bottom-color: var(--primary-light);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .main-content {
+    margin-left: 200px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 180px;
+    position: fixed;
+  }
+
+  .main-content {
+    margin-left: 180px;
+  }
+
+  .top-header {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .header-left,
+  .header-right {
+    width: 100%;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .page-title {
+    font-size: 18px;
+  }
+
+  table {
+    font-size: 11px;
+  }
+
+  table th,
+  table td {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 150px;
+  }
+
+  .main-content {
+    margin-left: 150px;
+  }
+
+  .sidebar-menu {
+    padding: 0.5rem 0;
+  }
+
+  .menu-item {
+    padding: 0.5rem 1rem;
+    font-size: 12px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .card-actions {
+    width: 100%;
+  }
+
+  .btn {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* ============ UTILITIES ============ */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-muted { color: var(--gray-600); }
+.text-bold { font-weight: 600; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.d-flex { display: flex; }
+.gap-1 { gap: 0.5rem; }
+.gap-2 { gap: 1rem; }
+.flex-1 { flex: 1; }
+
+.loading {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- ============ SIDEBAR ============ -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">⚡<span>Âmbar</span></div>
+    </div>
+
+    <div class="sidebar-menu">
+      <div class="menu-section">
+        <div class="menu-section-title">Menu Principal</div>
+        <div class="menu-item active" onclick="showPage('dashboard')">
+          <div class="menu-item-icon">📊</div>
+          <div>Dashboard</div>
+        </div>
+        <div class="menu-item" onclick="showPage('processes')">
+          <div class="menu-item-icon">📋</div>
+          <div>Processos</div>
+        </div>
+        <div class="menu-item" onclick="showPage('suppliers')">
+          <div class="menu-item-icon">🏢</div>
+          <div>Fornecedores</div>
+        </div>
+        <div class="menu-item" onclick="showPage('quotations')">
+          <div class="menu-item-icon">💰</div>
+          <div>Cotações</div>
+        </div>
+      </div>
+
+      <div class="menu-section">
+        <div class="menu-section-title">Análise</div>
+        <div class="menu-item" onclick="showPage('comparison')">
+          <div class="menu-item-icon">⚖️</div>
+          <div>Equalizacão</div>
+        </div>
+        <div class="menu-item" onclick="showPage('reports')">
+          <div class="menu-item-icon">📈</div>
+          <div>Relatórios</div>
+        </div>
+      </div>
+
+      <div class="menu-section">
+        <div class="menu-section-title">Configuração</div>
+        <div class="menu-item" onclick="showPage('settings')">
+          <div class="menu-item-icon">⚙️</div>
+          <div>Configurações</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div>v1.0.0</div>
+      <div>Âmbar ENERGIA</div>
+    </div>
+  </div>
+
+  <!-- ============ MAIN CONTENT ============ -->
+  <div class="main-content">
+    <!-- ============ TOP HEADER ============ -->
+    <div class="top-header">
+      <div class="header-left">
+        <div class="breadcrumb">
+          <strong id="page-name">Dashboard</strong>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="user-menu">
+          <div class="user-avatar">AE</div>
+          <div style="font-size: 13px;">Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ CONTENT ============ -->
+    <div class="content">
+      <!-- DASHBOARD PAGE -->
+      <div id="page-dashboard" class="page">
+        <div class="page-header">
+          <div class="page-title">📊 Dashboard Executivo</div>
+          <div class="page-subtitle">Visão geral dos processos de compra e cotações</div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="kpi-card success">
+            <div class="kpi-content">
+              <div class="kpi-info">
+                <div class="kpi-label">Processos Ativos</div>
+                <div class="kpi-value">12</div>
+              </div>
+              <div class="kpi-icon">📋</div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-content">
+              <div class="kpi-info">
+                <div class="kpi-label">Fornecedores Cadastrados</div>
+                <div class="kpi-value">28</div>
+              </div>
+              <div class="kpi-icon">🏢</div>
+            </div>
+          </div>
+
+          <div class="kpi-card warning">
+            <div class="kpi-content">
+              <div class="kpi-info">
+                <div class="kpi-label">Cotações em Aberto</div>
+                <div class="kpi-value">5</div>
+              </div>
+              <div class="kpi-icon">💰</div>
+            </div>
+          </div>
+
+          <div class="kpi-card danger">
+            <div class="kpi-content">
+              <div class="kpi-info">
+                <div class="kpi-label">Cotações Pendentes</div>
+                <div class="kpi-value">3</div>
+              </div>
+              <div class="kpi-icon">⚠️</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 Últimos Processos</div>
+            <div class="card-actions">
+              <button class="btn btn-secondary btn-sm">Ver Mais</button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>DATAGED</th>
+                  <th>Descrição</th>
+                  <th>Status</th>
+                  <th>Fornecedores</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>DG-2025-001</strong></td>
+                  <td>Cabos de Força</td>
+                  <td><span class="badge badge-success">Ativo</span></td>
+                  <td>3</td>
+                  <td>25/05/2026</td>
+                </tr>
+                <tr>
+                  <td><strong>DG-2025-002</strong></td>
+                  <td>Equipamentos Elétricos</td>
+                  <td><span class="badge badge-warning">Pendente</span></td>
+                  <td>5</td>
+                  <td>24/05/2026</td>
+                </tr>
+                <tr>
+                  <td><strong>DG-2025-003</strong></td>
+                  <td>Transformadores</td>
+                  <td><span class="badge badge-success">Ativo</span></td>
+                  <td>2</td>
+                  <td>23/05/2026</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROCESSES PAGE -->
+      <div id="page-processes" class="page" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">📋 Gerenciar Processos</div>
+          <div class="page-subtitle">Crie e acompanhe processos de compra</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Novo Processo</div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Número DATAGED *</label>
+              <input type="text" placeholder="DG-2025-XXX">
+            </div>
+            <div class="form-group">
+              <label>Descrição *</label>
+              <input type="text" placeholder="Descrição do processo">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Centro de Custo</label>
+              <input type="text" placeholder="CC-001">
+            </div>
+            <div class="form-group">
+              <label>Responsável</label>
+              <input type="text" placeholder="Nome do responsável">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-primary">✓ Criar Processo</button>
+            <button class="btn btn-secondary">Cancelar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 Processos Cadastrados</div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>DATAGED</th>
+                  <th>Descrição</th>
+                  <th>Responsável</th>
+                  <th>Fornecedores</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>DG-2025-001</strong></td>
+                  <td>Cabos de Força</td>
+                  <td>João Silva</td>
+                  <td>3</td>
+                  <td><span class="badge badge-success">Ativo</span></td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm btn-icon">✎</button>
+                    <button class="btn btn-danger btn-sm btn-icon">✕</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUPPLIERS PAGE -->
+      <div id="page-suppliers" class="page" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">🏢 Cadastro de Fornecedores</div>
+          <div class="page-subtitle">Gerencie todos os seus fornecedores</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Novo Fornecedor</div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nome da Empresa *</label>
+              <input type="text" placeholder="Nome completo">
+            </div>
+            <div class="form-group">
+              <label>CNPJ *</label>
+              <input type="text" placeholder="00.000.000/0000-00">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email *</label>
+              <input type="email" placeholder="email@fornecedor.com">
+            </div>
+            <div class="form-group">
+              <label>Telefone</label>
+              <input type="tel" placeholder="(11) 9999-9999">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Estado (UF) *</label>
+              <select>
+                <option>-- Selecione --</option>
+                <option>SP</option>
+                <option>MG</option>
+                <option>RJ</option>
+                <option>BA</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Cidade</label>
+              <input type="text" placeholder="Cidade">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-success">✓ Cadastrar Fornecedor</button>
+            <button class="btn btn-secondary">Cancelar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 Fornecedores Cadastrados</div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Empresa</th>
+                  <th>CNPJ</th>
+                  <th>Email</th>
+                  <th>UF</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>SIEMENS Brasil</strong></td>
+                  <td>12.345.678/0001-90</td>
+                  <td>vendas@siemens.com.br</td>
+                  <td>SP</td>
+                  <td><span class="badge badge-success">Ativo</span></td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm btn-icon">✎</button>
+                    <button class="btn btn-danger btn-sm btn-icon">✕</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>ABB Distribuidora</strong></td>
+                  <td>98.765.432/0001-01</td>
+                  <td>contato@abb.com.br</td>
+                  <td>MG</td>
+                  <td><span class="badge badge-success">Ativo</span></td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm btn-icon">✎</button>
+                    <button class="btn btn-danger btn-sm btn-icon">✕</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUOTATIONS PAGE -->
+      <div id="page-quotations" class="page" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">💰 Cotações e Equalizacão</div>
+          <div class="page-subtitle">Gerencie cotações de fornecedores</div>
+        </div>
+
+        <div class="alert alert-info">
+          <div class="alert-icon">ℹ️</div>
+          <div class="alert-content">
+            <div class="alert-title">Selecione um Processo</div>
+            <div class="alert-message">Escolha um processo de compra para começar a gerenciar cotações</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Selecionar Processo</div>
+          </div>
+
+          <div class="form-group">
+            <label>Processo DATAGED</label>
+            <select>
+              <option>-- Selecione um processo --</option>
+              <option>DG-2025-001 - Cabos de Força</option>
+              <option>DG-2025-002 - Equipamentos Elétricos</option>
+              <option>DG-2025-003 - Transformadores</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPARISON PAGE -->
+      <div id="page-comparison" class="page" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">⚖️ Análise Comparativa</div>
+          <div class="page-subtitle">Compare propostas de fornecedores</div>
+        </div>
+
+        <div class="alert alert-success">
+          <div class="alert-icon">✓</div>
+          <div class="alert-content">
+            <div class="alert-title">Funcionalidade Pronta</div>
+            <div class="alert-message">Sistema de equalizacão com cálculo de DIFAL, comparativo de preços e recomendação inteligente integrado.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚙️ Configurar Fornecedores</div>
+          </div>
+
+          <div class="form-group">
+            <label>Processo DATAGED *</label>
+            <select>
+              <option>-- Selecione --</option>
+              <option>DG-2025-001</option>
+              <option>DG-2025-002</option>
+            </select>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-primary">+ Adicionar Item</button>
+            <button class="btn btn-secondary">+ Adicionar Fornecedor</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS PAGE -->
+      <div id="page-reports" class="page" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">📈 Relatórios</div>
+          <div class="page-subtitle">Análise e relatórios de compras</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📊 Estatísticas Gerais</div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+              <div style="font-size: 12px; color: var(--gray-600); margin-bottom: 0.5rem;">Total de Processos</div>
+              <div style="font-size: 24px; font-weight: 700;">12</div>
+            </div>
+            <div style="padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+              <div style="font-size: 12px; color: var(--gray-600); margin-bottom: 0.5rem;">Valor Total Cotado</div>
+              <div style="font-size: 24px; font-weight: 700;">R$ 2,5M</div>
+            </div>
+            <div style="padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+              <div style="font-size: 12px; color: var(--gray-600); margin-bottom: 0.5rem;">Economia Média</div>
+              <div style="font-size: 24px; font-weight: 700;">12.5%</div>
+            </div>
+            <div style="padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+              <div style="font-size: 12px; color: var(--gray-600); margin-bottom: 0.5rem;">Fornecedores Ativos</div>
+              <div style="font-size: 24px; font-weight: 700;">28</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS PAGE -->
+      <div id="page-settings" class="page" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">⚙️ Configurações</div>
+          <div class="page-subtitle">Personalize o sistema</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Preferências Gerais</div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" checked> Enviar notificações por email
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" checked> Autosalvar dados
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>Tema Visual</label>
+            <select>
+              <option selected>Claro</option>
+              <option>Escuro</option>
+              <option>Automático</option>
+            </select>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-primary">💾 Salvar Alterações</button>
+            <button class="btn btn-secondary">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showPage(pageName) {
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
+
+  // Show selected page
+  const page = document.getElementById('page-' + pageName);
+  if (page) page.style.display = 'block';
+
+  // Update page name
+  const titles = {
+    'dashboard': '📊 Dashboard Executivo',
+    'processes': '📋 Gerenciar Processos',
+    'suppliers': '🏢 Cadastro de Fornecedores',
+    'quotations': '💰 Cotações e Equalizacão',
+    'comparison': '⚖️ Análise Comparativa',
+    'reports': '📈 Relatórios',
+    'settings': '⚙️ Configurações'
+  };
+
+  document.getElementById('page-name').textContent = titles[pageName] || 'Dashboard';
+
+  // Update active menu item
+  document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+  event.target.closest('.menu-item').classList.add('active');
+}
+
+// Initialize state management
+const state = {
+  fornecedores: [],
+  processos: [],
+  processoAtual: null,
+  notificacoes: []
+};
+
+// Load from localStorage
+function loadState() {
+  const saved = localStorage.getItem('estado_app');
+  if (saved) Object.assign(state, JSON.parse(saved));
+}
+
+function salvarState() {
+  localStorage.setItem('estado_app', JSON.stringify(state));
+}
+
+// Initialize
+loadState();
+</script>
+
+</body>
+</html>
