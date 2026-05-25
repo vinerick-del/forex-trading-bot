@@ -855,11 +855,6 @@ table tbody tr:hover { background: #f9fafb; }
       </div>
 
       <!-- ANÁLISE DE RISCO -->
-      <div class="card" style="background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #ef4444;">
-        <h3 style="color: var(--cor-principal); margin-bottom: 1rem;">⚠️ Análise de Riscos</h3>
-        <div id="analise-riscos-conteudo" style="font-size: 11px; line-height: 1.6;"></div>
-      </div>
-
       <!-- BOTÕES DE APROVAÇÃO -->
       <div class="card" style="background: linear-gradient(135deg, #eff6ff, #f0f9ff); border: 2px solid var(--cor-info);">
         <h3 style="color: var(--cor-principal); margin-bottom: 1rem;">✓ Aprovar Equalização</h3>
@@ -1534,41 +1529,46 @@ function renderizarComparativoEqualizacao() {
         <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 60px;"><strong>Qtd</strong></th>
         <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 40px;"><strong>Del</strong></th>`;
 
-  // Colunas de fornecedores (com campos de condições - colapsáveis)
+  // Colunas de fornecedores (com campos de condições - colapsáveis + resumo)
   propostas.forEach((prop, pIdx) => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const fornName = forn ? forn.nome : 'Fornecedor ' + (pIdx + 1);
 
-    html += `<th style="padding: 6px; text-align: center; border-right: 1px solid var(--cor-borda); min-width: 220px; background: #e8f4f8; vertical-align: top;">
-      <div style="margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
-        <strong style="font-size: 10px;">${fornName.substring(0, 12)}</strong>
-        <button onclick="event.stopPropagation(); document.getElementById('cond-${pIdx}').style.display = document.getElementById('cond-${pIdx}').style.display === 'none' ? 'block' : 'none'; this.textContent = document.getElementById('cond-${pIdx}').style.display === 'none' ? '▶' : '▼';"
-                style="background: none; border: none; cursor: pointer; font-size: 10px; padding: 0; color: var(--cor-principal);">▼</button>
+    const resumoCondicoes = `Ent.: ${prop.prazoEntrega || '-'}d / Pgto.: ${prop.prazoPagamento || '-'}d / Gar.: ${prop.garantiasMeses || '-'}m / Frete: ${prop.tipoFrete || 'CIF'}`;
+
+    html += `<th style="padding: 6px; text-align: center; border-right: 1px solid var(--cor-borda); min-width: 200px; background: #e8f4f8; vertical-align: top;">
+      <div style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; gap: 4px;">
+        <strong style="font-size: 9px; flex: 1;">${fornName.substring(0, 11)}</strong>
+        <button onclick="event.stopPropagation(); const cond = document.getElementById('cond-${pIdx}'); const isHidden = cond.style.display === 'none'; cond.style.display = isHidden ? 'block' : 'none'; this.textContent = isHidden ? '▶' : '▼'; document.getElementById('res-${pIdx}').style.display = isHidden ? 'none' : 'block';"
+                style="background: none; border: none; cursor: pointer; font-size: 10px; padding: 0; color: var(--cor-principal); flex-shrink: 0;">▼</button>
         <button onclick="event.stopPropagation(); excluirProposta(${pIdx});"
-                style="background: #ff6b6b; color: white; border: none; cursor: pointer; font-size: 8px; padding: 2px 4px; border-radius: 2px;">✕</button>
+                style="background: #ff6b6b; color: white; border: none; cursor: pointer; font-size: 8px; padding: 1px 3px; border-radius: 2px; flex-shrink: 0;">✕</button>
       </div>
-      <div style="background: white; border: 1px solid var(--cor-borda); border-radius: 3px; padding: 4px; font-size: 8px; text-align: left;">
-        <div style="margin-bottom: 4px;">
+      <div style="background: white; border: 1px solid var(--cor-borda); border-radius: 3px; padding: 3px; font-size: 8px; text-align: left;">
+        <div style="margin-bottom: 3px;">
           <select onchange="state.processoAtual.propostas[${pIdx}].fornecedorId = parseInt(this.value); salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
                   style="width: 100%; font-size: 8px; padding: 2px;">
             <option value="">-- Selecione --</option>
             ${state.fornecedores.map(f => `<option value="${f.id}" ${prop.fornecedorId === f.id ? 'selected' : ''}>${f.nome} (${f.uf})</option>`).join('')}
           </select>
         </div>
-        <div id="cond-${pIdx}" style="border-top: 1px solid #eee; padding-top: 4px;">
+        <div id="res-${pIdx}" style="background: #f5f5f5; padding: 2px; border-radius: 2px; margin-bottom: 3px; font-size: 7px; color: #666; display: none;">
+          ${resumoCondicoes}
+        </div>
+        <div id="cond-${pIdx}" style="border-top: 1px solid #eee; padding-top: 3px;">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px;">
-            <label style="font-weight: bold; color: var(--cor-principal);">Prazo Entrega (d):</label>
-            <input type="number" value="${prop.prazoEntrega || ''}" placeholder="dias"
-                   onchange="state.processoAtual.propostas[${pIdx}].prazoEntrega = parseInt(this.value) || 0; salvarState(); renderizarResumos();"
+            <label style="font-weight: bold; color: var(--cor-principal); font-size: 7px;">Ent. (d):</label>
+            <input type="number" value="${prop.prazoEntrega || ''}" placeholder="d"
+                   onchange="state.processoAtual.propostas[${pIdx}].prazoEntrega = parseInt(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
                    style="font-size: 8px; padding: 2px; border: 1px solid var(--cor-borda); border-radius: 2px;" />
 
-            <label style="font-weight: bold; color: var(--cor-principal);">Pagamento (d):</label>
-            <input type="number" value="${prop.prazoPagamento || ''}" placeholder="dias"
-                   onchange="state.processoAtual.propostas[${pIdx}].prazoPagamento = parseInt(this.value) || 0; salvarState(); renderizarResumos();"
+            <label style="font-weight: bold; color: var(--cor-principal); font-size: 7px;">Pgto. (d):</label>
+            <input type="number" value="${prop.prazoPagamento || ''}" placeholder="d"
+                   onchange="state.processoAtual.propostas[${pIdx}].prazoPagamento = parseInt(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
                    style="font-size: 8px; padding: 2px; border: 1px solid var(--cor-borda); border-radius: 2px;" />
 
-            <label style="font-weight: bold; color: var(--cor-principal);">Frete:</label>
-            <select onchange="state.processoAtual.propostas[${pIdx}].tipoFrete = this.value; salvarState(); renderizarResumos();"
+            <label style="font-weight: bold; color: var(--cor-principal); font-size: 7px;">Frete:</label>
+            <select onchange="state.processoAtual.propostas[${pIdx}].tipoFrete = this.value; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
                     style="font-size: 8px; padding: 2px; border: 1px solid var(--cor-borda); border-radius: 2px;">
               <option value="CIF" ${prop.tipoFrete === 'CIF' ? 'selected' : ''}>CIF</option>
               <option value="FOB" ${prop.tipoFrete === 'FOB' ? 'selected' : ''}>FOB</option>
@@ -1576,9 +1576,9 @@ function renderizarComparativoEqualizacao() {
               <option value="EXW" ${prop.tipoFrete === 'EXW' ? 'selected' : ''}>EXW</option>
             </select>
 
-            <label style="font-weight: bold; color: var(--cor-principal);">Garantia (m):</label>
-            <input type="number" value="${prop.garantiasMeses || ''}" placeholder="meses"
-                   onchange="state.processoAtual.propostas[${pIdx}].garantiasMeses = parseInt(this.value) || 0; salvarState(); renderizarResumos();"
+            <label style="font-weight: bold; color: var(--cor-principal); font-size: 7px;">Gar. (m):</label>
+            <input type="number" value="${prop.garantiasMeses || ''}" placeholder="m"
+                   onchange="state.processoAtual.propostas[${pIdx}].garantiasMeses = parseInt(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
                    style="font-size: 8px; padding: 2px; border: 1px solid var(--cor-borda); border-radius: 2px;" />
           </div>
         </div>
@@ -1799,9 +1799,8 @@ function renderizarResumos() {
   });
   document.getElementById('resumo-garantia-conteudo').innerHTML = htmlGarantia;
 
-  // Renderizar Recomendação e Análise de Risco
+  // Renderizar Recomendação
   renderizarRecomendacao();
-  renderizarAnaliseRisco();
 }
 
 function renderizarRecomendacao() {
@@ -1820,16 +1819,15 @@ function renderizarRecomendacao() {
   const propostas = propostasComForn.map(prop => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const ufFornecedor = forn?.uf || null;
-
     let totalComTributos = 0;
     (prop.itens || []).forEach(item => {
       const sub = (item.precoUnitario || 0) * (item.quantidade || 0);
       const difal = ufFornecedor ? calcularDIFAL(ufFornecedor, sub) : { difal: 0 };
       totalComTributos += sub + difal.difal;
     });
-
     return {
       nome: forn ? forn.nome : 'Sem Fornecedor',
+      uf: forn?.uf || '-',
       prazoEntrega: prop.prazoEntrega || 999,
       prazoPagamento: prop.prazoPagamento || 0,
       garantiasMeses: prop.garantiasMeses || 0,
@@ -1839,40 +1837,43 @@ function renderizarRecomendacao() {
     };
   });
 
-  // Calcular score: 40% preço, 30% prazo, 20% garantia, 10% frete
   propostas.forEach(p => {
     const menorPreco = Math.min(...propostas.map(x => x.preco));
     const maiorPrazo = Math.max(...propostas.map(x => x.prazoEntrega));
     const maiorGarantia = Math.max(...propostas.map(x => x.garantiasMeses));
-
     const scorePreco = (menorPreco / p.preco) * 40;
     const scorePrazo = (maiorPrazo === 0 ? 0 : (1 - (p.prazoEntrega / maiorPrazo)) * 30);
     const scoreGarantia = (maiorGarantia === 0 ? 0 : (p.garantiasMeses / maiorGarantia) * 20);
     const scoreFrete = (p.tipoFrete === 'CIF' || p.tipoFrete === 'DDP' ? 10 : 5);
-
     p.scoreEquilibrio = scorePreco + scorePrazo + scoreGarantia + scoreFrete;
   });
 
-  // Ordenar por score
   const recomendado = propostas.reduce((a, b) => a.scoreEquilibrio > b.scoreEquilibrio ? a : b);
+  const maiorPreco = Math.max(...propostas.map(x => x.preco));
+  const economiaPerc = ((maiorPreco - recomendado.preco) / maiorPreco * 100).toFixed(1);
 
-  let html = `<div style="background: white; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b;">
-    <strong style="font-size: 14px; color: var(--cor-principal);">✓ Recomendado: ${recomendado.nome}</strong>
-    <div style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-      <div>
-        <strong>Custo Total:</strong> R$ ${recomendado.preco.toFixed(2)}<br/>
-        <strong>Prazo Entrega:</strong> ${recomendado.prazoEntrega} dias<br/>
-        <strong>Prazo Pagamento:</strong> ${recomendado.prazoPagamento} dias<br/>
-        <strong>Garantia:</strong> ${recomendado.garantiasMeses} meses<br/>
-        <strong>Frete:</strong> ${recomendado.tipoFrete}
+  let html = `<div style="background: linear-gradient(135deg, #eff6ff, #f0f9ff); padding: 14px; border-radius: 6px; border-left: 4px solid #0ea5e9;">
+    <strong style="font-size: 13px; color: var(--cor-principal);">PARECER: ${recomendado.nome}</strong>
+    <div style="margin-top: 10px; font-size: 11px; line-height: 1.7;">
+      <div style="background: white; padding: 10px; border-radius: 4px; margin-bottom: 10px;">
+        <strong>Custo Total (${recomendado.scoreEquilibrio.toFixed(0)} pts):</strong> R$ ${recomendado.preco.toFixed(2)}
+        ${economiaPerc > 0 ? `<span style="color: var(--cor-sucesso); font-weight: bold;"> | Economia: ${economiaPerc}%</span>` : ''}
       </div>
-      <div>
-        <strong>Score Equilíbrio:</strong> ${recomendado.scoreEquilibrio.toFixed(1)}/100<br/>
-        <strong>Risco Operacional:</strong> ${recomendado.risco.nivel.toUpperCase()}<br/>
-        <div style="margin-top: 6px; font-size: 11px; background: #f0f0f0; padding: 6px; border-radius: 3px;">
-          ${recomendado.risco.descricao}
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+          <strong>Entrega:</strong> ${recomendado.prazoEntrega === 999 ? '-' : recomendado.prazoEntrega + ' dias'}<br/>
+          <strong>Pagamento:</strong> ${recomendado.prazoPagamento === 0 ? '-' : recomendado.prazoPagamento + ' dias'}<br/>
+          <strong>Garantia:</strong> ${recomendado.garantiasMeses === 0 ? '-' : recomendado.garantiasMeses + ' meses'}
+        </div>
+        <div>
+          <strong>Frete:</strong> ${recomendado.tipoFrete}<br/>
+          <strong>Origem:</strong> ${recomendado.uf}<br/>
+          <strong>Risco:</strong> <span style="color: ${recomendado.risco.nivel === 'baixo' ? '#27a847' : recomendado.risco.nivel === 'médio' ? '#f59e0b' : '#dc2626'}; font-weight: bold;">${recomendado.risco.nivel.toUpperCase()}</span>
         </div>
       </div>
+      ${recomendado.risco.descricao !== '✓ Risco aceitável' ? `<div style="margin-top: 8px; background: #fff8e1; padding: 6px; border-radius: 3px; font-size: 10px;">
+        ${recomendado.risco.descricao}
+      </div>` : ''}
     </div>
   </div>`;
 
@@ -1932,70 +1933,6 @@ function calcularRiscoOperacional(proposta, fornecedor) {
     nivel: nivel,
     descricao: descricao.length > 0 ? descricao.join(' | ') : '✓ Risco aceitável'
   };
-}
-
-function renderizarAnaliseRisco() {
-  if (!state.processoAtual.propostas || state.processoAtual.propostas.length === 0) {
-    document.getElementById('analise-riscos-conteudo').innerHTML = 'Adicione propostas para análise de risco.';
-    return;
-  }
-
-  const propostas = state.processoAtual.propostas.filter(prop => prop.fornecedorId).map(prop => {
-    const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
-    const ufFornecedor = forn?.uf || null;
-
-    let totalComTributos = 0;
-    (prop.itens || []).forEach(item => {
-      const sub = (item.precoUnitario || 0) * (item.quantidade || 0);
-      const difal = ufFornecedor ? calcularDIFAL(ufFornecedor, sub) : { difal: 0 };
-      totalComTributos += sub + difal.difal;
-    });
-
-    return {
-      nome: forn ? forn.nome : 'Sem Fornecedor',
-      preco: totalComTributos,
-      risco: calcularRiscoOperacional(prop, forn)
-    };
-  });
-
-  if (propostas.length === 0) {
-    document.getElementById('analise-riscos-conteudo').innerHTML = 'Nenhuma proposta com fornecedor definido.';
-    return;
-  }
-
-  let html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">';
-
-  const maisBarato = propostas.reduce((a, b) => a.preco < b.preco ? a : b);
-  html += `<div style="background: #fff5f5; padding: 8px; border-radius: 4px; border-left: 3px solid #dc2626;">
-    <strong style="color: #dc2626;">💰 Risco - Melhor Preço</strong><br/>
-    <small style="color: #666;">Fornecedor: ${maisBarato.nome}<br/>
-    Preço: R$ ${maisBarato.preco.toFixed(2)}<br/>
-    Risco: ${maisBarato.risco.nivel}<br/>
-    ⚠️ ${maisBarato.risco.descricao}</small>
-  </div>`;
-
-  const melhorEquilibrio = propostas.length > 0 ? propostas[0] : null;
-  if (melhorEquilibrio) {
-    html += `<div style="background: #f5f5ff; padding: 8px; border-radius: 4px; border-left: 3px solid #0ea5e9;">
-      <strong style="color: #0ea5e9;">⚖️ Risco - Melhor Equilíbrio</strong><br/>
-      <small style="color: #666;">Fornecedor: ${melhorEquilibrio.nome}<br/>
-      Preço: R$ ${melhorEquilibrio.preco.toFixed(2)}<br/>
-      Risco: ${melhorEquilibrio.risco.nivel}<br/>
-      ✓ ${melhorEquilibrio.risco.descricao}</small>
-    </div>`;
-  }
-
-  const maisPrazo = propostas.reduce((a, b) => (a.risco.pontos || 0) > (b.risco.pontos || 0) ? b : a);
-  html += `<div style="background: #fffbf0; padding: 8px; border-radius: 4px; border-left: 3px solid #f59e0b;">
-    <strong style="color: #f59e0b;">⏱️ Risco - Prazo Mais Curto</strong><br/>
-    <small style="color: #666;">Fornecedor: ${maisPrazo.nome}<br/>
-    Preço: R$ ${maisPrazo.preco.toFixed(2)}<br/>
-    Risco: ${maisPrazo.risco.nivel}<br/>
-    ⚠️ Pode ter maior risco operacional</small>
-  </div>`;
-
-  html += '</div>';
-  document.getElementById('analise-riscos-conteudo').innerHTML = html;
 }
 
 function marcarVencedor(itemIdx, propoIdx) {
