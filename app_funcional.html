@@ -1363,8 +1363,80 @@ function renderizarComparativoEqualizacao() {
 
   const propostas = state.processoAtual.propostas.filter(p => p.fornecedorId);
 
-  // TABELA DE ITENS PROFISSIONAL
+  // CABEÇALHO COM FORNECEDORES E CONDIÇÕES
   let html = `
+    <div style="margin-bottom: 2rem; background: white; border-radius: 6px; border: 1px solid #e5e7eb; padding: 1.5rem;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+  `;
+
+  propostas.forEach((prop, pIdx) => {
+    const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
+    const expanded = window[`expandedForn_${pIdx}`] !== false; // padrão: expandido
+
+    const resumoCondicoes = `Prazo: ${prop.prazoEntrega || '-'} / Pag.: ${prop.prazoPagamento || '-'} / ${prop.tipoFrete || 'CIF'} / Gar: ${prop.garantiasMeses ? prop.garantiasMeses + 'M' : '-'}`;
+
+    html += `
+      <div style="border: 2px solid #e5e7eb; border-radius: 6px; padding: 0; overflow: hidden;">
+        <!-- CABEÇALHO -->
+        <div style="background: #f3f4f6; padding: 1rem; border-bottom: 1px solid #e5e7eb;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <div style="font-weight: 700; color: #1e40af; font-size: 13px;">${forn?.nome || 'Fornecedor'}</div>
+            <button onclick="document.getElementById('cond_${pIdx}').style.display = document.getElementById('cond_${pIdx}').style.display === 'none' ? 'block' : 'none'; window['expandedForn_${pIdx}'] = document.getElementById('cond_${pIdx}').style.display !== 'none';" style="background: none; border: none; cursor: pointer; color: #1e40af; font-weight: 600;">
+              ${expanded ? '▼' : '▶'}
+            </button>
+          </div>
+          <div style="font-size: 11px; color: #666; line-height: 1.4;">
+            ${expanded ? resumoCondicoes : resumoCondicoes}
+          </div>
+        </div>
+
+        <!-- FORMULÁRIO DE CONDIÇÕES (EXPANDÍVEL) -->
+        <div id="cond_${pIdx}" style="display: ${expanded ? 'block' : 'none'}; padding: 1rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 12px;">
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #374151;">Prazo Entrega (dias)</label>
+              <input type="number" value="${prop.prazoEntrega || ''}" placeholder="5" onchange="state.processoAtual.propostas[${pIdx}].prazoEntrega = this.value; salvarState(); renderizarComparativoEqualizacao();" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 3px;">
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #374151;">Prazo Pagamento (dias)</label>
+              <input type="number" value="${prop.prazoPagamento || ''}" placeholder="30" onchange="state.processoAtual.propostas[${pIdx}].prazoPagamento = this.value; salvarState(); renderizarComparativoEqualizacao();" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 3px;">
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #374151;">Tipo de Frete</label>
+              <select onchange="state.processoAtual.propostas[${pIdx}].tipoFrete = this.value; salvarState(); renderizarComparativoEqualizacao();" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 3px;">
+                <option value="CIF" ${prop.tipoFrete === 'CIF' ? 'selected' : ''}>CIF</option>
+                <option value="FOB" ${prop.tipoFrete === 'FOB' ? 'selected' : ''}>FOB</option>
+                <option value="CFF" ${prop.tipoFrete === 'CFF' ? 'selected' : ''}>CFF</option>
+                <option value="FRETE GRÁTIS" ${prop.tipoFrete === 'FRETE GRÁTIS' ? 'selected' : ''}>FRETE GRÁTIS</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #374151;">Garantia (meses)</label>
+              <input type="number" value="${prop.garantiasMeses || ''}" placeholder="12" onchange="state.processoAtual.propostas[${pIdx}].garantiasMeses = this.value; salvarState(); renderizarComparativoEqualizacao();" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 3px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- RODAPÉ COM BOTÕES -->
+        <div style="padding: 0.75rem; background: #f9fafb; display: flex; gap: 8px; justify-content: flex-end;">
+          <button class="btn btn-danger btn-sm" onclick="excluirProposta(${pIdx})" style="font-size: 11px; padding: 6px 10px;">✕ Deletar</button>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div></div>`;
+
+  // BOTÕES DE AÇÃO (acima da tabela)
+  html += `
+    <div style="display: flex; gap: 10px; margin-bottom: 1.5rem;">
+      <button class="btn btn-primary" onclick="adicionarItemEqualizacao()" style="font-size: 13px;">+ Adicionar Item</button>
+      <button class="btn btn-secondary" onclick="adicionarPropostaEqualizacao()" style="font-size: 13px;">+ Adicionar Fornecedor</button>
+    </div>
+  `;
+
+  // TABELA DE ITENS PROFISSIONAL
+  html += `
     <div style="margin-bottom: 2rem;">
       <div style="background: #1e40af; color: white; padding: 1rem; border-radius: 6px 6px 0 0; font-weight: 600;">
         📋 Comparativo de Preços - Análise Detalhada
@@ -1440,30 +1512,6 @@ function renderizarComparativoEqualizacao() {
   });
 
   html += `</tbody></table></div>`;
-
-  // SEÇÃO DE CONDIÇÕES
-  html += `
-    <div style="background: #f9fafb; padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem; border: 1px solid #e5e7eb;">
-      <div style="font-weight: 600; font-size: 14px; margin-bottom: 1.5rem; color: #111827;">⚙️ Condições de Fornecimento por Fornecedor</div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-  `;
-
-  propostas.forEach(prop => {
-    const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
-    html += `
-      <div style="background: white; padding: 1rem; border-radius: 4px; border-left: 4px solid #1e40af; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="font-weight: 700; margin-bottom: 1rem; color: #1e40af; font-size: 13px;">${forn?.nome || 'Fornecedor'}</div>
-        <div style="font-size: 12px; line-height: 1.8; color: #374151;">
-          <div style="margin-bottom: 0.5rem;"><strong>📅 Prazo Entrega:</strong> <span style="color: #666;">${prop.prazoEntrega || '-'}</span></div>
-          <div style="margin-bottom: 0.5rem;"><strong>💳 Prazo Pagamento:</strong> <span style="color: #666;">${prop.prazoPagamento || '-'}</span></div>
-          <div style="margin-bottom: 0.5rem;"><strong>🚚 Tipo Frete:</strong> <span style="color: #666;">${prop.tipoFrete || 'CIF'}</span></div>
-          <div><strong>🛡️ Garantia:</strong> <span style="color: #666;">${prop.garantiasMeses ? prop.garantiasMeses + ' meses' : '-'}</span></div>
-        </div>
-      </div>
-    `;
-  });
-
-  html += `</div></div>`;
 
   container.innerHTML = html;
 }
