@@ -1433,7 +1433,8 @@ function adicionarPropostaEqualizacao() {
   state.processoAtual.propostas.push(novaPropo);
   salvarState();
   renderizarComparativoEqualizacao();
-  adicionarNotificacao(`✓ Proposta adicionada`, 'success');
+  renderizarResumos();
+  adicionarNotificacao(`✓ Proposta ${novaPropo.numeroCotacao} criada - Selecione um fornecedor`, 'success');
 }
 
 function adicionarItemEqualizacao() {
@@ -1462,6 +1463,7 @@ function adicionarItemEqualizacao() {
 
   salvarState();
   renderizarComparativoEqualizacao();
+  renderizarResumos();
   adicionarNotificacao(`✓ Item adicionado em todas propostas`, 'success');
 }
 
@@ -1496,11 +1498,31 @@ function renderizarComparativoEqualizacao() {
     return;
   }
 
+  // Mostrar propostas sem fornecedor
+  const propostasEmAberto = state.processoAtual.propostas.filter(p => !p.fornecedorId);
+  if (propostasEmAberto.length > 0) {
+    let htmlAberto = '<div class="alert alert-info" style="background: #e0f2fe; border-left: 4px solid #0284c7; padding: 10px; margin-bottom: 10px;">';
+    htmlAberto += `<strong>ℹ️ ${propostasEmAberto.length} proposta(s) em aberto</strong> - Selecione um fornecedor para cada proposta<br>`;
+    propostasEmAberto.forEach((prop, idx) => {
+      const allIdx = state.processoAtual.propostas.indexOf(prop);
+      htmlAberto += `<small>Proposta #${allIdx + 1} - ${prop.numeroCotacao}</small><br>`;
+    });
+    htmlAberto += '</div>';
+    container.innerHTML = htmlAberto;
+  }
+
   const primeiraPropo = state.processoAtual.propostas[0];
   const itens = primeiraPropo.itens || [];
 
+  // Mostrar botão de adicionar item mesmo sem itens ainda
+  document.getElementById('btn-add-item-equ').style.display = 'block';
+
   if (itens.length === 0) {
-    container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione itens com [+ Adicionar Item]</div>';
+    const existemPropostasComFornecedor = state.processoAtual.propostas.some(p => p.fornecedorId);
+    const mensagem = existemPropostasComFornecedor
+      ? '⚠️ Adicione itens com [+ Adicionar Item]'
+      : '⚠️ Selecione fornecedor(es) e depois [+ Adicionar Item]';
+    container.innerHTML += `<div class="alert alert-warning">${mensagem}</div>`;
     return;
   }
 
