@@ -545,17 +545,29 @@ table tbody tr:hover {
           <div class="menu-item-icon">🏢</div>
           <div>Fornecedores</div>
         </div>
-        <div class="menu-item" onclick="showPage('equalizacao')">
-          <div class="menu-item-icon">⚖️</div>
-          <div>Equalizacão</div>
+        <div class="menu-item" onclick="showPage('cotacoes')">
+          <div class="menu-item-icon">💰</div>
+          <div>Cotações</div>
         </div>
       </div>
 
       <div class="menu-section">
         <div class="menu-section-title">Análise</div>
+        <div class="menu-item" onclick="showPage('equalizacao')">
+          <div class="menu-item-icon">⚖️</div>
+          <div>Equalizacão</div>
+        </div>
         <div class="menu-item" onclick="showPage('relatorios')">
           <div class="menu-item-icon">📈</div>
           <div>Relatórios</div>
+        </div>
+      </div>
+
+      <div class="menu-section">
+        <div class="menu-section-title">Sistema</div>
+        <div class="menu-item" onclick="showPage('configuracoes')">
+          <div class="menu-item-icon">⚙️</div>
+          <div>Configurações</div>
         </div>
       </div>
     </div>
@@ -768,12 +780,19 @@ table tbody tr:hover {
           </div>
 
           <div id="equalizacao-container" style="display:none;">
-            <div style="display: flex; gap: 10px; margin-bottom: 1.5rem;">
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+              <div style="font-weight: 600; color: #1e40af; margin-bottom: 0.5rem;">📋 Passo 1: Criar Itens</div>
+              <div style="font-size: 13px; color: #374151; margin-bottom: 1rem;">Adicione os itens que deseja cotaremtrar com fornecedores</div>
               <button class="btn btn-primary" onclick="adicionarItemEqualizacao()">+ Adicionar Item</button>
-              <button class="btn btn-secondary" onclick="adicionarPropostaEqualizacao()">+ Adicionar Fornecedor</button>
             </div>
 
-            <div id="equalizacao-comparativo-container"></div>
+            <div id="equalizacao-comparativo-container" style="margin-bottom: 1.5rem;"></div>
+
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+              <div style="font-weight: 600; color: #059669; margin-bottom: 0.5rem;">🏢 Passo 2: Adicionar Fornecedores</div>
+              <div style="font-size: 13px; color: #374151; margin-bottom: 1rem;">Adicione fornecedores para comparar preços</div>
+              <button class="btn btn-secondary" onclick="adicionarPropostaEqualizacao()">+ Adicionar Fornecedor</button>
+            </div>
 
             <div style="margin-top: 2rem;">
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
@@ -819,6 +838,70 @@ table tbody tr:hover {
             <div style="padding: 1rem; background: var(--gray-50); border-radius: 8px;">
               <div style="font-size: 12px; color: var(--gray-600); margin-bottom: 0.5rem;">Economia Média</div>
               <div style="font-size: 24px; font-weight: 700;" id="rel-economia">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COTAÇÕES -->
+      <div id="page-cotacoes" class="page" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">💰 Cotações</div>
+        </div>
+
+        <div class="alert alert-info">
+          ℹ️ Selecione um Processo em Equalizacão para gerenciar cotações e configurar fornecedores
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Ir para Análise Comparativa</div>
+          </div>
+          <p style="margin-bottom: 1rem; color: var(--gray-700);">Para comparar cotações e selecionar o melhor fornecedor, utilize o módulo de Equalizacão.</p>
+          <button class="btn btn-primary" onclick="showPage('equalizacao')">⚖️ Ir para Equalizacão</button>
+        </div>
+      </div>
+
+      <!-- CONFIGURAÇÕES -->
+      <div id="page-configuracoes" class="page" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">⚙️ Configurações</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Preferências do Sistema</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div>
+              <h4 style="margin-bottom: 1rem;">Notificações</h4>
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" checked>
+                <span>Ativar notificações ao criar processo</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 0.5rem;">
+                <input type="checkbox" checked>
+                <span>Ativar notificações ao adicionar fornecedor</span>
+              </label>
+            </div>
+
+            <div style="border-top: 1px solid var(--gray-200); padding-top: 1.5rem;">
+              <h4 style="margin-bottom: 1rem;">Dados</h4>
+              <button class="btn btn-danger" onclick="if(confirm('Tem certeza? Isso apagará todos os dados.')) { localStorage.clear(); location.reload(); }">
+                🗑️ Limpar Todos os Dados
+              </button>
+              <p style="color: var(--gray-600); font-size: 12px; margin-top: 0.5rem;">Esta ação é irreversível. Todos os fornecedores, processos e cotações serão apagados.</p>
+            </div>
+
+            <div style="border-top: 1px solid var(--gray-200); padding-top: 1.5rem;">
+              <h4 style="margin-bottom: 1rem;">Sobre</h4>
+              <p style="color: var(--gray-700); font-size: 12px;">
+                <strong>Âmbar ENERGIA</strong> - Sistema de Compras Inteligente<br>
+                Versão 1.0 | 2026<br>
+                <br>
+                Este sistema utiliza localStorage para armazenar dados. Nenhuma informação é enviada para servidores externos.
+              </p>
             </div>
           </div>
         </div>
@@ -886,8 +969,10 @@ function showPage(pageName) {
     'dashboard': '📊 Dashboard Executivo',
     'processos': '📋 Gerenciar Processos',
     'fornecedores': '🏢 Cadastro de Fornecedores',
+    'cotacoes': '💰 Cotações',
     'equalizacao': '⚖️ Análise Comparativa',
-    'relatorios': '📈 Relatórios'
+    'relatorios': '📈 Relatórios',
+    'configuracoes': '⚙️ Configurações'
   };
 
   document.getElementById('page-name').textContent = titles[pageName] || 'Dashboard';
@@ -1103,23 +1188,29 @@ function carregarListaProcessos() {
 }
 
 function carregarEqualizacao() {
-  const processoId = document.getElementById('equalizacaoProcessoSelect').value;
+  const processoId = parseInt(document.getElementById('equalizacaoProcessoSelect').value);
 
-  if (!processoId) {
+  if (!processoId || processoId === 0) {
     document.getElementById('equalizacao-container').style.display = 'none';
+    document.getElementById('equalizacao-comparativo-container').innerHTML = '';
     return;
   }
 
-  state.processoAtual = state.processos.find(p => p.id == processoId);
-  if (!state.processoAtual) return;
+  state.processoAtual = state.processos.find(p => p.id === processoId);
+  if (!state.processoAtual) {
+    console.error('Processo não encontrado:', processoId);
+    return;
+  }
 
   if (!state.processoAtual.propostas) {
     state.processoAtual.propostas = [];
   }
 
   document.getElementById('equalizacao-container').style.display = 'block';
-  renderizarComparativoEqualizacao();
-  renderizarResumos();
+  setTimeout(() => {
+    renderizarComparativoEqualizacao();
+    renderizarResumos();
+  }, 100);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1194,6 +1285,21 @@ function adicionarPropostaEqualizacao() {
   adicionarNotificacao(`✓ Proposta ${novaPropo.numeroCotacao} criada`, 'success');
 }
 
+function atribuirFornecedor(propostaIdx, fornecedorId) {
+  if (!fornecedorId) return;
+
+  const proposta = state.processoAtual.propostas[propostaIdx];
+  if (!proposta) return;
+
+  proposta.fornecedorId = parseInt(fornecedorId);
+  const fornecedor = state.fornecedores.find(f => f.id === parseInt(fornecedorId));
+
+  salvarState();
+  renderizarComparativoEqualizacao();
+  renderizarResumos();
+  adicionarNotificacao(`✓ ${fornecedor.nome} atribuído à ${proposta.numeroCotacao}`, 'success');
+}
+
 function excluirProposta(pIdx) {
   if (!confirm('Excluir proposta?')) return;
   state.processoAtual.propostas.splice(pIdx, 1);
@@ -1227,6 +1333,31 @@ function renderizarComparativoEqualizacao() {
 
   if (itens.length === 0) {
     container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione itens com "+ Adicionar Item"</div>';
+    return;
+  }
+
+  // Mostrar interface de seleção de fornecedores para propostas sem fornecedor
+  const propostaSemFornecedor = state.processoAtual.propostas.filter(p => !p.fornecedorId);
+  if (propostaSemFornecedor.length > 0) {
+    let htmlConfig = '<div style="background: #fef3c7; border: 1px solid #fcd34d; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;"><div style="font-weight: 600; color: #92400e; margin-bottom: 1rem;">⚙️ Configurar Fornecedores</div>';
+
+    propostaSemFornecedor.forEach((prop) => {
+      const numeroPropo = state.processoAtual.propostas.indexOf(prop) + 1;
+      htmlConfig += `
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 1rem; padding: 1rem; background: white; border-radius: 4px;">
+          <div style="flex: 1;">
+            <div style="font-weight: 600; margin-bottom: 0.5rem;">Proposta #${numeroPropo} - ${prop.numeroCotacao}</div>
+            <select style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;" onchange="atribuirFornecedor(${state.processoAtual.propostas.indexOf(prop)}, this.value)">
+              <option value="">-- Selecione um Fornecedor --</option>
+              ${state.fornecedores.map(f => `<option value="${f.id}">${f.nome} (${f.uf})</option>`).join('')}
+            </select>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="excluirProposta(${state.processoAtual.propostas.indexOf(prop)})" style="white-space: nowrap;">✕ Deletar</button>
+        </div>
+      `;
+    });
+    htmlConfig += '</div>';
+    container.innerHTML = htmlConfig;
     return;
   }
 
