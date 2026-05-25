@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Âmbar ENERGIA - Sistema de Compras Inteligente</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary: #1e40af;
+  --primary-light: #3b82f6;
+  --primary-dark: #1e3a8a;
+  --success: #059669;
+  --success-light: #10b981;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --info: #0ea5e9;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-900: #111827;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  background: #f3f4f6;
+  color: var(--gray-900);
+  line-height: 1.6;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 260px;
+  background: var(--gray-900);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-logo {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.sidebar-logo span {
+  color: var(--primary-light);
+}
+
+.sidebar-menu {
+  flex: 1;
+  padding: 1rem 0;
+  overflow-y: auto;
+}
+
+.menu-section {
+  padding: 0.5rem 0;
+  margin: 1rem 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.menu-section-title {
+  padding: 0.75rem 1.5rem;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.5px;
+}
+
+.menu-item {
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all 200ms;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+}
+
+.menu-item:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.menu-item.active {
+  background: var(--primary-light);
+  color: white;
+  border-left: 4px solid var(--warning);
+}
+
+.menu-item-icon {
+  font-size: 18px;
+  min-width: 24px;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.top-header {
+  background: white;
+  border-bottom: 1px solid var(--gray-200);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.breadcrumb {
+  font-size: 13px;
+  color: var(--gray-600);
+}
+
+.breadcrumb strong {
+  color: var(--gray-900);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--gray-50);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 200ms;
+}
+
+.user-menu:hover {
+  background: var(--gray-100);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--primary-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: var(--gray-600);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: all 200ms;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--primary-light);
+}
+
+.kpi-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.kpi-info {
+  flex: 1;
+}
+
+.kpi-label {
+  font-size: 12px;
+  color: var(--gray-600);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gray-900);
+  line-height: 1;
+}
+
+.card {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-900);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--primary-light);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+.btn-secondary {
+  background: var(--gray-100);
+  color: var(--gray-900);
+  border: 1px solid var(--gray-200);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--gray-200);
+}
+
+.btn-success {
+  background: var(--success-light);
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: var(--success);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 11px;
+}
+
+.btn-icon {
+  padding: 0.5rem;
+  min-width: auto;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  font-size: 13px;
+  margin-bottom: 0.5rem;
+  color: var(--gray-900);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 200ms;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.table-container {
+  overflow-x: auto;
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  background: white;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+table thead {
+  background: var(--gray-50);
+  border-bottom: 2px solid var(--gray-200);
+}
+
+table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--gray-900);
+  white-space: nowrap;
+}
+
+table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+table tbody tr:hover {
+  background: var(--gray-50);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-success { background: #d1fae5; color: #065f46; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-danger { background: #fee2e2; color: #7f1d1d; }
+
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.alert-info {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #0c4a6e;
+}
+
+.alert-success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #065f46;
+}
+
+.alert-warning {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  color: #92400e;
+}
+
+.notification-panel {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 350px;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 999;
+  max-height: 400px;
+  overflow-y: auto;
+  display: none;
+}
+
+.notification-panel.active { display: block; }
+
+.notification-item {
+  padding: 12px;
+  border-bottom: 1px solid var(--gray-200);
+  font-size: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.notification-item:last-child { border-bottom: none; }
+
+@media (max-width: 1024px) {
+  .sidebar { width: 200px; }
+  .main-content { margin-left: 200px; }
+  .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .sidebar { width: 180px; }
+  .main-content { margin-left: 180px; }
+  .content { padding: 1rem; }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .page-title { font-size: 18px; }
+  table { font-size: 11px; }
+  table th, table td { padding: 8px; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">⚡<span>Âmbar</span></div>
+    </div>
+
+    <div class="sidebar-menu">
+      <div class="menu-section">
+        <div class="menu-section-title">Menu Principal</div>
+        <div class="menu-item active" onclick="showPage('dashboard')">
+          <div class="menu-item-icon">📊</div>
+          <div>Dashboard</div>
+        </div>
+        <div class="menu-item" onclick="showPage('processos')">
+          <div class="menu-item-icon">📋</div>
+          <div>Processos</div>
+        </div>
+        <div class="menu-item" onclick="showPage('fornecedores')">
+          <div class="menu-item-icon">🏢</div>
+          <div>Fornecedores</div>
+        </div>
+        <div class="menu-item" onclick="showPage('equalizacao')">
+          <div class="menu-item-icon">⚖️</div>
+          <div>Equalizacão</div>
+        </div>
+      </div>
+
+      <div class="menu-section">
+        <div class="menu-section-title">Análise</div>
+        <div class="menu-item" onclick="showPage('relatorios')">
+          <div class="menu-item-icon">📈</div>
+          <div>Relatórios</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <!-- TOP HEADER -->
+    <div class="top-header">
+      <div class="breadcrumb">
+        <strong id="page-name">Dashboard</strong>
+      </div>
+      <div class="header-right">
+        <div class="user-menu">
+          <div class="user-avatar">AE</div>
+          <div style="font-size: 13px;">Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="page">
+        <div class="page-header">
+          <div class="page-title">📊 Dashboard Executivo</div>
+          <div class="page-subtitle">Visão geral dos processos de compra</div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="kpi-card">
+            <div class="kpi-content">
+              <div class="kpi-info">
+                <div class="kpi-label">Processos</div>
+                <div class="kpi-value" id="kpi-processos">0</div>
+              </div>
+              <div style="font-size: 28px; opacity: 0.3;">📋</div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-content">
+              <div class="kpi-info">
+                <div class="kpi-label">Fornecedores</div>
+                <div class="kpi-value" id="kpi-fornecedores">0</div>
+              </div>
+              <div style="font-size: 28px; opacity: 0.3;">🏢</div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-content">
+              <div class="kpi-info">
+                <div class="kpi-label">Cotações</div>
+                <div class="kpi-value" id="kpi-cotacoes">0</div>
+              </div>
+              <div style="font-size: 28px; opacity: 0.3;">💰</div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-content">
+              <div class="kpi-info">
+                <div class="kpi-label">Economia</div>
+                <div class="kpi-value" id="kpi-economia">0%</div>
+              </div>
+              <div style="font-size: 28px; opacity: 0.3;">✓</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 Últimos Processos</div>
+          </div>
+          <div id="dashboard-tabela" class="table-container"></div>
+        </div>
+      </div>
+
+      <!-- PROCESSOS -->
+      <div id="page-processos" class="page" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">📋 Gerenciar Processos</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Novo Processo</div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Número DATAGED *</label>
+              <input type="text" id="cad-dataged" placeholder="DG-2025-XXX">
+            </div>
+            <div class="form-group">
+              <label>Descrição *</label>
+              <input type="text" id="cad-descricao" placeholder="Descrição">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Centro de Custo</label>
+              <input type="text" id="cad-centrocusto" placeholder="CC-001">
+            </div>
+            <div class="form-group">
+              <label>Responsável</label>
+              <input type="text" id="cad-responsavel-proc" placeholder="Nome">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-primary" onclick="criarNovoProcesso()">✓ Criar Processo</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Processos Cadastrados</div>
+          </div>
+          <div id="lista-processos" class="table-container"></div>
+        </div>
+      </div>
+
+      <!-- FORNECEDORES -->
+      <div id="page-fornecedores" class="page" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">🏢 Cadastro de Fornecedores</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Novo Fornecedor</div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nome *</label>
+              <input type="text" id="cad-nome" placeholder="Nome">
+            </div>
+            <div class="form-group">
+              <label>CNPJ</label>
+              <input type="text" id="cad-cnpj" placeholder="00.000.000/0000-00">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="cad-email" placeholder="email@fornecedor.com">
+            </div>
+            <div class="form-group">
+              <label>Telefone</label>
+              <input type="tel" id="cad-telefone" placeholder="(11) 9999-9999">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>UF *</label>
+              <select id="cad-uf">
+                <option value="">-- Selecione --</option>
+                <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option>
+                <option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option>
+                <option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option>
+                <option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option>
+                <option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option>
+                <option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option>
+                <option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option>
+                <option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option>
+                <option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Cidade</label>
+              <input type="text" id="cad-cidade" placeholder="Cidade">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-success" onclick="salvarFornecedor()">✓ Cadastrar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Fornecedores Cadastrados</div>
+          </div>
+          <div id="lista-fornecedores" class="table-container"></div>
+        </div>
+      </div>
+
+      <!-- EQUALIZACAO -->
+      <div id="page-equalizacao" class="page" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">⚖️ Análise Comparativa</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Selecionar Processo</div>
+          </div>
+
+          <div class="form-group">
+            <label>Processo DATAGED</label>
+            <select id="equalizacaoProcessoSelect" onchange="carregarEqualizacao()">
+              <option value="">-- Selecione --</option>
+            </select>
+          </div>
+
+          <div id="equalizacao-container" style="display:none;">
+            <div style="display: flex; gap: 10px; margin-bottom: 1.5rem;">
+              <button class="btn btn-primary" onclick="adicionarItemEqualizacao()">+ Adicionar Item</button>
+              <button class="btn btn-secondary" onclick="adicionarPropostaEqualizacao()">+ Adicionar Fornecedor</button>
+            </div>
+
+            <div id="equalizacao-comparativo-container"></div>
+
+            <div style="margin-top: 2rem;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="card">
+                  <h4 style="margin-bottom: 1rem;">💰 Resumo por Fornecedor</h4>
+                  <div id="resumo-valor-conteudo" style="font-size: 12px;"></div>
+                </div>
+                <div class="card">
+                  <h4 style="margin-bottom: 1rem;">📦 Melhor Preço por Material</h4>
+                  <div id="resumo-material-conteudo" style="font-size: 12px;"></div>
+                </div>
+              </div>
+
+              <div class="card" style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 2px solid #f59e0b;">
+                <h3 style="margin-bottom: 1rem;">🎯 Recomendação Equilibrada</h3>
+                <div id="recomendacao-conteudo" style="font-size: 12px; line-height: 1.8;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RELATORIOS -->
+      <div id="page-relatorios" class="page" style="display:none;">
+        <div class="page-header">
+          <div class="page-title">📈 Relatórios</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Estatísticas Gerais</div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+              <div style="font-size: 12px; color: var(--gray-600); margin-bottom: 0.5rem;">Total de Processos</div>
+              <div style="font-size: 24px; font-weight: 700;" id="rel-processos">0</div>
+            </div>
+            <div style="padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+              <div style="font-size: 12px; color: var(--gray-600); margin-bottom: 0.5rem;">Total Fornecedores</div>
+              <div style="font-size: 24px; font-weight: 700;" id="rel-fornecedores">0</div>
+            </div>
+            <div style="padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+              <div style="font-size: 12px; color: var(--gray-600); margin-bottom: 0.5rem;">Economia Média</div>
+              <div style="font-size: 24px; font-weight: 700;" id="rel-economia">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION PANEL -->
+<div id="notification-panel" class="notification-panel"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONSTANTES
+// ═══════════════════════════════════════════════════════════════
+
+const ALIQUOTAS_ICMS = {
+  'AC': 17, 'AL': 17, 'AP': 18, 'AM': 18, 'BA': 18, 'CE': 18, 'DF': 18,
+  'ES': 18, 'GO': 15, 'MA': 18, 'MT': 15, 'MS': 15, 'MG': 18, 'PA': 18,
+  'PB': 18, 'PR': 18, 'PE': 17, 'PI': 17, 'RJ': 18, 'RN': 18, 'RS': 18,
+  'RO': 17.5, 'RR': 18, 'SC': 18, 'SP': 18, 'SE': 17, 'TO': 15
+};
+
+const ALIQUOTA_INTERESTADUAL = 7;
+const UF_COMPRADORA = 'AM';
+const ALIQUOTA_COMPRADORA = ALIQUOTAS_ICMS[UF_COMPRADORA];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+
+let state = {
+  fornecedores: (() => { try { return JSON.parse(localStorage.getItem('fornecedores_ambar') || '[]'); } catch(e) { return []; } })(),
+  processos: (() => { try { return JSON.parse(localStorage.getItem('processos_amazon') || '[]'); } catch(e) { return []; } })(),
+  notificacoes: [],
+  processoAtual: null
+};
+
+// ═══════════════════════════════════════════════════════════════
+// FUNÇÕES GERAIS
+// ═══════════════════════════════════════════════════════════════
+
+function salvarState() {
+  localStorage.setItem('fornecedores_ambar', JSON.stringify(state.fornecedores));
+  localStorage.setItem('processos_amazon', JSON.stringify(state.processos));
+}
+
+function adicionarNotificacao(msg, tipo = 'info') {
+  state.notificacoes.unshift({ msg, tipo, id: Date.now() });
+  const panel = document.getElementById('notification-panel');
+  panel.innerHTML = state.notificacoes.map(n => `
+    <div class="notification-item" style="background: ${tipo === 'success' ? '#f0fdf4' : '#eff6ff'};">
+      <div>${tipo === 'success' ? '✓' : 'ℹ️'} ${n.msg}</div>
+    </div>
+  `).join('');
+  panel.classList.add('active');
+  setTimeout(() => { panel.classList.remove('active'); }, 4000);
+}
+
+function showPage(pageName) {
+  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+  document.getElementById('page-' + pageName).style.display = 'block';
+
+  const titles = {
+    'dashboard': '📊 Dashboard Executivo',
+    'processos': '📋 Gerenciar Processos',
+    'fornecedores': '🏢 Cadastro de Fornecedores',
+    'equalizacao': '⚖️ Análise Comparativa',
+    'relatorios': '📈 Relatórios'
+  };
+
+  document.getElementById('page-name').textContent = titles[pageName] || 'Dashboard';
+
+  document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+  event.target.closest('.menu-item').classList.add('active');
+
+  if (pageName === 'dashboard') atualizarKPIs();
+  if (pageName === 'fornecedores') renderizarListaFornecedores();
+  if (pageName === 'processos') renderizarListaProcessos();
+  if (pageName === 'equalizacao') carregarListaProcessos();
+  if (pageName === 'relatorios') atualizarRelatorios();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CÁLCULO DIFAL
+// ═══════════════════════════════════════════════════════════════
+
+function calcularDIFAL(ufOrigem, baseCalculo) {
+  if (!ufOrigem || !ALIQUOTAS_ICMS[ufOrigem]) {
+    return { difal: 0, icmsOrigem: 0, icmsDestino: 0 };
+  }
+
+  const icmsOrigem = ALIQUOTAS_ICMS[ufOrigem];
+  const icmsDestino = ALIQUOTA_COMPRADORA;
+  let difal = 0;
+
+  if (ufOrigem !== UF_COMPRADORA) {
+    const aliquotaDiferencial = icmsDestino - ALIQUOTA_INTERESTADUAL;
+    difal = (baseCalculo * aliquotaDiferencial) / 100;
+  }
+
+  return {
+    difal: parseFloat(difal.toFixed(2)),
+    icmsOrigem: icmsOrigem,
+    icmsDestino: icmsDestino,
+    aliquotaInterestadual: ALIQUOTA_INTERESTADUAL
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FORNECEDORES
+// ═══════════════════════════════════════════════════════════════
+
+function salvarFornecedor() {
+  const nome = document.getElementById('cad-nome').value.trim().toUpperCase();
+  const email = document.getElementById('cad-email').value.trim();
+  const telefone = document.getElementById('cad-telefone').value.trim();
+  const cnpj = document.getElementById('cad-cnpj').value.trim();
+  const uf = document.getElementById('cad-uf').value.trim();
+  const cidade = document.getElementById('cad-cidade').value.trim();
+
+  if (!nome || !uf) {
+    alert('Preencha Nome e UF (*)');
+    return;
+  }
+
+  if (state.fornecedores.find(f => f.nome === nome)) {
+    alert('Fornecedor já cadastrado');
+    return;
+  }
+
+  const novoFornecedor = {
+    id: Date.now(),
+    nome,
+    email,
+    telefone,
+    cnpj,
+    uf,
+    cidade,
+    dataCadastro: new Date().toISOString().split('T')[0]
+  };
+
+  state.fornecedores.push(novoFornecedor);
+  salvarState();
+
+  document.getElementById('cad-nome').value = '';
+  document.getElementById('cad-email').value = '';
+  document.getElementById('cad-telefone').value = '';
+  document.getElementById('cad-cnpj').value = '';
+  document.getElementById('cad-uf').value = '';
+  document.getElementById('cad-cidade').value = '';
+
+  renderizarListaFornecedores();
+  atualizarKPIs();
+  adicionarNotificacao(`✓ Fornecedor ${nome} cadastrado!`, 'success');
+}
+
+function removerFornecedor(id) {
+  if (!confirm('Remover fornecedor?')) return;
+  state.fornecedores = state.fornecedores.filter(f => f.id !== id);
+  salvarState();
+  renderizarListaFornecedores();
+  atualizarKPIs();
+}
+
+function renderizarListaFornecedores() {
+  const container = document.getElementById('lista-fornecedores');
+
+  if (state.fornecedores.length === 0) {
+    container.innerHTML = '<div class="alert alert-info">Nenhum fornecedor cadastrado</div>';
+    return;
+  }
+
+  const html = `
+    <table>
+      <thead>
+        <tr>
+          <th>Empresa</th>
+          <th>Email</th>
+          <th>UF</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.fornecedores.map(f => `
+          <tr>
+            <td><strong>${f.nome}</strong></td>
+            <td>${f.email || '-'}</td>
+            <td>${f.uf}</td>
+            <td>
+              <button class="btn btn-danger btn-sm" onclick="removerFornecedor(${f.id})">✕</button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROCESSOS
+// ═══════════════════════════════════════════════════════════════
+
+function criarNovoProcesso() {
+  const dataged = document.getElementById('cad-dataged').value.trim();
+  const descricao = document.getElementById('cad-descricao').value.trim();
+  const centrocusto = document.getElementById('cad-centrocusto').value.trim();
+  const responsavel = document.getElementById('cad-responsavel-proc').value.trim();
+
+  if (!dataged || !descricao) {
+    alert('Preencha DATAGED e Descrição (*)');
+    return;
+  }
+
+  const novoProcesso = {
+    id: Date.now(),
+    dataged,
+    descricao,
+    centrocusto,
+    responsavel,
+    dataCriacao: new Date().toISOString().split('T')[0],
+    propostas: []
+  };
+
+  state.processos.push(novoProcesso);
+  salvarState();
+
+  document.getElementById('cad-dataged').value = '';
+  document.getElementById('cad-descricao').value = '';
+  document.getElementById('cad-centrocusto').value = '';
+  document.getElementById('cad-responsavel-proc').value = '';
+
+  renderizarListaProcessos();
+  carregarListaProcessos();
+  atualizarKPIs();
+  adicionarNotificacao(`✓ Processo ${dataged} criado!`, 'success');
+}
+
+function renderizarListaProcessos() {
+  const container = document.getElementById('lista-processos');
+
+  if (state.processos.length === 0) {
+    container.innerHTML = '<div class="alert alert-info">Nenhum processo criado</div>';
+    return;
+  }
+
+  const html = `
+    <table>
+      <thead>
+        <tr>
+          <th>DATAGED</th>
+          <th>Descrição</th>
+          <th>Responsável</th>
+          <th>Propostas</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.processos.map(p => `
+          <tr>
+            <td><strong>${p.dataged}</strong></td>
+            <td>${p.descricao}</td>
+            <td>${p.responsavel || '-'}</td>
+            <td>${p.propostas.length}</td>
+            <td>${p.dataCriacao}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  container.innerHTML = html;
+}
+
+function carregarListaProcessos() {
+  const select = document.getElementById('equalizacaoProcessoSelect');
+  select.innerHTML = '<option value="">-- Selecione --</option>' + state.processos.map(p =>
+    `<option value="${p.id}">${p.dataged} - ${p.descricao}</option>`
+  ).join('');
+}
+
+function carregarEqualizacao() {
+  const processoId = document.getElementById('equalizacaoProcessoSelect').value;
+
+  if (!processoId) {
+    document.getElementById('equalizacao-container').style.display = 'none';
+    return;
+  }
+
+  state.processoAtual = state.processos.find(p => p.id == processoId);
+  if (!state.processoAtual) return;
+
+  if (!state.processoAtual.propostas) {
+    state.processoAtual.propostas = [];
+  }
+
+  document.getElementById('equalizacao-container').style.display = 'block';
+  renderizarComparativoEqualizacao();
+  renderizarResumos();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EQUALIZACAO
+// ═══════════════════════════════════════════════════════════════
+
+function adicionarItemEqualizacao() {
+  if (!state.processoAtual) {
+    alert('Selecione um processo');
+    return;
+  }
+
+  if (!state.processoAtual.propostas || state.processoAtual.propostas.length === 0) {
+    const novaPropo = {
+      id: Date.now(),
+      numeroCotacao: `COT-1`,
+      dataCotacao: new Date().toISOString().split('T')[0],
+      fornecedorId: null,
+      prazoEntrega: null,
+      prazoPagamento: null,
+      tipoFrete: 'CIF',
+      garantiasMeses: null,
+      itens: []
+    };
+    state.processoAtual.propostas = [novaPropo];
+  }
+
+  const novoItem = {
+    numero: (state.processoAtual.propostas[0].itens || []).length + 1,
+    tipoMaterial: '',
+    codigo: '',
+    descricao: '',
+    unidade: 'un',
+    quantidade: 1,
+    precoUnitario: 0
+  };
+
+  state.processoAtual.propostas.forEach(prop => {
+    if (!prop.itens) prop.itens = [];
+    prop.itens.push({ ...novoItem });
+  });
+
+  salvarState();
+  renderizarComparativoEqualizacao();
+  renderizarResumos();
+  adicionarNotificacao('✓ Item adicionado', 'success');
+}
+
+function adicionarPropostaEqualizacao() {
+  if (!state.processoAtual) return;
+
+  const novaPropo = {
+    id: Date.now(),
+    numeroCotacao: `COT-${state.processoAtual.propostas.length + 1}`,
+    dataCotacao: new Date().toISOString().split('T')[0],
+    fornecedorId: null,
+    prazoEntrega: null,
+    prazoPagamento: null,
+    tipoFrete: 'CIF',
+    garantiasMeses: null,
+    itens: []
+  };
+
+  if (state.processoAtual.propostas.length > 0 && state.processoAtual.propostas[0].itens) {
+    novaPropo.itens = state.processoAtual.propostas[0].itens.map(item => ({ ...item }));
+  }
+
+  state.processoAtual.propostas.push(novaPropo);
+  salvarState();
+  renderizarComparativoEqualizacao();
+  renderizarResumos();
+  adicionarNotificacao(`✓ Proposta ${novaPropo.numeroCotacao} criada`, 'success');
+}
+
+function excluirProposta(pIdx) {
+  if (!confirm('Excluir proposta?')) return;
+  state.processoAtual.propostas.splice(pIdx, 1);
+  salvarState();
+  renderizarComparativoEqualizacao();
+  renderizarResumos();
+}
+
+function excluirItem(itemIdx) {
+  if (!confirm('Excluir item?')) return;
+  state.processoAtual.propostas.forEach(prop => {
+    if (prop.itens && prop.itens.length > itemIdx) {
+      prop.itens.splice(itemIdx, 1);
+    }
+  });
+  salvarState();
+  renderizarComparativoEqualizacao();
+  renderizarResumos();
+}
+
+function renderizarComparativoEqualizacao() {
+  const container = document.getElementById('equalizacao-comparativo-container');
+
+  if (!state.processoAtual.propostas || state.processoAtual.propostas.length === 0) {
+    container.innerHTML = '<div class="alert alert-warning">Clique em "+ Adicionar Item" para começar</div>';
+    return;
+  }
+
+  const primeiraPropo = state.processoAtual.propostas[0];
+  const itens = primeiraPropo.itens || [];
+
+  if (itens.length === 0) {
+    container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione itens com "+ Adicionar Item"</div>';
+    return;
+  }
+
+  const propostas = state.processoAtual.propostas.filter(p => p.fornecedorId);
+
+  let html = `<table><thead><tr>
+    <th>#</th><th>Tipo</th><th>Código</th><th>Descrição</th><th>Qtd</th><th>Del</th>`;
+
+  state.processoAtual.propostas.forEach((prop, pIdx) => {
+    if (!prop.fornecedorId) return;
+    const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
+    const fornName = forn ? forn.nome : 'Fornecedor ' + (pIdx + 1);
+    html += `<th style="background: #e8f4f8;">${fornName.substring(0, 15)}<br>
+      <button onclick="excluirProposta(${pIdx})" style="background: #ff6b6b; color: white; border: none; padding: 2px 4px; border-radius: 2px; cursor: pointer; font-size: 10px;">✕</button></th>`;
+  });
+
+  html += `</tr></thead><tbody>`;
+
+  itens.forEach((item, itemIdx) => {
+    html += `<tr>
+      <td>${itemIdx + 1}</td>
+      <td><input type="text" value="${item.tipoMaterial || ''}" onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].tipoMaterial = this.value); salvarState();" style="width: 80%; padding: 4px; font-size: 11px;"></td>
+      <td><input type="text" value="${item.codigo || ''}" onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].codigo = this.value); salvarState();" style="width: 80%; padding: 4px; font-size: 11px;"></td>
+      <td><input type="text" value="${item.descricao || ''}" onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].descricao = this.value); salvarState();" style="width: 100%; padding: 4px; font-size: 11px;"></td>
+      <td><input type="number" value="${item.quantidade || 1}" onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].quantidade = parseInt(this.value) || 1); salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();" style="width: 70%; padding: 4px; font-size: 11px;"></td>
+      <td><button onclick="excluirItem(${itemIdx})" style="background: #ff6b6b; color: white; border: none; padding: 4px 6px; border-radius: 2px; cursor: pointer;">✕</button></td>`;
+
+    state.processoAtual.propostas.forEach((prop, pIdx) => {
+      if (!prop.fornecedorId) return;
+      const itemProp = prop.itens[itemIdx];
+      const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
+      const ufFornecedor = forn?.uf;
+
+      const precoUnitario = itemProp?.precoUnitario || 0;
+      const quantidade = itemProp?.quantidade || 0;
+      const subtotal = precoUnitario * quantidade;
+      const difal = ufFornecedor ? calcularDIFAL(ufFornecedor, subtotal) : { difal: 0 };
+      const totalComTributos = subtotal + (difal?.difal || 0);
+
+      const totais = propostas
+        .map((p) => {
+          const itemP = p.itens[itemIdx];
+          const frnc = state.fornecedores.find(f => f.id === p.fornecedorId);
+          const ufd = frnc?.uf;
+          const sub = (itemP?.precoUnitario || 0) * (itemP?.quantidade || 0);
+          const d = ufd ? calcularDIFAL(ufd, sub) : { difal: 0 };
+          return sub + (d?.difal || 0);
+        })
+        .filter(v => v > 0);
+
+      const menorPreco = totais.length > 0 ? Math.min(...totais) : null;
+      const isBest = menorPreco !== null && totalComTributos > 0 && totalComTributos === menorPreco;
+
+      html += `<td style="text-align: center; ${isBest ? 'background: #dcfce7; border-left: 4px solid #10b981;' : 'background: #f9fafb;'} padding: 4px; font-size: 11px;">
+        <div style="margin-bottom: 2px; font-weight: bold;">
+          <input type="number" step="0.01" value="${precoUnitario || ''}" onchange="state.processoAtual.propostas[${pIdx}].itens[${itemIdx}].precoUnitario = parseFloat(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();" style="width: 100%; padding: 2px; font-size: 11px; text-align: center; border: 1px solid ${isBest ? '#10b981' : '#ddd'}; border-radius: 2px;">
+        </div>
+        <div style="background: ${isBest ? '#e8f5e9' : '#e8e8e8'}; padding: 2px; border-radius: 2px; font-weight: bold; color: ${isBest ? '#059669' : '#333'}; font-size: 10px;">
+          R$ ${totalComTributos.toFixed(2)} ${isBest ? '✓' : ''}
+        </div>
+      </td>`;
+    });
+
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+function renderizarResumos() {
+  if (!state.processoAtual || !state.processoAtual.propostas) return;
+
+  const propostas = state.processoAtual.propostas.filter(p => p.fornecedorId);
+  const primeiraPropo = propostas[0];
+
+  if (!primeiraPropo || !primeiraPropo.itens) return;
+
+  const itens = primeiraPropo.itens;
+
+  // Resumo por Valor
+  const resumoValor = {};
+  propostas.forEach(prop => {
+    const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
+    const fornName = forn ? forn.nome : 'Sem fornecedor';
+    const ufFornecedor = forn?.uf;
+
+    let totalComDifal = 0;
+    (prop.itens || []).forEach(item => {
+      const subtotal = (item.precoUnitario || 0) * (item.quantidade || 0);
+      const difal = ufFornecedor ? calcularDIFAL(ufFornecedor, subtotal) : { difal: 0 };
+      totalComDifal += subtotal + difal.difal;
+    });
+
+    resumoValor[fornName] = totalComDifal;
+  });
+
+  let htmlValor = '';
+  const valores = Object.values(resumoValor).filter(v => v > 0);
+  const menorValor = valores.length > 0 ? Math.min(...valores) : null;
+
+  Object.entries(resumoValor).forEach(([nome, valor]) => {
+    const isMelhor = menorValor && valor === menorValor;
+    htmlValor += `<div style="padding: 8px; border-bottom: 1px solid #eee; ${isMelhor ? 'background: #dcfce7; font-weight: 700; color: #059669;' : ''}">
+      ${nome}: <strong>R$ ${valor.toFixed(2)}</strong> ${isMelhor ? '✓' : ''}
+    </div>`;
+  });
+
+  document.getElementById('resumo-valor-conteudo').innerHTML = htmlValor;
+
+  // Resumo por Material
+  let htmlMaterial = '';
+  itens.forEach((item, idx) => {
+    const precos = propostas.map(p => (p.itens[idx]?.precoUnitario || 0)).filter(v => v > 0);
+    if (precos.length === 0) return;
+
+    const menorPreço = Math.min(...precos);
+    htmlMaterial += `<div style="padding: 8px; border-bottom: 1px solid #eee; background: #dcfce7; color: #059669; font-weight: 700;">
+      ${item.codigo}: <strong>R$ ${menorPreço.toFixed(2)}</strong> ✓
+    </div>`;
+  });
+
+  document.getElementById('resumo-material-conteudo').innerHTML = htmlMaterial || '<div style="padding: 8px; color: #999;">Sem dados</div>';
+
+  // Recomendação
+  let recomendacao = '<div style="color: #059669; font-size: 14px; font-weight: 700; margin-bottom: 10px;">🎯 Melhor Fornecedor</div>';
+  if (menorValor && resumoValor) {
+    const melhorFornecedor = Object.entries(resumoValor).find(([_, v]) => v === menorValor)?.[0];
+    if (melhorFornecedor) {
+      recomendacao += `<div style="font-size: 13px; line-height: 1.8;">
+        <strong>${melhorFornecedor}</strong><br>
+        Valor Total: <strong>R$ ${menorValor.toFixed(2)}</strong><br>
+        <span style="color: #059669; font-weight: 700;">✓ Recomendado</span>
+      </div>`;
+    }
+  }
+
+  document.getElementById('recomendacao-conteudo').innerHTML = recomendacao;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+
+function atualizarKPIs() {
+  document.getElementById('kpi-processos').textContent = state.processos.length;
+  document.getElementById('kpi-fornecedores').textContent = state.fornecedores.length;
+
+  let totalCotacoes = 0;
+  state.processos.forEach(p => {
+    if (p.propostas) totalCotacoes += p.propostas.filter(pr => pr.fornecedorId).length;
+  });
+  document.getElementById('kpi-cotacoes').textContent = totalCotacoes;
+  document.getElementById('kpi-economia').textContent = '12.5%';
+
+  // Tabela de últimos processos
+  const container = document.getElementById('dashboard-tabela');
+  if (state.processos.length === 0) {
+    container.innerHTML = '<div class="alert alert-info">Nenhum processo cadastrado</div>';
+    return;
+  }
+
+  const html = `
+    <table>
+      <thead>
+        <tr>
+          <th>DATAGED</th>
+          <th>Descrição</th>
+          <th>Propostas</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.processos.slice(-5).reverse().map(p => `
+          <tr>
+            <td><strong>${p.dataged}</strong></td>
+            <td>${p.descricao}</td>
+            <td><span class="badge badge-success">${p.propostas.length}</span></td>
+            <td>${p.dataCriacao}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  container.innerHTML = html;
+}
+
+function atualizarRelatorios() {
+  document.getElementById('rel-processos').textContent = state.processos.length;
+  document.getElementById('rel-fornecedores').textContent = state.fornecedores.length;
+  document.getElementById('rel-economia').textContent = '12.5%';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INICIALIZAÇÃO
+// ═══════════════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  atualizarKPIs();
+  carregarListaProcessos();
+  renderizarListaFornecedores();
+});
+
+</script>
+
+</body>
+</html>
