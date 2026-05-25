@@ -1519,8 +1519,9 @@ function renderizarComparativoEqualizacao() {
         <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 60px;"><strong>Qtd</strong></th>
         <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 40px;"><strong>Del</strong></th>`;
 
-  // Colunas de fornecedores (com campos de condições - colapsáveis + resumo)
-  propostas.forEach((prop, pIdx) => {
+  // Colunas de fornecedores (apenas aqueles com fornecedorId definido)
+  state.processoAtual.propostas.forEach((prop, pIdx) => {
+    if (!prop.fornecedorId) return;
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const fornName = forn ? forn.nome : 'Fornecedor ' + (pIdx + 1);
 
@@ -1615,8 +1616,9 @@ function renderizarComparativoEqualizacao() {
         <button onclick="excluirItem(${itemIdx});" style="background: #ff6b6b; color: white; border: none; cursor: pointer; font-size: 10px; padding: 4px 6px; border-radius: 2px;">✕</button>
       </td>`;
 
-    // Colunas de preços por fornecedor (com ICMS, DIFAL)
+    // Colunas de preços por fornecedor (com ICMS, DIFAL) - apenas com fornecedorId
     state.processoAtual.propostas.forEach((prop, pIdx) => {
+      if (!prop.fornecedorId) return;
       const itemProp = prop.itens[itemIdx];
       const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
       const ufFornecedor = forn?.uf || null;
@@ -1670,18 +1672,7 @@ function renderizarComparativoEqualizacao() {
       </td>`;
     });
 
-    // Coluna de seleção de vencedor
-    html += `<td style="padding: 8px; text-align: center;">
-      <select onchange="marcarVencedor(${itemIdx}, parseInt(this.value));"
-              style="width: 90%; font-size: 9px; padding: 4px; border: 1px solid var(--cor-borda); border-radius: 3px;">
-        <option value="">--</option>
-        ${state.processoAtual.propostas.map((p, pIdx) => {
-          const forn = state.fornecedores.find(f => f.id === p.fornecedorId);
-          return `<option value="${pIdx}">${forn ? forn.nome.substring(0, 10) : 'F' + (pIdx + 1)}</option>`;
-        }).join('')}
-      </select>
-    </td>
-    </tr>`;
+    html += `</tr>`;
   });
 
   html += `</tbody></table>`;
