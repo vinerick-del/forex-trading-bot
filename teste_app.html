@@ -808,7 +808,6 @@ table tbody tr:hover { background: #f9fafb; }
       <!-- BOTÃO ADICIONAR -->
       <div class="card" style="padding: 0.75rem; background: #f9fafb;">
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <button class="btn btn-secondary" onclick="adicionarPropostaEqualizacao()">+ Adicionar Proposta</button>
           <button class="btn btn-secondary" onclick="adicionarItemEqualizacao()" id="btn-add-item-equ">+ Adicionar Item</button>
           <button class="btn btn-primary" onclick="salvarEqualizacao()" style="margin-left: auto;">💾 Salvar</button>
         </div>
@@ -1438,9 +1437,25 @@ function adicionarPropostaEqualizacao() {
 }
 
 function adicionarItemEqualizacao() {
-  if (!state.processoAtual.propostas || state.processoAtual.propostas.length === 0) {
-    alert('Adicione uma proposta primeiro com [+ Adicionar Proposta]');
+  if (!state.processoAtual) {
+    alert('Selecione um processo primeiro');
     return;
+  }
+
+  // Se não existe proposta, criar a primeira automaticamente
+  if (!state.processoAtual.propostas || state.processoAtual.propostas.length === 0) {
+    const novaPropo = {
+      id: Date.now(),
+      numeroCotacao: `COT-1`,
+      dataCotacao: new Date().toISOString().split('T')[0],
+      fornecedorId: null,
+      prazoEntrega: null,
+      prazoPagamento: null,
+      tipoFrete: 'CIF',
+      garantiasMeses: null,
+      itens: []
+    };
+    state.processoAtual.propostas = [novaPropo];
   }
 
   const novoItem = {
@@ -1464,7 +1479,37 @@ function adicionarItemEqualizacao() {
   salvarState();
   renderizarComparativoEqualizacao();
   renderizarResumos();
-  adicionarNotificacao(`✓ Item adicionado em todas propostas`, 'success');
+  adicionarNotificacao(`✓ Item adicionado - Configure os fornecedores`, 'success');
+}
+
+function adicionarPropostaEqualizacao() {
+  if (!state.processoAtual) {
+    alert('Selecione um processo primeiro');
+    return;
+  }
+
+  const novaPropo = {
+    id: Date.now(),
+    numeroCotacao: `COT-${state.processoAtual.propostas.length + 1}`,
+    dataCotacao: new Date().toISOString().split('T')[0],
+    fornecedorId: null,
+    prazoEntrega: null,
+    prazoPagamento: null,
+    tipoFrete: 'CIF',
+    garantiasMeses: null,
+    itens: []
+  };
+
+  // Se já existem itens, copiar para a nova proposta
+  if (state.processoAtual.propostas.length > 0 && state.processoAtual.propostas[0].itens) {
+    novaPropo.itens = state.processoAtual.propostas[0].itens.map(item => ({ ...item }));
+  }
+
+  state.processoAtual.propostas.push(novaPropo);
+  salvarState();
+  renderizarComparativoEqualizacao();
+  renderizarResumos();
+  adicionarNotificacao(`✓ Nova proposta ${novaPropo.numeroCotacao} criada`, 'success');
 }
 
 function excluirProposta(pIdx) {
@@ -1493,8 +1538,8 @@ function renderizarComparativoEqualizacao() {
   const container = document.getElementById('equalizacao-comparativo-container');
 
   if (!state.processoAtual.propostas || state.processoAtual.propostas.length === 0) {
-    container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione propostas com [+ Adicionar Proposta]</div>';
-    document.getElementById('btn-add-item-equ').style.display = 'none';
+    container.innerHTML = '<div class="alert alert-warning">⚠️ Clique em [+ Adicionar Item] para começar a configurar fornecedores</div>';
+    document.getElementById('btn-add-item-equ').style.display = 'block';
     return;
   }
 
@@ -1503,21 +1548,34 @@ function renderizarComparativoEqualizacao() {
 
   let htmlCompleto = '';
 
-  // Mostrar propostas sem fornecedor
+  // Mostrar propostas sem fornecedor com interface de configuração
+  const primeiraPropo = state.processoAtual.propostas[0];
+  const itens = primeiraPropo.itens || [];
   const propostasEmAberto = state.processoAtual.propostas.filter(p => !p.fornecedorId);
+
   if (propostasEmAberto.length > 0) {
-    let htmlAberto = '<div class="alert alert-info" style="background: #e0f2fe; border-left: 4px solid #0284c7; padding: 10px; margin-bottom: 10px;">';
-    htmlAberto += `<strong>ℹ️ ${propostasEmAberto.length} proposta(s) em aberto</strong> - Selecione um fornecedor para cada proposta<br>`;
+    let htmlAberto = '<div style="background: #e0f2fe; border-left: 4px solid #0284c7; padding: 12px; margin-bottom: 12px; border-radius: 4px;">';
+    htmlAberto += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">`;
+    htmlAberto += `<strong style="color: #0284c7;">⚙️ Configurar Fornecedores</strong>`;
+    if (itens.length > 0) {
+      htmlAberto += `<button onclick="adicionarPropostaEqualizacao();" style="background: #0284c7; color: white; border: none; cursor: pointer; font-size: 14px; padding: 6px 12px; border-radius: 4px;">+ Adicionar Fornecedor</button>`;
+    }
+    htmlAberto += `</div>`;
+
     propostasEmAberto.forEach((prop) => {
       const allIdx = state.processoAtual.propostas.indexOf(prop);
-      htmlAberto += `<div style="margin-top: 8px; padding: 8px; background: white; border-radius: 4px;">`;
-      htmlAberto += `<small><strong>Proposta #${allIdx + 1} - ${prop.numeroCotacao}</strong></small><br>`;
-      htmlAberto += `<select onchange="state.processoAtual.propostas[${allIdx}].fornecedorId = parseInt(this.value); salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();" style="width: 100%; padding: 4px; font-size: 12px; margin-top: 4px;">`;
+      htmlAberto += `<div style="margin-bottom: 8px; padding: 10px; background: white; border-radius: 4px; display: flex; gap: 8px; align-items: flex-start;">`;
+      htmlAberto += `<div style="flex: 1;">`;
+      htmlAberto += `<small style="font-weight: bold; display: block; margin-bottom: 4px; color: var(--cor-principal);">Proposta #${allIdx + 1} - ${prop.numeroCotacao}</small>`;
+      htmlAberto += `<select onchange="state.processoAtual.propostas[${allIdx}].fornecedorId = parseInt(this.value); salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();" style="width: 100%; padding: 6px; font-size: 12px;">`;
       htmlAberto += `<option value="">-- Selecione Fornecedor --</option>`;
       state.fornecedores.forEach(forn => {
-        htmlAberto += `<option value="${forn.id}">${forn.nome} (${forn.uf})</option>`;
+        htmlAberto += `<option value="${forn.id}" ${prop.fornecedorId === forn.id ? 'selected' : ''}>${forn.nome} (${forn.uf})</option>`;
       });
-      htmlAberto += `</select></div>`;
+      htmlAberto += `</select>`;
+      htmlAberto += `</div>`;
+      htmlAberto += `<button onclick="excluirProposta(${allIdx});" style="background: #ff6b6b; color: white; border: none; cursor: pointer; font-size: 16px; padding: 4px 8px; border-radius: 4px; flex-shrink: 0; height: fit-content; margin-top: 20px;">✕</button>`;
+      htmlAberto += `</div>`;
     });
     htmlAberto += '</div>';
     htmlCompleto += htmlAberto;
