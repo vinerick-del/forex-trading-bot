@@ -690,7 +690,7 @@ table tbody tr:hover { background: #f9fafb; }
   </div>
 
   <!-- TAB 3: SAP FIORI -->
-  <div id="tab-2" class="tab-content">
+  <div id="tab-3" class="tab-content">
     <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Integração SAP Fiori</h2>
 
     <div class="sap-integration-banner">
@@ -741,33 +741,81 @@ table tbody tr:hover { background: #f9fafb; }
     </div>
 
     <div id="equalizacao-container" style="display: none;">
+      <!-- DADOS BÁSICOS -->
       <div style="background: linear-gradient(135deg, var(--cor-principal), #2c3840); color: white; padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem;">
-        <div style="font-size: 14px; opacity: 0.9;">DATAGED</div>
-        <div style="font-size: 24px; font-weight: 700;" id="equalizacao-dataged"></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+          <div>
+            <div style="font-size: 12px; opacity: 0.8;">DATAGED</div>
+            <div style="font-size: 18px; font-weight: 700;" id="equalizacao-dataged"></div>
+          </div>
+          <div>
+            <div style="font-size: 12px; opacity: 0.8;">Responsável</div>
+            <div style="font-size: 14px; font-weight: 600;" id="equalizacao-responsavel"></div>
+          </div>
+          <div>
+            <div style="font-size: 12px; opacity: 0.8;">Itens</div>
+            <div style="font-size: 14px; font-weight: 600;" id="equalizacao-itens-count">0</div>
+          </div>
+          <div>
+            <div style="font-size: 12px; opacity: 0.8;">Fornecedores</div>
+            <div style="font-size: 14px; font-weight: 600;" id="equalizacao-fornecedores-count">0</div>
+          </div>
+        </div>
       </div>
 
-      <!-- PARTE SUPERIOR: TABELA DE ITENS COM FORNECEDORES E RESUMO DE CONDIÇÕES -->
-      <div class="card">
-        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">📋 Equalização - Item × Fornecedor</h3>
+      <!-- BOTÃO ADICIONAR -->
+      <div class="card" style="padding: 0.75rem; background: #f9fafb;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" onclick="adicionarPropostaEqualizacao()">+ Adicionar Proposta</button>
+          <button class="btn btn-secondary" onclick="adicionarItemEqualizacao()" id="btn-add-item-equ">+ Adicionar Item</button>
+          <button class="btn btn-primary" onclick="salvarEqualizacao()" style="margin-left: auto;">💾 Salvar</button>
+        </div>
+      </div>
 
-        <div style="display: flex; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap;">
-          <button class="btn btn-secondary" onclick="adicionarItemEqualizacao()">+ Item</button>
-          <button class="btn btn-success" onclick="salvarEqualizacao()" style="margin-left: auto;">💾 Salvar</button>
+      <!-- TABELA COMPARATIVA -->
+      <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--cor-principal);">📊 Comparativo - Item × Fornecedor</h3>
+        <div id="equalizacao-comparativo-container" style="overflow-x: auto; border: 1px solid var(--cor-borda); border-radius: 8px;"></div>
+      </div>
+
+      <!-- 4 RESUMOS -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        <div class="card" id="resumo-valor">
+          <h4 style="color: var(--cor-principal); margin-bottom: 1rem;">💰 Resumo por Fornecedor</h4>
+          <div id="resumo-valor-conteudo" style="font-size: 13px;"></div>
         </div>
 
-        <div id="equalizacao-tabela-container" style="overflow-x: auto; border: 1px solid var(--cor-borda); border-radius: 8px;"></div>
+        <div class="card" id="resumo-material">
+          <h4 style="color: var(--cor-principal); margin-bottom: 1rem;">📦 Melhor Preço por Material</h4>
+          <div id="resumo-material-conteudo" style="font-size: 13px;"></div>
+        </div>
+
+        <div class="card" id="resumo-prazo">
+          <h4 style="color: var(--cor-principal); margin-bottom: 1rem;">⏱️ Resumo por Prazo</h4>
+          <div id="resumo-prazo-conteudo" style="font-size: 13px;"></div>
+        </div>
+
+        <div class="card" id="resumo-garantia">
+          <h4 style="color: var(--cor-principal); margin-bottom: 1rem;">🛡️ Resumo por Garantia</h4>
+          <div id="resumo-garantia-conteudo" style="font-size: 13px;"></div>
+        </div>
       </div>
 
-      <!-- PARTE INFERIOR: DETALHES DO FORNECEDOR VENCEDOR -->
-      <div class="card" id="equalizacao-detalhe-vencedor" style="display: none; background: linear-gradient(135deg, #dcfce7, #eff6ff); border: 2px solid var(--cor-sucesso);">
-        <h3 style="margin-bottom: 1rem; color: var(--cor-sucesso); font-size: 18px;">✓ Fornecedor Vencedor</h3>
-        <div id="equalizacao-detalhe-conteudo"></div>
+      <!-- BOTÕES DE APROVAÇÃO -->
+      <div class="card" style="background: linear-gradient(135deg, #eff6ff, #f0f9ff); border: 2px solid var(--cor-info);">
+        <h3 style="color: var(--cor-principal); margin-bottom: 1rem;">✓ Aprovar Equalização</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+          <button class="btn btn-success" onclick="aprovarPorMelhorPreco()" style="font-size: 12px; padding: 12px;">💰 Melhor Preço</button>
+          <button class="btn btn-success" onclick="aprovarPorMelhorPrazo()" style="font-size: 12px; padding: 12px;">⏱️ Melhor Prazo</button>
+          <button class="btn btn-success" onclick="aprovarPorMelhorGarantia()" style="font-size: 12px; padding: 12px;">🛡️ Melhor Garantia</button>
+          <button class="btn btn-primary" onclick="aprovarManual()" style="font-size: 12px; padding: 12px; margin-left: auto;">👤 Aprovação Manual</button>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- TAB 5: FICHAS TÉCNICAS -->
-  <div id="tab-4" class="tab-content">
+  <div id="tab-5" class="tab-content">
     <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Gerenciar Fichas Técnicas Aprovadas</h2>
 
     <div class="card">
@@ -790,7 +838,7 @@ table tbody tr:hover { background: #f9fafb; }
   </div>
 
   <!-- TAB 6: ANÁLISE & RECOMENDAÇÃO -->
-  <div id="tab-5" class="tab-content">
+  <div id="tab-6" class="tab-content">
     <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Análise Inteligente & Recomendação</h2>
 
     <div class="card">
@@ -825,7 +873,7 @@ table tbody tr:hover { background: #f9fafb; }
   </div>
 
   <!-- TAB 7: APROVAÇÃO -->
-  <div id="tab-6" class="tab-content">
+  <div id="tab-7" class="tab-content">
     <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Aprovar Processo</h2>
 
     <div class="card">
@@ -914,7 +962,7 @@ table tbody tr:hover { background: #f9fafb; }
   </div>
 
   <!-- TAB 8: RELATÓRIOS -->
-  <div id="tab-7" class="tab-content">
+  <div id="tab-8" class="tab-content">
     <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Gerar Relatórios</h2>
 
     <div class="card">
@@ -937,7 +985,7 @@ table tbody tr:hover { background: #f9fafb; }
   </div>
 
   <!-- TAB 9: HISTÓRICO -->
-  <div id="tab-8" class="tab-content">
+  <div id="tab-9" class="tab-content">
     <h2 style="margin-bottom: 1rem; color: var(--cor-principal);">Histórico de Processos</h2>
 
     <div class="card">
@@ -1247,175 +1295,294 @@ function carregarEqualizacao() {
   state.processoAtual = state.processos.find(p => p.dataged === dataged);
   document.getElementById('equalizacao-container').style.display = 'block';
   document.getElementById('equalizacao-dataged').textContent = state.processoAtual.dataged;
+  document.getElementById('equalizacao-responsavel').textContent = state.processoAtual.responsavel || '-';
 
-  // Inicializar itens se não existir
-  if (!state.processoAtual.equalizacao) {
-    state.processoAtual.equalizacao = [];
+  // Inicializar propostas se não existir
+  if (!state.processoAtual.propostas) {
+    state.processoAtual.propostas = [];
   }
 
-  renderizarTabelaEqualizacao();
+  renderizarComparativoEqualizacao();
+  renderizarResumos();
 }
 
-function renderizarTabelaEqualizacao() {
-  const container = document.getElementById('equalizacao-tabela-container');
-
-  if (state.processoAtual.equalizacao.length === 0) {
-    container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione itens à equalização</div>';
+function adicionarPropostaEqualizacao() {
+  if (state.fornecedores.length === 0) {
+    alert('Cadastre fornecedores primeiro (Tab 2)');
     return;
   }
 
-  let html = `<table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-    <thead style="background: #f3f4f6; border-bottom: 2px solid var(--cor-borda);">
+  const novaPropo = {
+    id: Date.now(),
+    numeroCotacao: `COT-${state.processoAtual.propostas.length + 1}`,
+    dataCotacao: new Date().toISOString().split('T')[0],
+    fornecedorId: null,
+    prazoEntrega: null,
+    condicaoPagamento: null,
+    garantia: null,
+    itens: []
+  };
+
+  state.processoAtual.propostas.push(novaPropo);
+  salvarState();
+  renderizarComparativoEqualizacao();
+  adicionarNotificacao(`✓ Proposta adicionada`, 'success');
+}
+
+function adicionarItemEqualizacao() {
+  if (!state.processoAtual.propostas || state.processoAtual.propostas.length === 0) {
+    alert('Adicione uma proposta primeiro com [+ Adicionar Proposta]');
+    return;
+  }
+
+  const novoItem = {
+    numero: (state.processoAtual.propostas[0].itens || []).length + 1,
+    tipoMaterial: '',
+    codigo: '',
+    descricao: '',
+    unidade: 'un',
+    quantidade: 1,
+    precoUnitario: 0,
+    prazoEntrega: null,
+    garantia: null
+  };
+
+  // Adicionar item em TODAS as propostas
+  state.processoAtual.propostas.forEach(prop => {
+    if (!prop.itens) prop.itens = [];
+    prop.itens.push({ ...novoItem });
+  });
+
+  salvarState();
+  renderizarComparativoEqualizacao();
+  adicionarNotificacao(`✓ Item adicionado em todas propostas`, 'success');
+}
+
+function renderizarComparativoEqualizacao() {
+  const container = document.getElementById('equalizacao-comparativo-container');
+
+  if (!state.processoAtual.propostas || state.processoAtual.propostas.length === 0) {
+    container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione propostas com [+ Adicionar Proposta]</div>';
+    document.getElementById('btn-add-item-equ').style.display = 'none';
+    return;
+  }
+
+  const primeiraPropo = state.processoAtual.propostas[0];
+  const itens = primeiraPropo.itens || [];
+
+  if (itens.length === 0) {
+    container.innerHTML = '<div class="alert alert-warning">⚠️ Adicione itens com [+ Adicionar Item]</div>';
+    return;
+  }
+
+  // Atualizar contadores
+  document.getElementById('equalizacao-itens-count').textContent = itens.length;
+  document.getElementById('equalizacao-fornecedores-count').textContent = state.processoAtual.propostas.length;
+
+  // Cabeçalho
+  let html = `<table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+    <thead style="background: #f3f4f6; border-bottom: 2px solid var(--cor-borda); position: sticky; top: 0;">
       <tr>
-        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 60px;"><strong>ITEM</strong></th>
-        <th style="padding: 10px; text-align: left; border-right: 2px solid var(--cor-borda); min-width: 150px;"><strong>CÓDIGO</strong></th>
-        <th style="padding: 10px; text-align: left; border-right: 2px solid var(--cor-borda); min-width: 200px;"><strong>DESCRIÇÃO</strong></th>
-        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 140px;"><strong>FORNECEDOR</strong></th>
-        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 120px;"><strong>PREÇO</strong></th>
-        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 100px;"><strong>PRAZO</strong></th>
-        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 100px;"><strong>PAGAMENTO</strong></th>
-        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 100px;"><strong>GARANTIA</strong></th>
-        <th style="padding: 10px; text-align: center;"><strong>AÇÃO</strong></th>
-      </tr>
+        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 50px;"><strong>#</strong></th>
+        <th style="padding: 10px; text-align: left; border-right: 2px solid var(--cor-borda); min-width: 100px;"><strong>Tipo</strong></th>
+        <th style="padding: 10px; text-align: left; border-right: 2px solid var(--cor-borda); min-width: 100px;"><strong>Código</strong></th>
+        <th style="padding: 10px; text-align: left; border-right: 2px solid var(--cor-borda); min-width: 150px;"><strong>Descrição</strong></th>
+        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 60px;"><strong>Qtd</strong></th>`;
+
+  // Colunas de fornecedores
+  state.processoAtual.propostas.forEach((prop, pIdx) => {
+    const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
+    html += `<th style="padding: 10px; text-align: center; border-right: 1px solid var(--cor-borda); min-width: 140px; background: #e8f4f8;">
+      <strong>${forn ? forn.nome.substring(0, 12) : 'Fornecedor ' + (pIdx + 1)}</strong>
+      <br style="font-size: 9px;">
+      <select onchange="state.processoAtual.propostas[${pIdx}].fornecedorId = parseInt(this.value); salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
+              style="width: 90%; font-size: 9px; padding: 3px;">
+        <option value="">--</option>
+        ${state.fornecedores.map(f => `<option value="${f.id}" ${prop.fornecedorId === f.id ? 'selected' : ''}>${f.nome}</option>`).join('')}
+      </select>
+    </th>`;
+  });
+
+  html += `<th style="padding: 10px; text-align: center; min-width: 60px;"><strong>Vencedor</strong></th>
+    </tr>
     </thead>
     <tbody>`;
 
-  state.processoAtual.equalizacao.forEach((item, idx) => {
-    const fornecedor = state.fornecedores.find(f => f.id === item.fornecedorId);
+  // Linhas de itens
+  itens.forEach((item, itemIdx) => {
+    const menorPreco = Math.min(...state.processoAtual.propostas
+      .map(p => (p.itens[itemIdx]?.precoUnitario || 0) * (p.itens[itemIdx]?.quantidade || 0))
+      .filter(v => v > 0)
+    );
 
-    html += `<tr style="border-bottom: 1px solid var(--cor-borda); background: ${idx % 2 === 0 ? '#fafafa' : 'white'};">
-      <td style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); font-weight: 700; color: var(--cor-principal);">
-        ${idx + 1}
+    html += `<tr style="border-bottom: 1px solid var(--cor-borda);">
+      <td style="padding: 8px; text-align: center; border-right: 2px solid var(--cor-borda); font-weight: 700; color: var(--cor-principal);">
+        ${itemIdx + 1}
       </td>
-      <td style="padding: 10px; border-right: 2px solid var(--cor-borda); font-weight: 600;">
+      <td style="padding: 8px; border-right: 2px solid var(--cor-borda);">
+        <input type="text" placeholder="Tipo" value="${item.tipoMaterial || ''}"
+               onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].tipoMaterial = this.value); salvarState();"
+               style="width: 90%; padding: 4px; font-size: 10px; border: 1px solid var(--cor-borda); border-radius: 3px;" />
+      </td>
+      <td style="padding: 8px; border-right: 2px solid var(--cor-borda); font-weight: 600;">
         <input type="text" placeholder="Código" value="${item.codigo || ''}"
-               onchange="state.processoAtual.equalizacao[${idx}].codigo = this.value; salvarState();"
-               style="width: 90%; padding: 6px; border: 1px solid var(--cor-borda); border-radius: 4px;" />
+               onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].codigo = this.value); salvarState();"
+               style="width: 90%; padding: 4px; font-size: 10px; border: 1px solid var(--cor-borda); border-radius: 3px;" />
       </td>
-      <td style="padding: 10px; border-right: 2px solid var(--cor-borda);">
+      <td style="padding: 8px; border-right: 2px solid var(--cor-borda);">
         <input type="text" placeholder="Descrição" value="${item.descricao || ''}"
-               onchange="state.processoAtual.equalizacao[${idx}].descricao = this.value; salvarState();"
-               style="width: 90%; padding: 6px; border: 1px solid var(--cor-borda); border-radius: 4px;" />
+               onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].descricao = this.value); salvarState();"
+               style="width: 90%; padding: 4px; font-size: 10px; border: 1px solid var(--cor-borda); border-radius: 3px;" />
       </td>
-      <td style="padding: 10px; border-right: 2px solid var(--cor-borda);">
-        <select onchange="state.processoAtual.equalizacao[${idx}].fornecedorId = parseInt(this.value); salvarState(); renderizarTabelaEqualizacao();"
-                style="width: 90%; padding: 6px; border: 1px solid var(--cor-borda); border-radius: 4px;">
-          <option value="">-- Selecione --</option>
-          ${state.fornecedores.map(f => `<option value="${f.id}" ${item.fornecedorId === f.id ? 'selected' : ''}>${f.nome}</option>`).join('')}
-        </select>
-      </td>
-      <td style="padding: 10px; border-right: 2px solid var(--cor-borda); text-align: right; font-weight: 600;">
-        ${fornecedor ? `<div style="color: var(--cor-principal);">R$ ${(item.preco || 0).toFixed(2)}</div>` : '-'}
-      </td>
-      <td style="padding: 10px; border-right: 2px solid var(--cor-borda); text-align: center;">
-        ${fornecedor ? `<span style="background: #dbeafe; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">${fornecedor.prazoEntrega}d</span>` : '-'}
-      </td>
-      <td style="padding: 10px; border-right: 2px solid var(--cor-borda); text-align: center;">
-        ${fornecedor ? `<span style="font-size: 11px;">${fornecedor.condicaoPagamento}</span>` : '-'}
-      </td>
-      <td style="padding: 10px; border-right: 2px solid var(--cor-borda); text-align: center;">
-        ${fornecedor ? `<span style="font-size: 11px;">${fornecedor.garantia}</span>` : '-'}
-      </td>
-      <td style="padding: 10px; text-align: center;">
-        <button class="btn btn-sm btn-danger" onclick="removerItemEqualizacao(${idx})">X</button>
-      </td>
+      <td style="padding: 8px; text-align: center; border-right: 2px solid var(--cor-borda);">
+        <input type="number" placeholder="Qtd" value="${item.quantidade || ''}"
+               onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].quantidade = parseInt(this.value) || 0); salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
+               style="width: 70%; padding: 4px; font-size: 10px; border: 1px solid var(--cor-borda); border-radius: 3px; text-align: center;" />
+      </td>`;
+
+    // Colunas de preços por fornecedor
+    state.processoAtual.propostas.forEach((prop, pIdx) => {
+      const itemProp = prop.itens[itemIdx];
+      const total = (itemProp?.precoUnitario || 0) * (itemProp?.quantidade || 0);
+      const isBest = total > 0 && total === menorPreco;
+
+      html += `<td style="padding: 8px; text-align: center; border-right: 1px solid var(--cor-borda); ${isBest ? 'background: #dcfce7; border-left: 3px solid var(--cor-sucesso);' : ''}">
+        <input type="number" step="0.01" placeholder="R$" value="${itemProp?.precoUnitario || ''}"
+               onchange="state.processoAtual.propostas[${pIdx}].itens[${itemIdx}].precoUnitario = parseFloat(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
+               style="width: 80%; padding: 4px; font-size: 10px; border: 1px solid ${isBest ? 'var(--cor-sucesso)' : 'var(--cor-borda)'}; border-radius: 3px; text-align: center; font-weight: ${isBest ? '700' : '400'}; background: ${isBest ? '#dcfce7' : 'white'};" />
+        <div style="font-size: 9px; color: ${isBest ? 'var(--cor-sucesso)' : 'var(--cor-texto-claro)'}; font-weight: ${isBest ? '700' : '400'}; margin-top: 2px;">
+          ${total > 0 ? `R$ ${total.toFixed(2)}` : '-'}
+        </div>
+      </td>`;
+    });
+
+    // Coluna de seleção de vencedor
+    html += `<td style="padding: 8px; text-align: center;">
+      <select onchange="marcarVencedor(${itemIdx}, parseInt(this.value));"
+              style="width: 90%; font-size: 9px; padding: 4px; border: 1px solid var(--cor-borda); border-radius: 3px;">
+        <option value="">--</option>
+        ${state.processoAtual.propostas.map((p, pIdx) => {
+          const forn = state.fornecedores.find(f => f.id === p.fornecedorId);
+          return `<option value="${pIdx}">${forn ? forn.nome.substring(0, 10) : 'F' + (pIdx + 1)}</option>`;
+        }).join('')}
+      </select>
+    </td>
     </tr>`;
   });
 
   html += `</tbody></table>`;
   container.innerHTML = html;
-
-  // Renderizar detalhes do vencedor (primeiro com fornecedor selecionado)
-  const vencedor = state.processoAtual.equalizacao.find(item => item.fornecedorId);
-  if (vencedor) {
-    const fornecedorVencedor = state.fornecedores.find(f => f.id === vencedor.fornecedorId);
-    if (fornecedorVencedor) {
-      renderizarDetalheFornecedorVencedor(fornecedorVencedor);
-    }
-  }
 }
 
-function renderizarDetalheFornecedorVencedor(fornecedor) {
-  const container = document.getElementById('equalizacao-detalhe-vencedor');
-  const conteudo = document.getElementById('equalizacao-detalhe-conteudo');
-
-  const html = `
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
-      <div>
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Nome</div>
-        <div style="font-size: 18px; font-weight: 700; color: var(--cor-principal);">${fornecedor.nome}</div>
-      </div>
-
-      <div>
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Data da Proposta</div>
-        <div style="font-size: 16px; font-weight: 600;">${fornecedor.dataProposta}</div>
-      </div>
-
-      <div>
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Prazo de Entrega</div>
-        <div style="font-size: 16px; font-weight: 600; color: var(--cor-destaque);">${fornecedor.prazoEntrega} dias</div>
-      </div>
-
-      <div>
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Localização (UF)</div>
-        <div style="font-size: 16px; font-weight: 600;">${fornecedor.uf}</div>
-      </div>
-
-      <div>
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Condição de Pagamento</div>
-        <div style="font-size: 16px; font-weight: 600; color: var(--cor-sucesso);">${fornecedor.condicaoPagamento}</div>
-      </div>
-
-      <div>
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Garantia</div>
-        <div style="font-size: 16px; font-weight: 600;">${fornecedor.garantia}</div>
-      </div>
-    </div>
-
-    ${fornecedor.obs ? `
-      <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid rgba(255,255,255,0.3);">
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--cor-texto-claro); font-weight: 600; margin-bottom: 8px;">Observações</div>
-        <div style="font-size: 14px; color: var(--cor-principal); line-height: 1.6;">${fornecedor.obs}</div>
-      </div>
-    ` : ''}
-  `;
-
-  conteudo.innerHTML = html;
-  container.style.display = 'block';
-}
-
-function adicionarItemEqualizacao() {
-  if (!state.processoAtual.equalizacao) {
-    state.processoAtual.equalizacao = [];
-  }
-
-  state.processoAtual.equalizacao.push({
-    codigo: '',
-    descricao: '',
-    fornecedorId: null,
-    preco: 0
+function renderizarResumos() {
+  // Resumo por Valor (Fornecedor)
+  const resumoValor = {};
+  state.processoAtual.propostas.forEach(prop => {
+    const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
+    const fornName = forn ? forn.nome : 'Sem fornecedor';
+    const total = (prop.itens || []).reduce((sum, item) => sum + ((item.precoUnitario || 0) * (item.quantidade || 0)), 0);
+    resumoValor[fornName] = total;
   });
 
-  salvarState();
-  renderizarTabelaEqualizacao();
-  adicionarNotificacao(`✓ Item adicionado`, 'success');
+  let htmlValor = '';
+  Object.entries(resumoValor).sort((a, b) => a[1] - b[1]).forEach(([nome, valor]) => {
+    const isMelhor = valor === Math.min(...Object.values(resumoValor).filter(v => v > 0));
+    htmlValor += `<div style="padding: 8px; border-bottom: 1px solid #eee; ${isMelhor ? 'background: #dcfce7; font-weight: 700; color: var(--cor-sucesso);' : ''}">
+      ${nome}: <strong>R$ ${valor.toFixed(2)}</strong> ${isMelhor ? '✓' : ''}
+    </div>`;
+  });
+  document.getElementById('resumo-valor-conteudo').innerHTML = htmlValor;
+
+  // Resumo por Material (Melhor preço por código)
+  const primeiraPropo = state.processoAtual.propostas[0];
+  const itens = primeiraPropo.itens || [];
+  let htmlMaterial = '';
+  itens.forEach((item, idx) => {
+    const menorPreco = Math.min(...state.processoAtual.propostas
+      .map(p => (p.itens[idx]?.precoUnitario || 0))
+      .filter(v => v > 0)
+    );
+    const fornVencedor = state.processoAtual.propostas.find(p => p.itens[idx]?.precoUnitario === menorPreco);
+    const fornName = fornVencedor ? (state.fornecedores.find(f => f.id === fornVencedor.fornecedorId)?.nome || 'N/A') : 'N/A';
+
+    htmlMaterial += `<div style="padding: 8px; border-bottom: 1px solid #eee; background: #dcfce7; color: var(--cor-sucesso); font-weight: 600;">
+      ${item.codigo}: ${fornName} - R$ ${menorPreco.toFixed(2)} ✓
+    </div>`;
+  });
+  document.getElementById('resumo-material-conteudo').innerHTML = htmlMaterial;
+
+  // Resumo por Prazo
+  let htmlPrazo = '';
+  state.processoAtual.propostas.forEach(prop => {
+    const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
+    const prazo = prop.prazoEntrega || forn?.prazoEntrega || '-';
+    htmlPrazo += `<div style="padding: 8px; border-bottom: 1px solid #eee;">
+      ${forn ? forn.nome : 'S/ Fornecedor'}: <strong>${prazo} dias</strong>
+    </div>`;
+  });
+  document.getElementById('resumo-prazo-conteudo').innerHTML = htmlPrazo;
+
+  // Resumo por Garantia
+  let htmlGarantia = '';
+  state.processoAtual.propostas.forEach(prop => {
+    const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
+    const garantia = prop.garantia || forn?.garantia || '-';
+    htmlGarantia += `<div style="padding: 8px; border-bottom: 1px solid #eee;">
+      ${forn ? forn.nome : 'S/ Fornecedor'}: <strong>${garantia}</strong>
+    </div>`;
+  });
+  document.getElementById('resumo-garantia-conteudo').innerHTML = htmlGarantia;
 }
 
-function removerItemEqualizacao(idx) {
-  if (confirm('Remover este item?')) {
-    state.processoAtual.equalizacao.splice(idx, 1);
-    salvarState();
-    renderizarTabelaEqualizacao();
-    adicionarNotificacao(`✓ Item removido`, 'success');
+function marcarVencedor(itemIdx, propoIdx) {
+  // TODO: implementar lógica de marcação de vencedor
+  renderizarComparativoEqualizacao();
+}
+
+function aprovarPorMelhorPreco() {
+  const resumoValor = {};
+  state.processoAtual.propostas.forEach(prop => {
+    const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
+    const fornName = forn ? forn.nome : 'Sem fornecedor';
+    const total = (prop.itens || []).reduce((sum, item) => sum + ((item.precoUnitario || 0) * (item.quantidade || 0)), 0);
+    resumoValor[fornName] = total;
+  });
+
+  const vencedor = Object.entries(resumoValor).reduce((a, b) => a[1] < b[1] ? a : b);
+  alert(`✓ Aprovado: ${vencedor[0]} - R$ ${vencedor[1].toFixed(2)}`);
+  salvarEqualizacao();
+}
+
+function aprovarPorMelhorPrazo() {
+  const prazos = state.processoAtual.propostas.map(p => {
+    const forn = state.fornecedores.find(f => f.id === p.fornecedorId);
+    return { nome: forn?.nome || 'S/ Fornecedor', prazo: p.prazoEntrega || forn?.prazoEntrega || 999 };
+  });
+  const vencedor = prazos.reduce((a, b) => a.prazo < b.prazo ? a : b);
+  alert(`✓ Aprovado por Melhor Prazo: ${vencedor.nome} - ${vencedor.prazo} dias`);
+  salvarEqualizacao();
+}
+
+function aprovarPorMelhorGarantia() {
+  alert(`✓ Aprovação por Melhor Garantia`);
+  salvarEqualizacao();
+}
+
+function aprovarManual() {
+  const fornecedores = state.processoAtual.propostas.map(p => {
+    const forn = state.fornecedores.find(f => f.id === p.fornecedorId);
+    return forn ? forn.nome : 'Sem fornecedor';
+  });
+
+  const escolhido = prompt(`Escolha o fornecedor vencedor:\n\n${fornecedores.map((f, i) => `${i+1}. ${f}`).join('\n')}`);
+
+  if (escolhido) {
+    alert(`✓ Aprovado: ${fornecedores[parseInt(escolhido) - 1]}`);
+    salvarEqualizacao();
   }
 }
 
 function salvarEqualizacao() {
-  if (!state.processoAtual.equalizacao || state.processoAtual.equalizacao.length === 0) {
-    alert('Adicione itens à equalização');
-    return;
-  }
-
   const idx = state.processos.findIndex(p => p.dataged === state.processoAtual.dataged);
   state.processos[idx] = state.processoAtual;
   salvarState();
