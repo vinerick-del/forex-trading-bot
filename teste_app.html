@@ -1479,6 +1479,28 @@ function adicionarItemEqualizacao() {
   adicionarNotificacao(`✓ Item adicionado em todas propostas`, 'success');
 }
 
+function excluirProposta(pIdx) {
+  if (!confirm('Tem certeza que deseja excluir esta proposta?')) return;
+  state.processoAtual.propostas.splice(pIdx, 1);
+  salvarState();
+  renderizarComparativoEqualizacao();
+  renderizarResumos();
+  adicionarNotificacao(`✓ Proposta excluída`, 'success');
+}
+
+function excluirItem(itemIdx) {
+  if (!confirm('Tem certeza que deseja excluir este item?')) return;
+  state.processoAtual.propostas.forEach(prop => {
+    if (prop.itens && prop.itens.length > itemIdx) {
+      prop.itens.splice(itemIdx, 1);
+    }
+  });
+  salvarState();
+  renderizarComparativoEqualizacao();
+  renderizarResumos();
+  adicionarNotificacao(`✓ Item excluído`, 'success');
+}
+
 function renderizarComparativoEqualizacao() {
   const container = document.getElementById('equalizacao-comparativo-container');
 
@@ -1496,9 +1518,10 @@ function renderizarComparativoEqualizacao() {
     return;
   }
 
-  // Atualizar contadores
+  // Atualizar contadores - apenas propostas com fornecedor definido
+  const propostas = state.processoAtual.propostas.filter(p => p.fornecedorId);
   document.getElementById('equalizacao-itens-count').textContent = itens.length;
-  document.getElementById('equalizacao-fornecedores-count').textContent = state.processoAtual.propostas.length;
+  document.getElementById('equalizacao-fornecedores-count').textContent = propostas.length;
 
   // Cabeçalho
   let html = `<table style="width: 100%; border-collapse: collapse; font-size: 11px;">
@@ -1508,16 +1531,21 @@ function renderizarComparativoEqualizacao() {
         <th style="padding: 10px; text-align: left; border-right: 2px solid var(--cor-borda); min-width: 100px;"><strong>Tipo</strong></th>
         <th style="padding: 10px; text-align: left; border-right: 2px solid var(--cor-borda); min-width: 100px;"><strong>Código</strong></th>
         <th style="padding: 10px; text-align: left; border-right: 2px solid var(--cor-borda); min-width: 150px;"><strong>Descrição</strong></th>
-        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 60px;"><strong>Qtd</strong></th>`;
+        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 60px;"><strong>Qtd</strong></th>
+        <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 40px;"><strong>Del</strong></th>`;
 
-  // Colunas de fornecedores (com campos de condições)
-  state.processoAtual.propostas.forEach((prop, pIdx) => {
+  // Colunas de fornecedores (com campos de condições - colapsáveis)
+  propostas.forEach((prop, pIdx) => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const fornName = forn ? forn.nome : 'Fornecedor ' + (pIdx + 1);
 
     html += `<th style="padding: 6px; text-align: center; border-right: 1px solid var(--cor-borda); min-width: 220px; background: #e8f4f8; vertical-align: top;">
-      <div style="margin-bottom: 6px;">
-        <strong style="font-size: 10px;">${fornName.substring(0, 15)}</strong>
+      <div style="margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+        <strong style="font-size: 10px;">${fornName.substring(0, 12)}</strong>
+        <button onclick="event.stopPropagation(); document.getElementById('cond-${pIdx}').style.display = document.getElementById('cond-${pIdx}').style.display === 'none' ? 'block' : 'none'; this.textContent = document.getElementById('cond-${pIdx}').style.display === 'none' ? '▶' : '▼';"
+                style="background: none; border: none; cursor: pointer; font-size: 10px; padding: 0; color: var(--cor-principal);">▼</button>
+        <button onclick="event.stopPropagation(); excluirProposta(${pIdx});"
+                style="background: #ff6b6b; color: white; border: none; cursor: pointer; font-size: 8px; padding: 2px 4px; border-radius: 2px;">✕</button>
       </div>
       <div style="background: white; border: 1px solid var(--cor-borda); border-radius: 3px; padding: 4px; font-size: 8px; text-align: left;">
         <div style="margin-bottom: 4px;">
@@ -1527,7 +1555,7 @@ function renderizarComparativoEqualizacao() {
             ${state.fornecedores.map(f => `<option value="${f.id}" ${prop.fornecedorId === f.id ? 'selected' : ''}>${f.nome} (${f.uf})</option>`).join('')}
           </select>
         </div>
-        <div style="border-top: 1px solid #eee; padding-top: 4px;">
+        <div id="cond-${pIdx}" style="border-top: 1px solid #eee; padding-top: 4px;">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px;">
             <label style="font-weight: bold; color: var(--cor-principal);">Prazo Entrega (d):</label>
             <input type="number" value="${prop.prazoEntrega || ''}" placeholder="dias"
@@ -1593,9 +1621,12 @@ function renderizarComparativoEqualizacao() {
         <input type="number" placeholder="Qtd" value="${item.quantidade || ''}"
                onchange="state.processoAtual.propostas.forEach(p => p.itens[${itemIdx}].quantidade = parseInt(this.value) || 0); salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
                style="width: 70%; padding: 4px; font-size: 10px; border: 1px solid var(--cor-borda); border-radius: 3px; text-align: center;" />
+      </td>
+      <td style="padding: 8px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 40px;">
+        <button onclick="excluirItem(${itemIdx});" style="background: #ff6b6b; color: white; border: none; cursor: pointer; font-size: 10px; padding: 4px 6px; border-radius: 2px;">✕</button>
       </td>`;
 
-    // Colunas de preços por fornecedor (com ICMS, DIFAL, IPI, PIS/COFINS)
+    // Colunas de preços por fornecedor (com ICMS, DIFAL)
     state.processoAtual.propostas.forEach((prop, pIdx) => {
       const itemProp = prop.itens[itemIdx];
       const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
@@ -1605,27 +1636,17 @@ function renderizarComparativoEqualizacao() {
       const quantidade = itemProp?.quantidade || 0;
       const subtotal = precoUnitario * quantidade;
 
-      // Alíquotas (padrão, mas podem ser editáveis)
-      const ipiPerc = itemProp?.ipi || 0;
-      const pisCofinsPerc = itemProp?.pisCofins || 7.65;
-
-      // Cálculos
-      const ipiValor = (subtotal * ipiPerc) / 100;
-      const pisCofinsValor = (subtotal * pisCofinsPerc) / 100;
       const difal = ufFornecedor ? calcularDIFAL(ufFornecedor, subtotal) : null;
+      const totalComTributos = subtotal + (difal?.difal || 0);
 
-      const totalComTributos = subtotal + ipiValor + pisCofinsValor + (difal?.difal || 0);
-
-      const totais = state.processoAtual.propostas
+      const totais = propostas
         .map((p, idx) => {
           const itemP = p.itens[itemIdx];
           const frnc = state.fornecedores.find(f => f.id === p.fornecedorId);
           const ufd = frnc?.uf || null;
           const sub = (itemP?.precoUnitario || 0) * (itemP?.quantidade || 0);
-          const ipi = (sub * (itemP?.ipi || 0)) / 100;
-          const piscofins = (sub * (itemP?.pisCofins || 7.65)) / 100;
           const d = ufd ? calcularDIFAL(ufd, sub) : null;
-          return sub + ipi + piscofins + (d?.difal || 0);
+          return sub + (d?.difal || 0);
         })
         .filter(v => v > 0);
 
@@ -1644,11 +1665,6 @@ function renderizarComparativoEqualizacao() {
                    style="width: 100%; padding: 2px; font-size: 7px; border: 1px solid ${isBest ? 'var(--cor-sucesso)' : 'var(--cor-borda)'}; border-radius: 2px; text-align: center;" />
           </div>
 
-          <div style="background: #f0f0f0; padding: 2px; border-radius: 2px; margin-bottom: 2px; font-size: 7px;">
-            <strong>Subtotal:</strong> R$ ${subtotal.toFixed(2)}<br/>
-            <strong>IPI (${ipiPerc}%):</strong> R$ ${ipiValor.toFixed(2)}<br/>
-            <strong>PIS/COFINS (${pisCofinsPerc}%):</strong> R$ ${pisCofinsValor.toFixed(2)}
-          </div>
 
           ${difal && difal.difal > 0 ? `
           <div style="background: #fff3cd; padding: 2px; border-radius: 2px; margin-bottom: 2px; font-size: 7px;">
@@ -1684,9 +1700,12 @@ function renderizarComparativoEqualizacao() {
 }
 
 function renderizarResumos() {
+  // Filtrar apenas propostas com fornecedor definido
+  const propostas = state.processoAtual.propostas.filter(p => p.fornecedorId);
+
   // Resumo por Valor (Fornecedor) - INCLUINDO DIFAL
   const resumoValor = {};
-  state.processoAtual.propostas.forEach(prop => {
+  propostas.forEach(prop => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const fornName = forn ? forn.nome : 'Sem fornecedor';
     const ufFornecedor = forn?.uf || null;
@@ -1711,11 +1730,11 @@ function renderizarResumos() {
   document.getElementById('resumo-valor-conteudo').innerHTML = htmlValor;
 
   // Resumo por Material (Melhor preço por código)
-  const primeiraPropo = state.processoAtual.propostas[0];
-  const itens = primeiraPropo.itens || [];
+  const primeiraPropo = propostas[0];
+  const itens = primeiraPropo?.itens || [];
   let htmlMaterial = '';
   itens.forEach((item, idx) => {
-    const precos = state.processoAtual.propostas
+    const precos = propostas
       .map(p => (p.itens[idx]?.precoUnitario || 0))
       .filter(v => v > 0);
 
@@ -1727,7 +1746,7 @@ function renderizarResumos() {
     }
 
     const menorPreco = Math.min(...precos);
-    const fornVencedor = state.processoAtual.propostas.find(p => p.itens[idx]?.precoUnitario === menorPreco);
+    const fornVencedor = propostas.find(p => p.itens[idx]?.precoUnitario === menorPreco);
     const fornName = fornVencedor ? (state.fornecedores.find(f => f.id === fornVencedor.fornecedorId)?.nome || 'N/A') : 'N/A';
 
     htmlMaterial += `<div style="padding: 8px; border-bottom: 1px solid #eee; background: #dcfce7; color: var(--cor-sucesso); font-weight: 600;">
@@ -1738,7 +1757,7 @@ function renderizarResumos() {
 
   // Resumo por DIFAL (por fornecedor)
   let htmlDifal = '';
-  state.processoAtual.propostas.forEach(prop => {
+  propostas.forEach(prop => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const ufFornecedor = forn?.uf || null;
 
@@ -1760,22 +1779,22 @@ function renderizarResumos() {
 
   // Resumo por Prazo
   let htmlPrazo = '';
-  state.processoAtual.propostas.forEach(prop => {
+  propostas.forEach(prop => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const prazo = prop.prazoEntrega || '-';
     htmlPrazo += `<div style="padding: 8px; border-bottom: 1px solid #eee;">
-      ${forn ? forn.nome : 'S/ Fornecedor'}: <strong>${prazo}${prazo !== '-' ? ' dias' : ''}</strong>
+      ${forn ? forn.nome : 'Sem Fornecedor'}: <strong>${prazo}${prazo !== '-' ? ' dias' : ''}</strong>
     </div>`;
   });
   document.getElementById('resumo-prazo-conteudo').innerHTML = htmlPrazo;
 
   // Resumo por Garantia
   let htmlGarantia = '';
-  state.processoAtual.propostas.forEach(prop => {
+  propostas.forEach(prop => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const garantia = prop.garantia || '-';
     htmlGarantia += `<div style="padding: 8px; border-bottom: 1px solid #eee;">
-      ${forn ? forn.nome : 'S/ Fornecedor'}: <strong>${garantia}</strong>
+      ${forn ? forn.nome : 'Sem Fornecedor'}: <strong>${garantia}</strong>
     </div>`;
   });
   document.getElementById('resumo-garantia-conteudo').innerHTML = htmlGarantia;
@@ -1791,17 +1810,22 @@ function renderizarRecomendacao() {
     return;
   }
 
-  const propostas = state.processoAtual.propostas.map(prop => {
+  const propostasComForn = state.processoAtual.propostas.filter(p => p.fornecedorId);
+
+  if (propostasComForn.length === 0) {
+    document.getElementById('recomendacao-conteudo').innerHTML = 'Defina fornecedores nas propostas para receber recomendação.';
+    return;
+  }
+
+  const propostas = propostasComForn.map(prop => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const ufFornecedor = forn?.uf || null;
 
     let totalComTributos = 0;
     (prop.itens || []).forEach(item => {
       const sub = (item.precoUnitario || 0) * (item.quantidade || 0);
-      const ipi = (sub * (item.ipi || 0)) / 100;
-      const piscofins = (sub * (item.pisCofins || 7.65)) / 100;
       const difal = ufFornecedor ? calcularDIFAL(ufFornecedor, sub) : { difal: 0 };
-      totalComTributos += sub + ipi + piscofins + difal.difal;
+      totalComTributos += sub + difal.difal;
     });
 
     return {
@@ -1916,17 +1940,15 @@ function renderizarAnaliseRisco() {
     return;
   }
 
-  const propostas = state.processoAtual.propostas.map(prop => {
+  const propostas = state.processoAtual.propostas.filter(prop => prop.fornecedorId).map(prop => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const ufFornecedor = forn?.uf || null;
 
     let totalComTributos = 0;
     (prop.itens || []).forEach(item => {
       const sub = (item.precoUnitario || 0) * (item.quantidade || 0);
-      const ipi = (sub * (item.ipi || 0)) / 100;
-      const piscofins = (sub * (item.pisCofins || 7.65)) / 100;
       const difal = ufFornecedor ? calcularDIFAL(ufFornecedor, sub) : { difal: 0 };
-      totalComTributos += sub + ipi + piscofins + difal.difal;
+      totalComTributos += sub + difal.difal;
     });
 
     return {
@@ -1936,9 +1958,13 @@ function renderizarAnaliseRisco() {
     };
   });
 
+  if (propostas.length === 0) {
+    document.getElementById('analise-riscos-conteudo').innerHTML = 'Nenhuma proposta com fornecedor definido.';
+    return;
+  }
+
   let html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">';
 
-  // Risco de escolher pelo preço mais barato
   const maisBarato = propostas.reduce((a, b) => a.preco < b.preco ? a : b);
   html += `<div style="background: #fff5f5; padding: 8px; border-radius: 4px; border-left: 3px solid #dc2626;">
     <strong style="color: #dc2626;">💰 Risco - Melhor Preço</strong><br/>
@@ -1948,7 +1974,6 @@ function renderizarAnaliseRisco() {
     ⚠️ ${maisBarato.risco.descricao}</small>
   </div>`;
 
-  // Risco de escolher pelo melhor equilíbrio (já calculado em recomendação)
   const melhorEquilibrio = propostas.length > 0 ? propostas[0] : null;
   if (melhorEquilibrio) {
     html += `<div style="background: #f5f5ff; padding: 8px; border-radius: 4px; border-left: 3px solid #0ea5e9;">
@@ -1960,7 +1985,6 @@ function renderizarAnaliseRisco() {
     </div>`;
   }
 
-  // Risco de escolher pelo prazo mais curto
   const maisPrazo = propostas.reduce((a, b) => (a.risco.pontos || 0) > (b.risco.pontos || 0) ? b : a);
   html += `<div style="background: #fffbf0; padding: 8px; border-radius: 4px; border-left: 3px solid #f59e0b;">
     <strong style="color: #f59e0b;">⏱️ Risco - Prazo Mais Curto</strong><br/>
@@ -1968,33 +1992,6 @@ function renderizarAnaliseRisco() {
     Preço: R$ ${maisPrazo.preco.toFixed(2)}<br/>
     Risco: ${maisPrazo.risco.nivel}<br/>
     ⚠️ Pode ter maior risco operacional</small>
-  </div>`;
-
-  // Matriz de riscos
-  html += `<div style="background: #f0f0f0; padding: 8px; border-radius: 4px; border-left: 3px solid #666; grid-column: 1/-1;">
-    <strong style="color: #333;">📊 Matriz de Riscos</strong>
-    <div style="margin-top: 6px; font-size: 10px;">
-      <table style="width: 100%; border-collapse: collapse;">
-        <tr style="background: #ddd;">
-          <th style="padding: 4px; text-align: left; border: 1px solid #999;">Fornecedor</th>
-          <th style="padding: 4px; text-align: center; border: 1px solid #999;">Preço</th>
-          <th style="padding: 4px; text-align: center; border: 1px solid #999;">Risco</th>
-          <th style="padding: 4px; text-align: center; border: 1px solid #999;">Pontos</th>
-        </tr>
-        ${propostas.map(p => `
-        <tr>
-          <td style="padding: 4px; border: 1px solid #ccc;">${p.nome}</td>
-          <td style="padding: 4px; border: 1px solid #ccc; text-align: center;">R$ ${p.preco.toFixed(2)}</td>
-          <td style="padding: 4px; border: 1px solid #ccc; text-align: center; background: ${
-            p.risco.nivel === 'baixo' ? '#e8f5e9' :
-            p.risco.nivel === 'médio' ? '#fff8e1' :
-            p.risco.nivel === 'alto' ? '#ffebee' : '#ffcdd2'
-          }; font-weight: bold;">${p.risco.nivel}</td>
-          <td style="padding: 4px; border: 1px solid #ccc; text-align: center;">${p.risco.pontos}</td>
-        </tr>
-        `).join('')}
-      </table>
-    </div>
   </div>`;
 
   html += '</div>';
