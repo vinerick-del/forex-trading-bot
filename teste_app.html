@@ -674,9 +674,43 @@ table tbody tr:hover { background: #f9fafb; }
           <input type="text" id="cad-cnpj" placeholder="00.000.000/0000-00" />
         </div>
         <div class="form-group">
-          <label>Cidade/UF Sede</label>
-          <input type="text" id="cad-cidade" placeholder="ex: São Paulo, SP" />
+          <label>UF Sede *</label>
+          <select id="cad-uf" style="padding: 8px; border: 1px solid var(--cor-borda); border-radius: 4px;">
+            <option value="">-- Selecione UF --</option>
+            <option value="AC">AC - Acre</option>
+            <option value="AL">AL - Alagoas</option>
+            <option value="AP">AP - Amapá</option>
+            <option value="AM">AM - Amazonas</option>
+            <option value="BA">BA - Bahia</option>
+            <option value="CE">CE - Ceará</option>
+            <option value="DF">DF - Distrito Federal</option>
+            <option value="ES">ES - Espírito Santo</option>
+            <option value="GO">GO - Goiás</option>
+            <option value="MA">MA - Maranhão</option>
+            <option value="MT">MT - Mato Grosso</option>
+            <option value="MS">MS - Mato Grosso do Sul</option>
+            <option value="MG">MG - Minas Gerais</option>
+            <option value="PA">PA - Pará</option>
+            <option value="PB">PB - Paraíba</option>
+            <option value="PR">PR - Paraná</option>
+            <option value="PE">PE - Pernambuco</option>
+            <option value="PI">PI - Piauí</option>
+            <option value="RJ">RJ - Rio de Janeiro</option>
+            <option value="RN">RN - Rio Grande do Norte</option>
+            <option value="RS">RS - Rio Grande do Sul</option>
+            <option value="RO">RO - Rondônia</option>
+            <option value="RR">RR - Roraima</option>
+            <option value="SC">SC - Santa Catarina</option>
+            <option value="SP">SP - São Paulo</option>
+            <option value="SE">SE - Sergipe</option>
+            <option value="TO">TO - Tocantins</option>
+          </select>
         </div>
+      </div>
+
+      <div class="form-group">
+        <label>Cidade</label>
+        <input type="text" id="cad-cidade" placeholder="ex: São Paulo" />
       </div>
 
       <div class="form-group">
@@ -796,6 +830,11 @@ table tbody tr:hover { background: #f9fafb; }
         <div class="card" id="resumo-material">
           <h4 style="color: var(--cor-principal); margin-bottom: 1rem;">📦 Melhor Preço por Material</h4>
           <div id="resumo-material-conteudo" style="font-size: 13px;"></div>
+        </div>
+
+        <div class="card" id="resumo-difal">
+          <h4 style="color: var(--cor-principal); margin-bottom: 1rem;">💰 DIFAL por Fornecedor</h4>
+          <div id="resumo-difal-conteudo" style="font-size: 13px;"></div>
         </div>
 
         <div class="card" id="resumo-prazo">
@@ -1118,6 +1157,21 @@ const DADOS_SAP_FIORI = [
 
 const FABRICANTES_APPROVED = ['Siemens', 'Schneider', 'ABB', 'Nexans', 'Alstom', 'Pirelli', 'Weidmüller', 'Eaton'];
 
+// Tabela de Alíquotas ICMS por UF (vigente 2025)
+const ALIQUOTAS_ICMS = {
+  'AC': 17, 'AL': 17, 'AP': 18, 'AM': 18, 'BA': 18, 'CE': 18, 'DF': 18,
+  'ES': 18, 'GO': 15, 'MA': 18, 'MT': 15, 'MS': 15, 'MG': 18, 'PA': 18,
+  'PB': 18, 'PR': 18, 'PE': 17, 'PI': 17, 'RJ': 18, 'RN': 18, 'RS': 18,
+  'RO': 17.5, 'RR': 18, 'SC': 18, 'SP': 18, 'SE': 17, 'TO': 15
+};
+
+// Alíquota Interestadual (ICMS nas operações interestaduais)
+const ALIQUOTA_INTERESTADUAL = 7; // Padrão federal
+
+// UF da Empresa Compradora (ÂMBAR ENERGIA - Manaus)
+const UF_COMPRADORA = 'AM';
+const ALIQUOTA_COMPRADORA = ALIQUOTAS_ICMS[UF_COMPRADORA]; // 18%
+
 let state = {
   fornecedores: JSON.parse(localStorage.getItem('fornecedores_ambar') || '[]'),
   processos: JSON.parse(localStorage.getItem('processos_amazon') || '[]'),
@@ -1195,6 +1249,44 @@ function limparAssinatura(num) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// FUNÇÕES DE CÁLCULO DIFAL
+// ═══════════════════════════════════════════════════════════════
+
+function calcularDIFAL(ufOrigem, baseCalculo) {
+  // Validar UF origem
+  if (!ufOrigem || !ALIQUOTAS_ICMS[ufOrigem]) {
+    return { difal: 0, icmsOrigem: 0, icmsDestino: 0, erro: 'UF inválida' };
+  }
+
+  const icmsOrigem = ALIQUOTAS_ICMS[ufOrigem];
+  const icmsDestino = ALIQUOTA_COMPRADORA; // AM = 18%
+
+  // DIFAL: diferença entre alíquota interna de destino e interestadual
+  // Se origem e destino mesma UF = 0 (operação interna)
+  // Se origem diferente = (ICMS Destino - ICMS Interestadual) × Base
+  let difal = 0;
+
+  if (ufOrigem !== UF_COMPRADORA) {
+    // Operação interestadual
+    const aliquotaDiferencial = icmsDestino - ALIQUOTA_INTERESTADUAL;
+    difal = (baseCalculo * aliquotaDiferencial) / 100;
+  }
+
+  return {
+    difal: parseFloat(difal.toFixed(2)),
+    icmsOrigem: icmsOrigem,
+    icmsDestino: icmsDestino,
+    aliquotaInterestadual: ALIQUOTA_INTERESTADUAL,
+    ufDestino: UF_COMPRADORA
+  };
+}
+
+function obterUFDoFornecedor(fornecedorId) {
+  if (!fornecedorId) return null;
+  const fornecedor = state.fornecedores.find(f => f.id === fornecedorId);
+  return fornecedor ? fornecedor.uf : null;
+}
+
 // FUNÇÕES DE CADASTRO DE FORNECEDOR
 // ═══════════════════════════════════════════════════════════════
 
@@ -1204,11 +1296,17 @@ function salvarFornecedor() {
   const telefone = document.getElementById('cad-telefone').value.trim();
   const responsavel = document.getElementById('cad-responsavel').value.trim();
   const cnpj = document.getElementById('cad-cnpj').value.trim();
+  const uf = document.getElementById('cad-uf').value.trim();
   const cidade = document.getElementById('cad-cidade').value.trim();
   const obs = document.getElementById('cad-obs').value.trim();
 
   if (!nome) {
     alert('Preencha o nome do fornecedor (*)');
+    return;
+  }
+
+  if (!uf) {
+    alert('Selecione a UF do fornecedor (*)');
     return;
   }
 
@@ -1224,8 +1322,10 @@ function salvarFornecedor() {
     telefone,
     responsavel,
     cnpj,
+    uf,
     cidade,
     obs,
+    aliquotaIcms: ALIQUOTAS_ICMS[uf],
     dataCadastro: new Date().toISOString().split('T')[0]
   };
 
@@ -1234,7 +1334,7 @@ function salvarFornecedor() {
   limparCadastroFornecedor();
   renderizarListaFornecedores();
   atualizarSelects();
-  adicionarNotificacao(`✓ Fornecedor ${nome} cadastrado com sucesso!`, 'success');
+  adicionarNotificacao(`✓ Fornecedor ${nome} (${uf}) cadastrado com sucesso!`, 'success');
 }
 
 function limparCadastroFornecedor() {
@@ -1243,6 +1343,7 @@ function limparCadastroFornecedor() {
   document.getElementById('cad-telefone').value = '';
   document.getElementById('cad-responsavel').value = '';
   document.getElementById('cad-cnpj').value = '';
+  document.getElementById('cad-uf').value = '';
   document.getElementById('cad-cidade').value = '';
   document.getElementById('cad-obs').value = '';
 }
@@ -1448,18 +1549,52 @@ function renderizarComparativoEqualizacao() {
                style="width: 70%; padding: 4px; font-size: 10px; border: 1px solid var(--cor-borda); border-radius: 3px; text-align: center;" />
       </td>`;
 
-    // Colunas de preços por fornecedor
+    // Colunas de preços por fornecedor (com ICMS e DIFAL)
     state.processoAtual.propostas.forEach((prop, pIdx) => {
       const itemProp = prop.itens[itemIdx];
-      const total = (itemProp?.precoUnitario || 0) * (itemProp?.quantidade || 0);
-      const isBest = menorPreco !== null && total > 0 && total === menorPreco;
+      const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
+      const ufFornecedor = forn?.uf || null;
 
-      html += `<td style="padding: 8px; text-align: center; border-right: 1px solid var(--cor-borda); ${isBest ? 'background: #dcfce7; border-left: 3px solid var(--cor-sucesso);' : ''}">
-        <input type="number" step="0.01" placeholder="R$" value="${itemProp?.precoUnitario || ''}"
+      const precoUnitario = itemProp?.precoUnitario || 0;
+      const quantidade = itemProp?.quantidade || 0;
+      const subtotal = precoUnitario * quantidade;
+
+      // Calcular DIFAL
+      const difal = ufFornecedor ? calcularDIFAL(ufFornecedor, subtotal) : null;
+      const totalComDifal = subtotal + (difal?.difal || 0);
+
+      const totais = state.processoAtual.propostas
+        .map((p, idx) => {
+          const itemP = p.itens[itemIdx];
+          const frnc = state.fornecedores.find(f => f.id === p.fornecedorId);
+          const ufd = frnc?.uf || null;
+          const sub = (itemP?.precoUnitario || 0) * (itemP?.quantidade || 0);
+          const d = ufd ? calcularDIFAL(ufd, sub) : null;
+          return sub + (d?.difal || 0);
+        })
+        .filter(v => v > 0);
+
+      const menorPrecoComDifal = totais.length > 0 ? Math.min(...totais) : null;
+      const isBest = menorPrecoComDifal !== null && totalComDifal > 0 && totalComDifal === menorPrecoComDifal;
+
+      html += `<td style="padding: 6px; text-align: center; border-right: 1px solid var(--cor-borda); font-size: 9px; ${isBest ? 'background: #dcfce7; border-left: 3px solid var(--cor-sucesso);' : ''}">
+        <div style="margin-bottom: 4px;">
+          <strong>${forn ? forn.uf : '-'}</strong>
+        </div>
+        <input type="number" step="0.01" placeholder="R$" value="${precoUnitario || ''}"
                onchange="state.processoAtual.propostas[${pIdx}].itens[${itemIdx}].precoUnitario = parseFloat(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
-               style="width: 80%; padding: 4px; font-size: 10px; border: 1px solid ${isBest ? 'var(--cor-sucesso)' : 'var(--cor-borda)'}; border-radius: 3px; text-align: center; font-weight: ${isBest ? '700' : '400'}; background: ${isBest ? '#dcfce7' : 'white'};" />
-        <div style="font-size: 9px; color: ${isBest ? 'var(--cor-sucesso)' : 'var(--cor-texto-claro)'}; font-weight: ${isBest ? '700' : '400'}; margin-top: 2px;">
-          ${total > 0 ? `R$ ${total.toFixed(2)}` : '-'}
+               style="width: 70%; padding: 3px; font-size: 9px; border: 1px solid ${isBest ? 'var(--cor-sucesso)' : 'var(--cor-borda)'}; border-radius: 3px; text-align: center; font-weight: ${isBest ? '600' : '400'}; background: ${isBest ? '#dcfce7' : 'white'};" />
+        <div style="font-size: 8px; color: var(--cor-texto-claro); margin-top: 2px;">
+          Subtotal: R$ ${subtotal.toFixed(2)}
+        </div>
+        ${difal ? `
+        <div style="font-size: 8px; background: #fff3cd; padding: 2px; margin: 2px 0; border-radius: 2px;">
+          ICMS ${forn?.uf}: ${difal.icmsOrigem}% <br/>
+          DIFAL: R$ ${difal.difal.toFixed(2)}
+        </div>
+        ` : ''}
+        <div style="font-size: 9px; color: ${isBest ? 'var(--cor-sucesso)' : 'var(--cor-texto)'}; font-weight: ${isBest ? '700' : '600'}; margin-top: 2px; background: ${isBest ? '#e8f5e9' : '#f5f5f5'}; padding: 2px; border-radius: 2px;">
+          Total: R$ ${totalComDifal.toFixed(2)}
         </div>
       </td>`;
     });
@@ -1483,13 +1618,21 @@ function renderizarComparativoEqualizacao() {
 }
 
 function renderizarResumos() {
-  // Resumo por Valor (Fornecedor)
+  // Resumo por Valor (Fornecedor) - INCLUINDO DIFAL
   const resumoValor = {};
   state.processoAtual.propostas.forEach(prop => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const fornName = forn ? forn.nome : 'Sem fornecedor';
-    const total = (prop.itens || []).reduce((sum, item) => sum + ((item.precoUnitario || 0) * (item.quantidade || 0)), 0);
-    resumoValor[fornName] = total;
+    const ufFornecedor = forn?.uf || null;
+
+    let totalComDifal = 0;
+    (prop.itens || []).forEach(item => {
+      const subtotal = (item.precoUnitario || 0) * (item.quantidade || 0);
+      const difal = ufFornecedor ? calcularDIFAL(ufFornecedor, subtotal) : { difal: 0 };
+      totalComDifal += subtotal + difal.difal;
+    });
+
+    resumoValor[fornName] = totalComDifal;
   });
 
   let htmlValor = '';
@@ -1527,6 +1670,28 @@ function renderizarResumos() {
   });
   document.getElementById('resumo-material-conteudo').innerHTML = htmlMaterial;
 
+  // Resumo por DIFAL (por fornecedor)
+  let htmlDifal = '';
+  state.processoAtual.propostas.forEach(prop => {
+    const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
+    const ufFornecedor = forn?.uf || null;
+
+    let totalDifal = 0;
+    (prop.itens || []).forEach(item => {
+      const subtotal = (item.precoUnitario || 0) * (item.quantidade || 0);
+      const difal = ufFornecedor ? calcularDIFAL(ufFornecedor, subtotal) : { difal: 0 };
+      totalDifal += difal.difal;
+    });
+
+    const fornName = forn ? `${forn.nome} (${forn.uf})` : 'S/ Fornecedor';
+    const isDifalZero = totalDifal === 0;
+    htmlDifal += `<div style="padding: 8px; border-bottom: 1px solid #eee; ${isDifalZero ? 'background: #e8f5e9;' : 'background: #fff3cd;'}">
+      ${fornName}: <strong>R$ ${totalDifal.toFixed(2)}</strong>
+      ${!isDifalZero ? ` (${ufFornecedor} - Operação Interestadual)` : ' (Operação Interna)'}
+    </div>`;
+  });
+  document.getElementById('resumo-difal-conteudo').innerHTML = htmlDifal;
+
   // Resumo por Prazo
   let htmlPrazo = '';
   state.processoAtual.propostas.forEach(prop => {
@@ -1560,12 +1725,20 @@ function aprovarPorMelhorPreco() {
   state.processoAtual.propostas.forEach(prop => {
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
     const fornName = forn ? forn.nome : 'Sem fornecedor';
-    const total = (prop.itens || []).reduce((sum, item) => sum + ((item.precoUnitario || 0) * (item.quantidade || 0)), 0);
-    resumoValor[fornName] = total;
+    const ufFornecedor = forn?.uf || null;
+
+    let totalComDifal = 0;
+    (prop.itens || []).forEach(item => {
+      const subtotal = (item.precoUnitario || 0) * (item.quantidade || 0);
+      const difal = ufFornecedor ? calcularDIFAL(ufFornecedor, subtotal) : { difal: 0 };
+      totalComDifal += subtotal + difal.difal;
+    });
+
+    resumoValor[fornName] = totalComDifal;
   });
 
   const vencedor = Object.entries(resumoValor).reduce((a, b) => a[1] < b[1] ? a : b);
-  alert(`✓ Aprovado: ${vencedor[0]} - R$ ${vencedor[1].toFixed(2)}`);
+  alert(`✓ Aprovado por Melhor Preço: ${vencedor[0]} - R$ ${vencedor[1].toFixed(2)} (incluindo DIFAL)`);
   salvarEqualizacao();
 }
 
