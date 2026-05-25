@@ -1581,15 +1581,12 @@ function renderizarComparativoEqualizacao() {
     htmlCompleto += htmlAberto;
   }
 
-  const primeiraPropo = state.processoAtual.propostas[0];
-  const itens = primeiraPropo.itens || [];
-
   if (itens.length === 0) {
     const existemPropostasComFornecedor = state.processoAtual.propostas.some(p => p.fornecedorId);
     const mensagem = existemPropostasComFornecedor
-      ? '⚠️ Adicione itens com [+ Adicionar Item]'
-      : '⚠️ Selecione fornecedor(es) e depois [+ Adicionar Item]';
-    htmlCompleto += `<div class="alert alert-warning">${mensagem}</div>`;
+      ? '✓ Fornecedores configurados - Clique em [+ Adicionar Item] para adicionar itens'
+      : '✓ Selecione um fornecedor na seção acima para começar';
+    htmlCompleto += `<div class="alert alert-info">${mensagem}</div>`;
     container.innerHTML = htmlCompleto;
     return;
   }
