@@ -1498,31 +1498,34 @@ function renderizarComparativoEqualizacao() {
     return;
   }
 
+  // Mostrar botão de adicionar item
+  document.getElementById('btn-add-item-equ').style.display = 'block';
+
+  let htmlCompleto = '';
+
   // Mostrar propostas sem fornecedor
   const propostasEmAberto = state.processoAtual.propostas.filter(p => !p.fornecedorId);
   if (propostasEmAberto.length > 0) {
     let htmlAberto = '<div class="alert alert-info" style="background: #e0f2fe; border-left: 4px solid #0284c7; padding: 10px; margin-bottom: 10px;">';
     htmlAberto += `<strong>ℹ️ ${propostasEmAberto.length} proposta(s) em aberto</strong> - Selecione um fornecedor para cada proposta<br>`;
-    propostasEmAberto.forEach((prop, idx) => {
+    propostasEmAberto.forEach((prop) => {
       const allIdx = state.processoAtual.propostas.indexOf(prop);
       htmlAberto += `<small>Proposta #${allIdx + 1} - ${prop.numeroCotacao}</small><br>`;
     });
     htmlAberto += '</div>';
-    container.innerHTML = htmlAberto;
+    htmlCompleto += htmlAberto;
   }
 
   const primeiraPropo = state.processoAtual.propostas[0];
   const itens = primeiraPropo.itens || [];
-
-  // Mostrar botão de adicionar item mesmo sem itens ainda
-  document.getElementById('btn-add-item-equ').style.display = 'block';
 
   if (itens.length === 0) {
     const existemPropostasComFornecedor = state.processoAtual.propostas.some(p => p.fornecedorId);
     const mensagem = existemPropostasComFornecedor
       ? '⚠️ Adicione itens com [+ Adicionar Item]'
       : '⚠️ Selecione fornecedor(es) e depois [+ Adicionar Item]';
-    container.innerHTML += `<div class="alert alert-warning">${mensagem}</div>`;
+    htmlCompleto += `<div class="alert alert-warning">${mensagem}</div>`;
+    container.innerHTML = htmlCompleto;
     return;
   }
 
@@ -1543,46 +1546,46 @@ function renderizarComparativoEqualizacao() {
         <th style="padding: 10px; text-align: center; border-right: 2px solid var(--cor-borda); min-width: 40px;"><strong>Del</strong></th>`;
 
   // Colunas de fornecedores (apenas aqueles com fornecedorId definido)
-  state.processoAtual.propostas.forEach((prop, pIdx) => {
+  state.processoAtual.propostas.forEach((prop, pIdxReal) => {
     if (!prop.fornecedorId) return;
     const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
-    const fornName = forn ? forn.nome : 'Fornecedor ' + (pIdx + 1);
+    const fornName = forn ? forn.nome : 'Fornecedor ' + (pIdxReal + 1);
 
     const resumoCondicoes = `${prop.prazoEntrega || '-'}d/${prop.prazoPagamento || '-'}d/${prop.garantiasMeses || '-'}m/${prop.tipoFrete || 'CIF'}`;
 
     html += `<th style="padding: 6px; text-align: center; border-right: 1px solid var(--cor-borda); min-width: 240px; background: #e8f4f8; vertical-align: top;">
       <div style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; gap: 4px;">
         <strong style="font-size: 9px; flex: 1;">${fornName.substring(0, 11)}</strong>
-        <button onclick="event.stopPropagation(); const cond = document.getElementById('cond-${pIdx}'); const isHidden = cond.style.display === 'none'; cond.style.display = isHidden ? 'block' : 'none'; this.textContent = isHidden ? '▶' : '▼'; document.getElementById('res-${pIdx}').style.display = isHidden ? 'none' : 'block';"
+        <button onclick="event.stopPropagation(); const cond = document.getElementById('cond-${pIdxReal}'); const isHidden = cond.style.display === 'none'; cond.style.display = isHidden ? 'block' : 'none'; this.textContent = isHidden ? '▶' : '▼'; document.getElementById('res-${pIdxReal}').style.display = isHidden ? 'none' : 'block';"
                 style="background: none; border: none; cursor: pointer; font-size: 10px; padding: 0; color: var(--cor-principal); flex-shrink: 0;">▼</button>
-        <button onclick="event.stopPropagation(); excluirProposta(${pIdx});"
+        <button onclick="event.stopPropagation(); excluirProposta(${pIdxReal});"
                 style="background: #ff6b6b; color: white; border: none; cursor: pointer; font-size: 8px; padding: 1px 3px; border-radius: 2px; flex-shrink: 0;">✕</button>
       </div>
       <div style="background: white; border: 1px solid var(--cor-borda); border-radius: 3px; padding: 3px; font-size: 8px; text-align: left;">
         <div style="margin-bottom: 3px;">
-          <select onchange="state.processoAtual.propostas[${pIdx}].fornecedorId = parseInt(this.value); salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
+          <select onchange="state.processoAtual.propostas[${pIdxReal}].fornecedorId = parseInt(this.value); salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
                   style="width: 100%; font-size: 8px; padding: 2px;">
             <option value="">-- Selecione --</option>
             ${state.fornecedores.map(f => `<option value="${f.id}" ${prop.fornecedorId === f.id ? 'selected' : ''}>${f.nome} (${f.uf})</option>`).join('')}
           </select>
         </div>
-        <div id="res-${pIdx}" style="background: #f5f5f5; padding: 2px; border-radius: 2px; margin-bottom: 3px; font-size: 7px; color: #666; display: none;">
+        <div id="res-${pIdxReal}" style="background: #f5f5f5; padding: 2px; border-radius: 2px; margin-bottom: 3px; font-size: 7px; color: #666; display: none;">
           ${resumoCondicoes}
         </div>
-        <div id="cond-${pIdx}" style="border-top: 1px solid #eee; padding-top: 3px;">
+        <div id="cond-${pIdxReal}" style="border-top: 1px solid #eee; padding-top: 3px;">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px;">
             <label style="font-weight: bold; color: var(--cor-principal); font-size: 7px;">Ent. (d):</label>
             <input type="number" value="${prop.prazoEntrega || ''}" placeholder="d"
-                   onchange="state.processoAtual.propostas[${pIdx}].prazoEntrega = parseInt(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
+                   onchange="state.processoAtual.propostas[${pIdxReal}].prazoEntrega = parseInt(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
                    style="font-size: 8px; padding: 2px; border: 1px solid var(--cor-borda); border-radius: 2px;" />
 
             <label style="font-weight: bold; color: var(--cor-principal); font-size: 7px;">Pgto. (d):</label>
             <input type="number" value="${prop.prazoPagamento || ''}" placeholder="d"
-                   onchange="state.processoAtual.propostas[${pIdx}].prazoPagamento = parseInt(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
+                   onchange="state.processoAtual.propostas[${pIdxReal}].prazoPagamento = parseInt(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
                    style="font-size: 8px; padding: 2px; border: 1px solid var(--cor-borda); border-radius: 2px;" />
 
             <label style="font-weight: bold; color: var(--cor-principal); font-size: 7px;">Frete:</label>
-            <select onchange="state.processoAtual.propostas[${pIdx}].tipoFrete = this.value; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
+            <select onchange="state.processoAtual.propostas[${pIdxReal}].tipoFrete = this.value; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
                     style="font-size: 8px; padding: 2px; border: 1px solid var(--cor-borda); border-radius: 2px;">
               <option value="CIF" ${prop.tipoFrete === 'CIF' ? 'selected' : ''}>CIF</option>
               <option value="FOB" ${prop.tipoFrete === 'FOB' ? 'selected' : ''}>FOB</option>
@@ -1592,7 +1595,7 @@ function renderizarComparativoEqualizacao() {
 
             <label style="font-weight: bold; color: var(--cor-principal); font-size: 7px;">Gar. (m):</label>
             <input type="number" value="${prop.garantiasMeses || ''}" placeholder="m"
-                   onchange="state.processoAtual.propostas[${pIdx}].garantiasMeses = parseInt(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
+                   onchange="state.processoAtual.propostas[${pIdxReal}].garantiasMeses = parseInt(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
                    style="font-size: 8px; padding: 2px; border: 1px solid var(--cor-borda); border-radius: 2px;" />
           </div>
         </div>
@@ -1640,7 +1643,7 @@ function renderizarComparativoEqualizacao() {
       </td>`;
 
     // Colunas de preços por fornecedor (com ICMS, DIFAL) - apenas com fornecedorId
-    state.processoAtual.propostas.forEach((prop, pIdx) => {
+    state.processoAtual.propostas.forEach((prop, pIdxReal) => {
       if (!prop.fornecedorId) return;
       const itemProp = prop.itens[itemIdx];
       const forn = state.fornecedores.find(f => f.id === prop.fornecedorId);
@@ -1675,7 +1678,7 @@ function renderizarComparativoEqualizacao() {
           <div style="margin-bottom: 2px;">
             <label style="font-weight: bold; color: #666; display: block; margin-bottom: 1px;">Preço Unit.:</label>
             <input type="number" step="0.01" value="${precoUnitario || ''}"
-                   onchange="state.processoAtual.propostas[${pIdx}].itens[${itemIdx}].precoUnitario = parseFloat(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
+                   onchange="state.processoAtual.propostas[${pIdxReal}].itens[${itemIdx}].precoUnitario = parseFloat(this.value) || 0; salvarState(); renderizarComparativoEqualizacao(); renderizarResumos();"
                    style="width: 100%; padding: 2px; font-size: 7px; border: 1px solid ${isBest ? 'var(--cor-sucesso)' : 'var(--cor-borda)'}; border-radius: 2px; text-align: center;" />
           </div>
 
@@ -1699,7 +1702,8 @@ function renderizarComparativoEqualizacao() {
   });
 
   html += `</tbody></table>`;
-  container.innerHTML = html;
+  htmlCompleto += html;
+  container.innerHTML = htmlCompleto;
 }
 
 function renderizarResumos() {
