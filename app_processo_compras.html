@@ -559,7 +559,8 @@ table tr:hover {
                     <th style="padding: 8px; min-width: 100px; text-align: center; border-right: 1px solid #e5e7eb;">Vlr Unit.</th>
                     <th style="padding: 8px; min-width: 100px; text-align: center; border-right: 1px solid #e5e7eb;">Valor Total</th>
                     <th style="padding: 8px; min-width: 120px; text-align: center; border-right: 1px solid #e5e7eb;">Vlr Equalizado</th>
-                    <th style="padding: 8px; min-width: 100px; text-align: center;">Fabricante</th>
+                    <th style="padding: 8px; min-width: 100px; text-align: center; border-right: 1px solid #e5e7eb;">Fabricante</th>
+                    <th style="padding: 8px; min-width: 80px; text-align: center;">AP. TEC.</th>
                   </tr>
                 </thead>
                 <tbody id="corpo-cotacoes">
@@ -1028,33 +1029,39 @@ function processarDadosColados() {
   // Limpar e gerar nova tabela com número de linhas necessárias
   gerarLinhasTabela(linhas.length + 5);
 
-  // Nomes das colunas na ordem esperada
-  const colunasEsperadas = ['fornecedor', 'entrega', 'pagamento', 'frete', 'garantia', 'vigencia', 'numero', 'codigo', 'descricao', 'unidade', 'qtd', 'vunit'];
-
   // Processar cada linha
   linhas.forEach((linhaTexto, idxLinha) => {
     const row = tbody.rows[idxLinha];
     if (!row) return;
 
     // Dividir por tab (Excel separa colunas com tab)
-    const valores = linhaTexto.split('\t');
+    let valores = linhaTexto.split('\t');
 
-    // Preencher cada coluna
+    // Se a primeira coluna for apenas um número (Nº), pular ela
+    if (valores.length > 1 && valores[0].match(/^\d+$/)) {
+      valores = valores.slice(1);
+    }
+
+    // Limpar valores de formatação do Excel (remove "R$", espaços extras)
+    valores = valores.map(v => {
+      let limpo = v.trim();
+      // Remove "R$" e espaços
+      limpo = limpo.replace(/R\$\s*/g, '');
+      // Remove pontos de milhar
+      limpo = limpo.replace(/\./g, '');
+      // Converte vírgula em ponto
+      limpo = limpo.replace(',', '.');
+      return limpo;
+    });
+
+    // Preencher cada coluna da tabela
     valores.forEach((valor, idxCol) => {
       if (idxCol < row.children.length) {
         const td = row.children[idxCol];
         const input = td.querySelector('input');
 
         if (input && !input.readOnly) {
-          // Se for número, converter vírgula para ponto
-          let valorFinal = valor.trim();
-
-          if ((idxCol === 1 || idxCol === 2 || idxCol === 10 || idxCol === 11) && valorFinal) {
-            // Colunas numéricos: entrega, pagamento, qtd, vunit
-            valorFinal = valorFinal.replace(',', '.');
-          }
-
-          input.value = valorFinal;
+          input.value = valor || '';
         }
       }
     });
@@ -1099,7 +1106,7 @@ function gerarLinhasTabela(numLinhas) {
     const tr = document.createElement('tr');
     tr.style.borderBottom = '1px solid #e5e7eb';
 
-    const colunas = ['fornecedor', 'entrega', 'pagamento', 'frete', 'garantia', 'vigencia', 'numero', 'codigo', 'descricao', 'unidade', 'qtd', 'vunit', 'vtotal', 'vequalizado', 'fabricante'];
+    const colunas = ['fornecedor', 'entrega', 'pagamento', 'frete', 'garantia', 'vigencia', 'numero', 'codigo', 'descricao', 'unidade', 'qtd', 'vunit', 'vtotal', 'vequalizado', 'fabricante', 'aptec'];
 
     colunas.forEach((col, idx) => {
       const td = document.createElement('td');
