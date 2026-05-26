@@ -1028,22 +1028,33 @@ function processarDadosColados() {
   // Limpar e gerar nova tabela com número de linhas necessárias
   gerarLinhasTabela(linhas.length + 5);
 
+  // Nomes das colunas na ordem esperada
+  const colunasEsperadas = ['fornecedor', 'entrega', 'pagamento', 'frete', 'garantia', 'vigencia', 'numero', 'codigo', 'descricao', 'unidade', 'qtd', 'vunit'];
+
   // Processar cada linha
   linhas.forEach((linhaTexto, idxLinha) => {
     const row = tbody.rows[idxLinha];
     if (!row) return;
 
     // Dividir por tab (Excel separa colunas com tab)
-    const colunas = linhaTexto.split('\t');
+    const valores = linhaTexto.split('\t');
 
     // Preencher cada coluna
-    colunas.forEach((valor, idxCol) => {
+    valores.forEach((valor, idxCol) => {
       if (idxCol < row.children.length) {
         const td = row.children[idxCol];
         const input = td.querySelector('input');
 
         if (input && !input.readOnly) {
-          input.value = valor.trim();
+          // Se for número, converter vírgula para ponto
+          let valorFinal = valor.trim();
+
+          if ((idxCol === 1 || idxCol === 2 || idxCol === 10 || idxCol === 11) && valorFinal) {
+            // Colunas numéricos: entrega, pagamento, qtd, vunit
+            valorFinal = valorFinal.replace(',', '.');
+          }
+
+          input.value = valorFinal;
         }
       }
     });
@@ -1052,7 +1063,7 @@ function processarDadosColados() {
     atualizarValoresTotais(idxLinha);
   });
 
-  alert(`✅ ${linhas.length} linha(s) processada(s)!`);
+  alert(`✅ ${linhas.length} linha(s) processada(s) com sucesso!`);
   document.getElementById('textarea-cotacoes').value = '';
 }
 
