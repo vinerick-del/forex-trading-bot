@@ -224,6 +224,24 @@ body {
   background: var(--gray-300);
 }
 
+.btn-success {
+  background: var(--success);
+  color: white;
+}
+
+.btn-success:hover {
+  background: #047857;
+}
+
+.btn-warning {
+  background: var(--warning);
+  color: white;
+}
+
+.btn-warning:hover {
+  background: #b45309;
+}
+
 .btn-danger {
   background: var(--danger);
   color: white;
@@ -237,6 +255,21 @@ body {
 
 .btn-sm {
   padding: 0.5rem 1rem;
+  font-size: 12px;
+}
+
+.filter-bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.filter-bar input {
+  padding: 0.5rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 4px;
   font-size: 12px;
 }
 
@@ -272,6 +305,12 @@ table th {
   font-weight: 600;
   font-size: 12px;
   color: var(--gray-700);
+  cursor: pointer;
+  user-select: none;
+}
+
+table th:hover {
+  background: var(--gray-200);
 }
 
 table td {
@@ -330,6 +369,58 @@ table tr:hover {
 .badge-danger {
   background: #fee2e2;
   color: #991b1b;
+}
+
+.badge-info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-approved {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.status-rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.details-row {
+  background: #f9fafb;
+  margin-top: 10px;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid var(--primary);
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: var(--gray-700);
+  font-size: 11px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.detail-value {
+  color: var(--gray-900);
+  font-size: 13px;
 }
 
 @media (max-width: 768px) {
@@ -578,6 +669,12 @@ table tr:hover {
             <div class="card-header">
               <div class="card-title">Cotações Registradas</div>
             </div>
+            <div class="filter-bar">
+              <label>Buscar:</label>
+              <input type="text" id="busca-cotacoes" placeholder="Código, descrição ou fornecedor..." onkeyup="filtrarCotacoes()">
+              <button class="btn btn-secondary btn-sm" onclick="downloadCotacoesExcel()">📥 Download Excel</button>
+              <button class="btn btn-danger btn-sm" onclick="excluirSelecionadas()">Excluir Selecionadas</button>
+            </div>
             <div id="lista-cotacoes"></div>
           </div>
         </div>
@@ -586,7 +683,7 @@ table tr:hover {
       <!-- ANÁLISE TÉCNICA -->
       <div id="page-analise-tecnica" class="page" style="display:none;">
         <div class="alert alert-info">
-          ℹ️ Análise técnica dos produtos cotados
+          ℹ️ Análise técnica dos produtos cotados com parecer e status
         </div>
         <div class="card">
           <div class="card-header">
@@ -645,6 +742,15 @@ table tr:hover {
               <label>Data da Análise</label>
               <input type="date" id="analise-data">
             </div>
+            <div class="form-group">
+              <label>Status Técnico *</label>
+              <select id="analise-status">
+                <option value="">-- Selecione --</option>
+                <option value="Aprovado">✓ Aprovado</option>
+                <option value="Reprovado">✕ Reprovado</option>
+                <option value="Solicitação de Informações">❓ Solicitação de Informações</option>
+              </select>
+            </div>
           </div>
           <div class="form-group">
             <label>Recomendação/Parecer Técnico</label>
@@ -664,7 +770,7 @@ table tr:hover {
       <!-- EQUALIZAÇÃO -->
       <div id="page-equalizacao" class="page" style="display:none;">
         <div class="alert alert-info">
-          ℹ️ Comparativo de preços com cálculo de DIFAL
+          ℹ️ Análise detalhada de fornecedores com impostos e condições comerciais
         </div>
         <div class="card">
           <div class="card-header">
@@ -691,7 +797,14 @@ table tr:hover {
 
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Resumo por Fornecedor</div>
+              <div class="card-title">Análise Detalhada por Fornecedor</div>
+            </div>
+            <div id="equal-detalhes-forn"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Resumo Financeiro por Fornecedor</div>
             </div>
             <div id="equal-resumo-forn"></div>
           </div>
@@ -807,14 +920,14 @@ table tr:hover {
 </div>
 
 <script>
-// STATE
 let state = {
   requisicoes: (() => { try { return JSON.parse(localStorage.getItem('req_compras') || '[]'); } catch(e) { return []; } })(),
   fornecedores: (() => { try { return JSON.parse(localStorage.getItem('forn_compras') || '[]'); } catch(e) { return []; } })(),
   cotacoes: (() => { try { return JSON.parse(localStorage.getItem('cotacao_compras') || '[]'); } catch(e) { return []; } })(),
   analises: (() => { try { return JSON.parse(localStorage.getItem('analise_compras') || '[]'); } catch(e) { return []; } })(),
   contratos: (() => { try { return JSON.parse(localStorage.getItem('contrato_compras') || '[]'); } catch(e) { return []; } })(),
-  reqSelecionada: null
+  reqSelecionada: null,
+  cotacoesFiltradas: []
 };
 
 function salvarState() {
@@ -887,11 +1000,15 @@ function renderizarRequisicoes() {
   let html = '<table><thead><tr><th>Departamento</th><th>Solicitante</th><th>Número</th><th>Status</th><th>Data</th><th>Ação</th></tr></thead><tbody>';
 
   state.requisicoes.forEach(req => {
+    let badgeClass = 'badge-warning';
+    if (req.status.includes('Contratado')) badgeClass = 'badge-success';
+    else if (req.status.includes('Equalizado')) badgeClass = 'badge-info';
+
     html += `<tr>
       <td>${req.depart}</td>
       <td>${req.solicitante}</td>
       <td><strong>${req.numero}</strong></td>
-      <td><span class="badge badge-warning">${req.status}</span></td>
+      <td><span class="badge ${badgeClass}">${req.status}</span></td>
       <td>${req.dataCriacao}</td>
       <td><button class="btn btn-danger btn-sm" onclick="excluirRequisicao(${req.id})">✕</button></td>
     </tr>`;
@@ -976,7 +1093,7 @@ function renderizarFornecedores() {
     return;
   }
 
-  let html = '<table><thead><tr><th>Classificação</th><th>Nome</th><th>CNPJ</th><th>Email</th><th>UF</th><th>ICMS</th><th>Ação</th></tr></thead><tbody>';
+  let html = '<table><thead><tr><th>Classificação</th><th>Nome</th><th>CNPJ</th><th>Email</th><th>UF</th><th>ICMS</th><th>IPI</th><th>PIS</th><th>Ação</th></tr></thead><tbody>';
 
   state.fornecedores.forEach(forn => {
     html += `<tr>
@@ -986,6 +1103,8 @@ function renderizarFornecedores() {
       <td>${forn.email}</td>
       <td>${forn.uf}</td>
       <td>${forn.icms}%</td>
+      <td>${forn.ipi}</td>
+      <td>${forn.pis}</td>
       <td><button class="btn btn-danger btn-sm" onclick="excluirFornecedor(${forn.id})">✕</button></td>
     </tr>`;
   });
@@ -1240,6 +1359,7 @@ function renderizarListaCotacoes() {
   if (!state.reqSelecionada) return;
 
   const cotacoes = state.cotacoes.filter(c => c.reqId === state.reqSelecionada.id);
+  state.cotacoesFiltradas = cotacoes;
   const container = document.getElementById('lista-cotacoes');
 
   if (cotacoes.length === 0) {
@@ -1247,12 +1367,13 @@ function renderizarListaCotacoes() {
     return;
   }
 
-  let html = '<table><thead><tr><th>Código</th><th>Descrição</th><th>Unidade</th><th>Qtd</th><th>Fornecedor</th><th>V. Unitário</th><th>V. Total</th><th>Fabricante</th><th>Nº Cotação</th><th>Ação</th></tr></thead><tbody>';
+  let html = '<table><thead><tr><th style="width: 40px;"><input type="checkbox" id="selecionar-todas" onchange="selecionarTodasCotacoes()"></th><th>Código</th><th>Descrição</th><th>Unidade</th><th>Qtd</th><th>Fornecedor</th><th>V. Unitário</th><th>V. Total</th><th>Fabricante</th><th>Nº Cotação</th><th>Entrega</th><th>Pagamento</th><th>Frete</th><th>Garantia</th><th>Vigência</th><th>Ação</th></tr></thead><tbody>';
 
-  cotacoes.forEach(cot => {
+  cotacoes.forEach((cot, idx) => {
     const forn = state.fornecedores.find(f => f.id === cot.fornId);
     const vtotal = cot.qtd * cot.vunit;
     html += `<tr>
+      <td style="text-align: center;"><input type="checkbox" class="cot-checkbox" value="${cot.id}"></td>
       <td><strong>${cot.codigo}</strong></td>
       <td>${cot.descricao}</td>
       <td>${cot.unidade}</td>
@@ -1262,12 +1383,70 @@ function renderizarListaCotacoes() {
       <td style="text-align: right;"><strong>R$ ${vtotal.toFixed(2)}</strong></td>
       <td>${cot.fabricante || '-'}</td>
       <td>${cot.numero}</td>
+      <td>${cot.entrega || '-'}</td>
+      <td>${cot.pagamento || '-'}</td>
+      <td>${cot.frete || '-'}</td>
+      <td>${cot.garantia || '-'}</td>
+      <td>${cot.vigencia || '-'}</td>
       <td><button class="btn btn-danger btn-sm" onclick="excluirCotacao(${cot.id})">✕</button></td>
     </tr>`;
   });
 
   html += '</tbody></table>';
   container.innerHTML = html;
+}
+
+function filtrarCotacoes() {
+  const termo = document.getElementById('busca-cotacoes').value.toLowerCase();
+  const linhas = document.querySelectorAll('#lista-cotacoes table tbody tr');
+
+  linhas.forEach(linha => {
+    const texto = linha.textContent.toLowerCase();
+    linha.style.display = texto.includes(termo) ? '' : 'none';
+  });
+}
+
+function selecionarTodasCotacoes() {
+  const checkAll = document.getElementById('selecionar-todas').checked;
+  document.querySelectorAll('.cot-checkbox').forEach(cb => cb.checked = checkAll);
+}
+
+function excluirSelecionadas() {
+  const selecionadas = Array.from(document.querySelectorAll('.cot-checkbox:checked')).map(cb => parseFloat(cb.value));
+
+  if (selecionadas.length === 0) {
+    alert('Selecione pelo menos uma cotação para excluir');
+    return;
+  }
+
+  if (!confirm(`Excluir ${selecionadas.length} cotação(ões)?`)) return;
+
+  state.cotacoes = state.cotacoes.filter(c => !selecionadas.includes(c.id));
+  salvarState();
+  renderizarListaCotacoes();
+  atualizarSelectAnalise();
+}
+
+function downloadCotacoesExcel() {
+  const cotacoes = state.cotacoesFiltradas;
+  if (cotacoes.length === 0) {
+    alert('Nenhuma cotação para download');
+    return;
+  }
+
+  let csv = 'Código\tDescrição\tUnidade\tQtd\tFornecedor\tV. Unitário\tV. Total\tFabricante\tNº Cotação\tEntrega\tPagamento\tFrete\tGarantia\tVigência\n';
+
+  cotacoes.forEach(cot => {
+    const forn = state.fornecedores.find(f => f.id === cot.fornId);
+    const vtotal = cot.qtd * cot.vunit;
+    csv += `${cot.codigo}\t${cot.descricao}\t${cot.unidade}\t${cot.qtd}\t${forn ? forn.nome : 'N/A'}\t${cot.vunit.toFixed(2)}\t${vtotal.toFixed(2)}\t${cot.fabricante || '-'}\t${cot.numero}\t${cot.entrega || '-'}\t${cot.pagamento || '-'}\t${cot.frete || '-'}\t${cot.garantia || '-'}\t${cot.vigencia || '-'}\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `cotacoes_${Date.now()}.csv`;
+  link.click();
 }
 
 function excluirCotacao(id) {
@@ -1314,6 +1493,12 @@ function salvarAnalise() {
     return;
   }
 
+  const status = document.getElementById('analise-status').value;
+  if (!status) {
+    alert('Selecione o Status Técnico');
+    return;
+  }
+
   const [cotId] = sel.split('|');
   const ficha = document.getElementById('analise-ficha').value.trim();
   const dataFt = document.getElementById('analise-data-ft').value;
@@ -1328,7 +1513,7 @@ function salvarAnalise() {
   const novaAnalise = {
     id: Date.now(),
     cotacaoId: parseFloat(cotId),
-    ficha, dataFt, fabricante, modelo, revisao, norma, responsavel, dataAnalise, parecer,
+    ficha, dataFt, fabricante, modelo, revisao, norma, responsavel, dataAnalise, parecer, status,
     dataCriacao: new Date().toISOString().split('T')[0]
   };
 
@@ -1347,6 +1532,7 @@ function salvarAnalise() {
   document.getElementById('analise-responsavel').value = '';
   document.getElementById('analise-data').value = '';
   document.getElementById('analise-parecer').value = '';
+  document.getElementById('analise-status').value = '';
 
   renderizarAnalises();
 }
@@ -1358,11 +1544,15 @@ function renderizarAnalises() {
     return;
   }
 
-  let html = '<table><thead><tr><th>Código</th><th>Descrição</th><th>Fabricante</th><th>Modelo</th><th>Norma</th><th>Responsável</th><th>Data</th><th>Parecer</th><th>Ação</th></tr></thead><tbody>';
+  let html = '<table><thead><tr><th>Código</th><th>Descrição</th><th>Fabricante</th><th>Modelo</th><th>Norma</th><th>Responsável</th><th>Data</th><th>Status</th><th>Parecer</th><th>Ação</th></tr></thead><tbody>';
 
   state.analises.forEach(ana => {
     const cot = state.cotacoes.find(c => c.id === ana.cotacaoId);
     const parecer = ana.parecer.substring(0, 50) + (ana.parecer.length > 50 ? '...' : '');
+    let statusBadge = 'badge-warning';
+    if (ana.status === 'Aprovado') statusBadge = 'badge-success';
+    else if (ana.status === 'Reprovado') statusBadge = 'badge-danger';
+
     html += `<tr>
       <td><strong>${cot ? cot.codigo : 'N/A'}</strong></td>
       <td>${cot ? cot.descricao : 'N/A'}</td>
@@ -1371,6 +1561,7 @@ function renderizarAnalises() {
       <td>${ana.norma || '-'}</td>
       <td>${ana.responsavel || '-'}</td>
       <td>${ana.dataAnalise || '-'}</td>
+      <td><span class="badge ${statusBadge}">${ana.status}</span></td>
       <td><small>${parecer}</small></td>
       <td><button class="btn btn-danger btn-sm" onclick="excluirAnalise(${ana.id})">✕</button></td>
     </tr>`;
@@ -1469,20 +1660,82 @@ function renderizarEqualizacao() {
   htmlTabela += '</tbody></table>';
   document.getElementById('equal-tabela').innerHTML = htmlTabela;
 
-  let htmlResumoForn = '<table><thead><tr><th>Fornecedor</th><th>Subtotal</th><th>DIFAL Total</th><th>Total</th></tr></thead><tbody>';
+  let htmlDetalhes = '';
+  fornecedoresUnicos.forEach(fornId => {
+    const forn = state.fornecedores.find(f => f.id === fornId);
+    if (!forn) return;
+
+    const cotacoesForn = cotacoes.filter(c => c.fornId === fornId);
+    const qtdItens = cotacoesForn.length;
+    const subtotal = cotacoesForn.reduce((sum, c) => sum + (c.qtd * c.vunit), 0);
+    const difal = cotacoesForn.reduce((sum, c) => sum + (calcularDIFAL(forn.uf, c.vunit) * c.qtd), 0);
+    const totalComDifal = subtotal + difal;
+
+    htmlDetalhes += `<div class="details-row">
+      <div style="margin-bottom: 10px; font-weight: 600; color: #1e40af;">${forn.nome}</div>
+      <div class="details-grid">
+        <div class="detail-item">
+          <div class="detail-label">Classificação</div>
+          <div class="detail-value">${forn.classif}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">UF</div>
+          <div class="detail-value">${forn.uf}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">ICMS</div>
+          <div class="detail-value">${forn.icms}%</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">IPI</div>
+          <div class="detail-value">${forn.ipi}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">PIS/COFINS</div>
+          <div class="detail-value">${forn.pis}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Itens</div>
+          <div class="detail-value">${qtdItens}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Subtotal</div>
+          <div class="detail-value" style="font-weight: 600;">R$ ${subtotal.toFixed(2)}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">DIFAL Total</div>
+          <div class="detail-value" style="font-weight: 600;">R$ ${difal.toFixed(2)}</div>
+        </div>
+      </div>
+      <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
+        <strong>Total com DIFAL: R$ ${totalComDifal.toFixed(2)}</strong>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('equal-detalhes-forn').innerHTML = htmlDetalhes;
+
+  let htmlResumoForn = '<table><thead><tr><th>Fornecedor</th><th>Subtotal</th><th>DIFAL Total</th><th>Total</th><th>Entrega</th><th>Pagamento</th><th>Frete</th><th>Garantia</th><th>Vigência</th></tr></thead><tbody>';
 
   fornecedoresUnicos.forEach(fornId => {
     const forn = state.fornecedores.find(f => f.id === fornId);
     const cotacoesForn = cotacoes.filter(c => c.fornId === fornId);
 
     let subtotal = 0, difal = 0;
+    let entrega = '', pagamento = '', frete = '', garantia = '', vigencia = '';
+
     cotacoesForn.forEach(c => {
       subtotal += c.qtd * c.vunit;
       difal += calcularDIFAL(forn.uf, c.vunit) * c.qtd;
+      if (!entrega) entrega = c.entrega;
+      if (!pagamento) pagamento = c.pagamento;
+      if (!frete) frete = c.frete;
+      if (!garantia) garantia = c.garantia;
+      if (!vigencia) vigencia = c.vigencia;
     });
 
     const total = subtotal + difal;
-    htmlResumoForn += `<tr><td><strong>${forn.nome}</strong></td><td>R$ ${subtotal.toFixed(2)}</td><td>R$ ${difal.toFixed(2)}</td><td><strong>R$ ${total.toFixed(2)}</strong></td></tr>`;
+    htmlResumoForn += `<tr><td><strong>${forn.nome}</strong></td><td>R$ ${subtotal.toFixed(2)}</td><td>R$ ${difal.toFixed(2)}</td><td><strong>R$ ${total.toFixed(2)}</strong></td><td>${entrega || '-'}</td><td>${pagamento || '-'}</td><td>${frete || '-'}</td><td>${garantia || '-'}</td><td>${vigencia || '-'}</td></tr>`;
   });
 
   htmlResumoForn += '</tbody></table>';
@@ -1659,7 +1912,6 @@ function excluirContrato(id) {
   renderizarHistorico();
 }
 
-// INICIALIZAÇÃO
 document.addEventListener('DOMContentLoaded', () => {
   renderizarRequisicoes();
   renderizarFornecedores();
