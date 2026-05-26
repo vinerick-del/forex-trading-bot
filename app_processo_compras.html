@@ -511,7 +511,7 @@ table tr:hover {
       <!-- COTAÇÕES -->
       <div id="page-cotacao" class="page" style="display:none;">
         <div class="alert alert-info">
-          ℹ️ Selecione uma requisição para adicionar cotações
+          ℹ️ Selecione uma requisição para adicionar cotações. Você pode inserir uma a uma ou importar múltiplas do Excel.
         </div>
         <div class="card">
           <div class="card-header">
@@ -526,9 +526,29 @@ table tr:hover {
         </div>
 
         <div id="cotacao-container" style="display:none;">
+          <!-- IMPORTAÇÃO RÁPIDA DO EXCEL -->
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Adicionar Cotação</div>
+              <div class="card-title">📋 Importação Rápida do Excel</div>
+              <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                Cole dados do Excel direto aqui. Formato esperado: Código | Descrição | Unidade | Qtd | V.Unitário | Fabricante
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Cole os dados aqui (uma linha por cotação):</label>
+              <textarea id="cotacao-import" placeholder="Código&#10;Descrição&#10;UND&#10;100&#10;50.00&#10;Fabricante&#10;&#10;Ou: CBN-001&#9;Cabo de Cobre&#9;UND&#9;100&#9;50.00&#9;ABC Inc" style="min-height: 120px; font-family: monospace; font-size: 12px;"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-primary" onclick="importarCotacoesExcel()">📥 Importar do Excel</button>
+              <button class="btn btn-secondary" onclick="limparImportacao()">Limpar</button>
+            </div>
+            <div id="import-resultado" style="margin-top: 10px;"></div>
+          </div>
+
+          <!-- ENTRADA INDIVIDUAL -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Adicionar Cotação Individual</div>
             </div>
             <div class="form-row">
               <div class="form-group">
@@ -1000,6 +1020,143 @@ function atualizarSelectFornecedor() {
 
 function atualizarCidades() {
   // Placeholder para future implementation
+}
+
+// ═════════════════════════════════════════════════════════════════
+// IMPORTAÇÃO DE COTAÇÕES DO EXCEL
+// ═════════════════════════════════════════════════════════════════
+
+function importarCotacoesExcel() {
+  if (!state.reqSelecionada) {
+    alert('Selecione uma requisição primeiro');
+    return;
+  }
+
+  const texto = document.getElementById('cotacao-import').value.trim();
+  if (!texto) {
+    alert('Cole os dados do Excel no campo de texto');
+    return;
+  }
+
+  const fornId = parseInt(document.getElementById('cotacao-forn').value);
+  if (!fornId) {
+    alert('Selecione um fornecedor');
+    return;
+  }
+
+  // Parse dos dados
+  const linhas = texto.split('\n').filter(l => l.trim());
+  let cotacoesImportadas = 0;
+  let erros = [];
+
+  // Detectar formato: separado por tabs ou quebra de linha (colunas em linhas)
+  const primeiraLinha = linhas[0];
+  const temTabs = primeiraLinha.includes('\t');
+
+  if (temTabs) {
+    // Formato: uma linha por cotação, colunas separadas por tabs
+    linhas.forEach((linha, idx) => {
+      const partes = linha.split('\t').map(p => p.trim());
+
+      if (partes.length < 4) {
+        erros.push(`Linha ${idx + 1}: Dados insuficientes`);
+        return;
+      }
+
+      const [codigo, descricao, unidade, qtd, vunit, fabricante] = partes;
+
+      if (!codigo || !descricao || !qtd || !vunit) {
+        erros.push(`Linha ${idx + 1}: Campos obrigatórios faltando`);
+        return;
+      }
+
+      try {
+        const novaCotacao = {
+          id: Date.now() + Math.random(),
+          reqId: state.reqSelecionada.id,
+          fornId: fornId,
+          codigo: codigo.trim(),
+          descricao: descricao.trim(),
+          unidade: (unidade || 'UND').trim(),
+          qtd: parseInt(qtd) || 0,
+          vunit: parseFloat(vunit) || 0,
+          numero: 'IMPORTADO',
+          fabricante: (fabricante || '').trim(),
+          dataCotacao: new Date().toISOString().split('T')[0]
+        };
+
+        if (novaCotacao.qtd > 0 && novaCotacao.vunit > 0) {
+          state.cotacoes.push(novaCotacao);
+          cotacoesImportadas++;
+        } else {
+          erros.push(`Linha ${idx + 1}: Quantidade ou valor inválidos`);
+        }
+      } catch (e) {
+        erros.push(`Linha ${idx + 1}: Erro ao processar - ${e.message}`);
+      }
+    });
+  } else {
+    // Formato: dados em blocos (pode ser com quebra entre registros)
+    // Processa grupos de 6 linhas como um registro
+    for (let i = 0; i < linhas.length; i += 6) {
+      const bloco = linhas.slice(i, i + 6);
+      if (bloco.length < 4) continue;
+
+      const [codigo, descricao, unidade, qtd, vunit, fabricante] = bloco.map(l => l.trim());
+
+      if (!codigo || !descricao || !qtd || !vunit) continue;
+
+      try {
+        const novaCotacao = {
+          id: Date.now() + Math.random(),
+          reqId: state.reqSelecionada.id,
+          fornId: fornId,
+          codigo: codigo,
+          descricao: descricao,
+          unidade: (unidade || 'UND'),
+          qtd: parseInt(qtd) || 0,
+          vunit: parseFloat(vunit) || 0,
+          numero: 'IMPORTADO',
+          fabricante: (fabricante || ''),
+          dataCotacao: new Date().toISOString().split('T')[0]
+        };
+
+        if (novaCotacao.qtd > 0 && novaCotacao.vunit > 0) {
+          state.cotacoes.push(novaCotacao);
+          cotacoesImportadas++;
+        }
+      } catch (e) {
+        // Silenciosamente ignora erros de parsing
+      }
+    }
+  }
+
+  if (cotacoesImportadas === 0) {
+    document.getElementById('import-resultado').innerHTML =
+      '<div class="alert" style="background: #fee2e2; border-color: #dc2626; color: #991b1b;">❌ Nenhuma cotação importada. Verifique o formato dos dados.</div>';
+    return;
+  }
+
+  salvarState();
+  renderizarListaCotacoes();
+
+  let msg = `<div class="alert" style="background: #f0fdf4; border-color: #10b981; color: #059669;">✓ ${cotacoesImportadas} cotação(ões) importada(s) com sucesso!</div>`;
+  if (erros.length > 0) {
+    msg += `<div class="alert" style="background: #fffbeb; border-color: #f59e0b; color: #92400e; margin-top: 10px;">⚠️ ${erros.length} linha(s) com aviso:<br><small>${erros.join('<br>')}</small></div>`;
+  }
+
+  document.getElementById('import-resultado').innerHTML = msg;
+
+  // Limpar campo após sucesso
+  setTimeout(() => {
+    document.getElementById('cotacao-import').value = '';
+    document.getElementById('import-resultado').innerHTML = '';
+  }, 3000);
+}
+
+function limparImportacao() {
+  document.getElementById('cotacao-import').value = '';
+  document.getElementById('import-resultado').innerHTML = '';
 }
 
 // ═════════════════════════════════════════════════════════════════
