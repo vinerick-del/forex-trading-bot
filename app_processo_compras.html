@@ -807,6 +807,39 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
       state.requisicoes.map(r => `<option value="${r.id}">${r.numero} — ${r.depart}</option>`).join('');
   }
 
+  function limparNumero(valor) {
+    if (!valor) return 0;
+    let str = String(valor).replace(/R\$/g, '').trim();
+
+    const temPonto = str.includes('.');
+    const temVirgula = str.includes(',');
+
+    if (temPonto && temVirgula) {
+      // Formato brasileiro completo: 1.000,00
+      str = str.replace(/\./g, '').replace(',', '.');
+    } else if (temVirgula) {
+      // Só tem vírgula
+      const aposVirgula = str.split(',')[1]?.length || 0;
+      if (aposVirgula === 3) {
+        // 1,234 = milhar, converter para 1234
+        str = str.replace(',', '');
+      } else {
+        // 1,50 ou 1,5 = decimal
+        str = str.replace(',', '.');
+      }
+    } else if (temPonto) {
+      // Só tem ponto
+      const aposPonto = str.split('.')[str.split('.').length - 1].length;
+      if (aposPonto === 3) {
+        // 1.234 = milhar, converter para 1234
+        str = str.replace(/\./g, '');
+      }
+      // Senão deixa como está (é decimal 45.00)
+    }
+
+    return parseFloat(str) || 0;
+  }
+
   document.getElementById('btn-processar').addEventListener('click', () => {
     const texto = document.getElementById('cot-textarea').value.trim();
     if (!texto) {
@@ -814,11 +847,13 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
       return;
     }
 
-    const linhas = texto.split('\n');
+    const linhas = texto.split('\n').filter(l => l.trim());
     const tbody = document.getElementById('tabela-cotacoes');
     tbody.innerHTML = linhas.map((linha, idx) => {
       const [forn, entreg, pagto, frete, garantia, vigencia, nroCot, cod, desc, und, qtd, vunit] = linha.split('\t');
-      const vtotal = (parseFloat(qtd) || 0) * (parseFloat(vunit) || 0);
+      const qtdNum = limparNumero(qtd);
+      const vunitNum = limparNumero(vunit);
+      const vtotal = qtdNum * vunitNum;
       return `
         <tr>
           <td>${forn || ''}</td>
@@ -831,9 +866,9 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
           <td><b>${cod || ''}</b></td>
           <td>${desc || ''}</td>
           <td>${und || ''}</td>
-          <td>${qtd || ''}</td>
-          <td>${vunit || ''}</td>
-          <td>${vtotal.toFixed(2)}</td>
+          <td>${qtdNum.toLocaleString('pt-BR')}</td>
+          <td>R$ ${vunitNum.toFixed(2).replace('.', ',')}</td>
+          <td><strong>R$ ${vtotal.toFixed(2).replace('.', ',')}</strong></td>
         </tr>
       `;
     }).join('');
@@ -862,18 +897,19 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
         state.cotacoes.push({
           id: Date.now() + Math.random(),
           processoId: parseInt(processoId),
-          fornecedor: tds[0].textContent,
-          codigo: tds[7].textContent,
-          descricao: tds[8].textContent,
-          unidade: tds[9].textContent,
-          qtd: parseInt(tds[10].textContent) || 0,
-          vunit: parseFloat(tds[11].textContent) || 0,
-          entrega: tds[1].textContent,
-          pagamento: tds[2].textContent,
-          frete: tds[3].textContent,
-          garantia: tds[4].textContent,
-          vigencia: tds[5].textContent,
-          nroCot: tds[6].textContent
+          fornecedor: tds[0].textContent.trim(),
+          codigo: tds[7].textContent.trim(),
+          descricao: tds[8].textContent.trim(),
+          unidade: tds[9].textContent.trim(),
+          qtd: limparNumero(tds[10].textContent),
+          vunit: limparNumero(tds[11].textContent),
+          vtotal: limparNumero(tds[12].textContent),
+          entrega: tds[1].textContent.trim(),
+          pagamento: tds[2].textContent.trim(),
+          frete: tds[3].textContent.trim(),
+          garantia: tds[4].textContent.trim(),
+          vigencia: tds[5].textContent.trim(),
+          nroCot: tds[6].textContent.trim()
         });
       }
     });
@@ -942,14 +978,16 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
         if (!itensPorCod[c.codigo]) {
           itensPorCod[c.codigo] = { desc: c.descricao, qtd: c.qtd, cotacoes: {} };
         }
-        itensPorCod[c.codigo].cotacoes[c.fornecedor] = c.vunit;
+        itensPorCod[c.codigo].cotacoes[c.fornecedor] = { inicial: c.vunit, final: c.vunit };
       });
 
       Object.entries(itensPorCod).forEach(([cod, item]) => {
-        html += `<tr><td class="sticky-col"><b>${cod}</b></td><td class="sticky-col" style="left:60px">${item.desc}</td><td class="sticky-col cell-num" style="left:240px">${item.qtd}</td>`;
+        html += `<tr><td class="sticky-col"><b>${cod}</b></td><td class="sticky-col" style="left:60px">${item.desc}</td><td class="sticky-col cell-num" style="left:240px">${item.qtd.toLocaleString('pt-BR')}</td>`;
         fornecedores.forEach(f => {
-          const v = item.cotacoes[f] || 0;
-          html += `<td class="cell-num">${(v).toFixed(2)}</td><td class="cell-num">${(v * 0.95).toFixed(2)}</td>`;
+          const dados = item.cotacoes[f] || { inicial: 0, final: 0 };
+          const vInicial = dados.inicial;
+          const vFinal = dados.final;
+          html += `<td class="cell-num">R$ ${(vInicial).toFixed(2).replace('.', ',')}</td><td class="cell-num">R$ ${(vFinal).toFixed(2).replace('.', ',')}</td>`;
         });
         html += '</tr>';
       });
@@ -974,9 +1012,11 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
       const final = inicial * 0.95;
       const saving = inicial - final;
 
-      document.getElementById('res-inicial').textContent = 'R$ ' + inicial.toFixed(2);
-      document.getElementById('res-final').textContent = 'R$ ' + final.toFixed(2);
-      document.getElementById('res-saving').textContent = 'R$ ' + saving.toFixed(2);
+      const formatarMoeda = (valor) => 'R$ ' + valor.toFixed(2).replace('.', ',');
+
+      document.getElementById('res-inicial').textContent = formatarMoeda(inicial);
+      document.getElementById('res-final').textContent = formatarMoeda(final);
+      document.getElementById('res-saving').textContent = formatarMoeda(saving);
       document.getElementById('res-percent').textContent = (saving / inicial * 100).toFixed(1) + '%';
     });
   }
@@ -997,7 +1037,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     const req = document.getElementById('con-req').value;
     const numero = document.getElementById('con-numero').value.trim();
     const forn = document.getElementById('con-forn').value;
-    const valor = parseFloat(document.getElementById('con-valor').value) || 0;
+    const valor = limparNumero(document.getElementById('con-valor').value);
 
     if (!req || !numero || !forn || !valor) {
       toast('Erro', 'Preencha todos os campos', 'error');
