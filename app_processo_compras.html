@@ -1,1963 +1,1054 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Processo de Compras</title>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SmartCompras — Sistema Inteligente de Compras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.460.0/font/lucide.css">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --primary: #1e40af;
-  --primary-light: #3b82f6;
-  --primary-dark: #1e3a8a;
-  --success: #059669;
-  --success-light: #10b981;
-  --warning: #d97706;
-  --danger: #dc2626;
-  --info: #0ea5e9;
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
-  --gray-600: #4b5563;
-  --gray-700: #374151;
-  --gray-900: #111827;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-  background: #f3f4f6;
-  color: var(--gray-900);
-  line-height: 1.6;
-}
-
-.app-container {
-  display: flex;
-  height: 100vh;
-}
-
-.sidebar {
-  width: 260px;
-  background: var(--gray-900);
-  color: white;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
-  position: fixed;
-  height: 100vh;
-  left: 0;
-  top: 0;
-  overflow-y: auto;
-  z-index: 100;
-}
-
-.sidebar-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  font-weight: 700;
-  font-size: 16px;
-}
-
-.sidebar-logo span {
-  color: var(--primary-light);
-}
-
-.sidebar-menu {
-  flex: 1;
-  padding: 1rem 0;
-  overflow-y: auto;
-}
-
-.menu-section {
-  padding: 0.5rem 0;
-  margin: 1rem 0;
-  border-top: 1px solid rgba(255,255,255,0.1);
-}
-
-.menu-section-title {
-  padding: 0.75rem 1.5rem;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
-}
-
-.menu-item {
-  padding: 0.75rem 1.5rem;
-  cursor: pointer;
-  transition: all 200ms;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.menu-item:hover {
-  background: rgba(255,255,255,0.1);
-}
-
-.menu-item.active {
-  background: var(--primary);
-  border-left: 3px solid var(--primary-light);
-}
-
-.main-content {
-  flex: 1;
-  margin-left: 260px;
-  display: flex;
-  flex-direction: column;
-}
-
-.top-header {
-  background: white;
-  padding: 1rem 2rem;
-  border-bottom: 1px solid var(--gray-200);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.page-name {
-  font-weight: 600;
-  color: var(--gray-900);
-}
-
-.content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 2rem;
-}
-
-.page {
-  display: none;
-}
-
-.page.active {
-  display: block;
-}
-
-.card {
-  background: white;
-  border-radius: 8px;
-  border: 1px solid var(--gray-200);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.card-header {
-  border-bottom: 1px solid var(--gray-200);
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
-}
-
-.card-title {
-  font-weight: 600;
-  color: var(--gray-900);
-  font-size: 14px;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--gray-700);
-  font-size: 13px;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--gray-300);
-  border-radius: 6px;
-  font-size: 13px;
-  font-family: inherit;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 200ms;
-  font-size: 13px;
-}
-
-.btn-primary {
-  background: var(--primary);
-  color: white;
-}
-
-.btn-primary:hover {
-  background: var(--primary-dark);
-}
-
-.btn-secondary {
-  background: var(--gray-200);
-  color: var(--gray-900);
-}
-
-.btn-secondary:hover {
-  background: var(--gray-300);
-}
-
-.btn-success {
-  background: var(--success);
-  color: white;
-}
-
-.btn-success:hover {
-  background: #047857;
-}
-
-.btn-warning {
-  background: var(--warning);
-  color: white;
-}
-
-.btn-warning:hover {
-  background: #b45309;
-}
-
-.btn-danger {
-  background: var(--danger);
-  color: white;
-  padding: 0.5rem 1rem;
-  font-size: 12px;
-}
-
-.btn-danger:hover {
-  background: #b91c1c;
-}
-
-.btn-sm {
-  padding: 0.5rem 1rem;
-  font-size: 12px;
-}
-
-.filter-bar {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  gap: 10px;
-  margin-bottom: 15px;
-  align-items: center;
-}
-
-.filter-bar input {
-  padding: 0.5rem;
-  border: 1px solid var(--gray-300);
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  margin-top: 1rem;
-  font-size: 13px;
-}
-
-table td, table th {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#lista-cotacoes table,
-#lista-analise-tecnica table,
-#historico-container table {
-  font-size: 12px;
-  overflow-x: auto;
-}
-
-table thead {
-  background: var(--gray-100);
-  border-bottom: 2px solid var(--gray-300);
-}
-
-table th {
-  padding: 0.75rem;
-  text-align: left;
-  font-weight: 600;
-  font-size: 12px;
-  color: var(--gray-700);
-  cursor: pointer;
-  user-select: none;
-}
-
-table th:hover {
-  background: var(--gray-200);
-}
-
-table td {
-  padding: 0.75rem;
-  border-bottom: 1px solid var(--gray-200);
-  font-size: 12px;
-}
-
-table tr:hover {
-  background: var(--gray-50);
-}
-
-.alert {
-  padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  border-left: 4px solid;
-}
-
-.alert-info {
-  background: #eff6ff;
-  border-color: #3b82f6;
-  color: #1e40af;
-}
-
-.alert-warning {
-  background: #fffbeb;
-  border-color: #f59e0b;
-  color: #92400e;
-}
-
-.alert-success {
-  background: #f0fdf4;
-  border-color: #10b981;
-  color: #059669;
-}
-
-.badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.badge-success {
-  background: #d1fae5;
-  color: #059669;
-}
-
-.badge-warning {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.badge-danger {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.badge-info {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.status-approved {
-  background: #d1fae5;
-  color: #059669;
-}
-
-.status-rejected {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.status-pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.details-row {
-  background: #f9fafb;
-  margin-top: 10px;
-  padding: 15px;
-  border-radius: 6px;
-  border-left: 4px solid var(--primary);
-}
-
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.detail-label {
-  font-weight: 600;
-  color: var(--gray-700);
-  font-size: 11px;
-  text-transform: uppercase;
-  margin-bottom: 3px;
-}
-
-.detail-value {
-  color: var(--gray-900);
-  font-size: 13px;
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    width: 200px;
-  }
-  .main-content {
-    margin-left: 200px;
-  }
-  .content {
-    padding: 1rem;
-  }
+/* ============================================================
+   SmartCompras — Design System v2
+   Refatorado: tokens semânticos, contraste AA, foco visível,
+   tipografia consistente, espaçamento em escala de 4px.
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+*{margin:0;padding:0}
+html,body{height:100%}
+:root{
+  /* Brand */
+  --brand-50:#eef2ff; --brand-100:#e0e7ff; --brand-500:#6366f1;
+  --brand-600:#4f46e5; --brand-700:#4338ca; --brand-900:#312e81;
+  /* Neutrals */
+  --gray-25:#fcfcfd; --gray-50:#f9fafb; --gray-100:#f3f4f6;
+  --gray-200:#e5e7eb; --gray-300:#d1d5db; --gray-400:#9ca3af;
+  --gray-500:#6b7280; --gray-600:#4b5563; --gray-700:#374151;
+  --gray-800:#1f2937; --gray-900:#111827; --gray-950:#0b1220;
+  /* Semantic */
+  --success:#059669; --success-bg:#ecfdf5; --success-fg:#065f46;
+  --warning:#d97706; --warning-bg:#fffbeb; --warning-fg:#92400e;
+  --danger:#dc2626;  --danger-bg:#fef2f2;  --danger-fg:#991b1b;
+  --info:#0284c7;    --info-bg:#f0f9ff;    --info-fg:#075985;
+  /* Surfaces */
+  --bg:var(--gray-50);
+  --surface:#ffffff;
+  --surface-2:var(--gray-50);
+  --border:var(--gray-200);
+  --border-strong:var(--gray-300);
+  --text:var(--gray-900);
+  --text-muted:var(--gray-500);
+  --text-subtle:var(--gray-400);
+  /* Sidebar */
+  --side-bg:var(--gray-950);
+  --side-bg-2:#0f172a;
+  --side-hover:#1e293b;
+  --side-text:#cbd5e1;
+  --side-muted:#64748b;
+  /* Radius / shadow / motion */
+  --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:18px; --r-full:999px;
+  --shadow-xs:0 1px 2px rgba(16,24,40,.05);
+  --shadow-sm:0 1px 3px rgba(16,24,40,.08),0 1px 2px rgba(16,24,40,.04);
+  --shadow-md:0 4px 12px -2px rgba(16,24,40,.08),0 2px 4px -2px rgba(16,24,40,.04);
+  --shadow-lg:0 12px 28px -8px rgba(16,24,40,.12),0 4px 10px -4px rgba(16,24,40,.06);
+  --ring:0 0 0 4px rgba(99,102,241,.18);
+  --t-fast:120ms cubic-bezier(.2,.8,.2,1);
+  --t-base:200ms cubic-bezier(.2,.8,.2,1);
+  /* Type scale */
+  --fs-xs:.75rem; --fs-sm:.8125rem; --fs-base:.875rem;
+  --fs-md:1rem; --fs-lg:1.125rem; --fs-xl:1.375rem; --fs-2xl:1.75rem; --fs-3xl:2.25rem;
+}
+html{font-size:16px}
+body{
+  font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  background:var(--bg); color:var(--text);
+  font-size:var(--fs-base); line-height:1.5;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overflow:hidden;
+}
+:focus-visible{outline:none; box-shadow:var(--ring); border-radius:8px}
+button,input,select,textarea{font:inherit;color:inherit}
+i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
+
+/* ============================ LAYOUT ============================ */
+.app{display:grid;grid-template-columns:264px 1fr;height:100vh;width:100vw}
+
+/* ============================ SIDEBAR ============================ */
+.sidebar{
+  background:linear-gradient(180deg,var(--side-bg) 0%,var(--side-bg-2) 100%);
+  color:#fff; display:flex; flex-direction:column;
+  border-right:1px solid rgba(255,255,255,.04);
+}
+.brand{
+  padding:20px 20px 16px; display:flex; align-items:center; gap:12px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.brand-mark{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,var(--brand-500),var(--brand-700));
+  display:grid;place-items:center;color:#fff;font-size:1.1rem;
+  box-shadow:0 6px 16px -4px rgba(99,102,241,.6),inset 0 1px 0 rgba(255,255,255,.2);
+}
+.brand-name{font-weight:700;font-size:1.05rem;letter-spacing:-.01em}
+.brand-sub{font-size:var(--fs-xs);color:var(--side-muted);margin-top:2px}
+
+.nav{flex:1;padding:14px 10px;overflow-y:auto}
+.nav-section{margin-top:14px}
+.nav-label{
+  padding:8px 12px; font-size:.7rem; font-weight:600;
+  text-transform:uppercase; letter-spacing:.08em; color:var(--side-muted);
+}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;margin:2px 0;border-radius:8px;
+  color:var(--side-text); cursor:pointer; font-size:var(--fs-base);
+  transition:background var(--t-fast),color var(--t-fast),transform var(--t-fast);
+  position:relative;
+}
+.nav-item i{width:18px;text-align:center;color:var(--side-muted);transition:color var(--t-fast)}
+.nav-item:hover{background:var(--side-hover);color:#fff}
+.nav-item:hover i{color:#fff}
+.nav-item.active{
+  background:linear-gradient(90deg,rgba(99,102,241,.18),rgba(99,102,241,.04));
+  color:#fff;font-weight:600;
+}
+.nav-item.active::before{
+  content:""; position:absolute; left:-10px; top:8px; bottom:8px; width:3px;
+  background:var(--brand-500); border-radius:0 3px 3px 0;
+}
+.nav-item.active i{color:var(--brand-500)}
+.side-footer{padding:14px;border-top:1px solid rgba(255,255,255,.06);font-size:var(--fs-xs);color:var(--side-muted)}
+
+/* ============================ MAIN ============================ */
+.main{display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{
+  height:64px; background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px; gap:16px;
+}
+.crumbs{display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:var(--fs-sm)}
+.crumbs strong{color:var(--text);font-weight:600;font-size:var(--fs-md)}
+.crumbs i{font-size:.85em;color:var(--text-subtle)}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.search{
+  display:flex;align-items:center;gap:8px;background:var(--gray-100);
+  border:1px solid transparent; padding:8px 12px;border-radius:8px;
+  width:280px;transition:border-color var(--t-fast),background var(--t-fast);
+}
+.search:focus-within{background:#fff;border-color:var(--brand-500);box-shadow:var(--ring)}
+.search input{flex:1;border:0;background:transparent;outline:none;font-size:var(--fs-sm)}
+.search i{color:var(--text-muted)}
+.icon-btn{
+  width:38px;height:38px;border-radius:8px;border:1px solid var(--border);
+  background:#fff;display:grid;place-items:center;cursor:pointer;color:var(--text-muted);
+  transition:background var(--t-fast),color var(--t-fast),border-color var(--t-fast);
+}
+.icon-btn:hover{background:var(--gray-100);color:var(--text)}
+.user-chip{
+  display:flex;align-items:center;gap:10px;padding:4px 10px 4px 4px;
+  border:1px solid var(--border);border-radius:var(--r-full);cursor:pointer;
+  transition:background var(--t-fast);
+}
+.user-chip:hover{background:var(--gray-100)}
+.avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,var(--brand-500),var(--brand-700));
+  color:#fff;display:grid;place-items:center;font-weight:700;font-size:.8rem;
+}
+.user-meta{display:flex;flex-direction:column;line-height:1.1}
+.user-meta b{font-size:var(--fs-sm)}
+.user-meta span{font-size:.7rem;color:var(--text-muted)}
+
+.content{flex:1;overflow-y:auto;padding:28px;background:var(--bg)}
+.content-inner{max-width:1400px;margin:0 auto}
+
+.page{display:none;animation:fade .25s ease both}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.page-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.page-title{font-size:var(--fs-2xl);font-weight:700;letter-spacing:-.02em}
+.page-desc{color:var(--text-muted);font-size:var(--fs-sm);margin-top:4px;max-width:60ch}
+
+/* ============================ CARDS / FORMS ============================ */
+.card{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:22px; margin-bottom:20px;
+  box-shadow:var(--shadow-xs);
+}
+.card-head{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding-bottom:14px;margin-bottom:18px;border-bottom:1px solid var(--border);
+}
+.card-title{font-weight:600;font-size:var(--fs-lg);letter-spacing:-.01em}
+.card-sub{color:var(--text-muted);font-size:var(--fs-sm);margin-top:2px}
+
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:var(--fs-sm);font-weight:500;color:var(--gray-700)}
+.field .hint{font-size:var(--fs-xs);color:var(--text-muted)}
+.field .req{color:var(--danger)}
+.input,.select,.textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--border-strong);
+  border-radius:8px;background:#fff;font-size:var(--fs-base);
+  transition:border-color var(--t-fast),box-shadow var(--t-fast);
+}
+.input::placeholder{color:var(--text-subtle)}
+.input:hover,.select:hover,.textarea:hover{border-color:var(--gray-400)}
+.input:focus,.select:focus,.textarea:focus{outline:none;border-color:var(--brand-500);box-shadow:var(--ring)}
+.textarea{min-height:96px;resize:vertical;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:var(--fs-sm)}
+
+/* ============================ BUTTONS ============================ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 16px;border-radius:8px;border:1px solid transparent;
+  font-weight:600;font-size:var(--fs-sm);cursor:pointer;
+  transition:transform var(--t-fast),background var(--t-fast),border-color var(--t-fast),box-shadow var(--t-fast);
+  white-space:nowrap;
+}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--brand-600);color:#fff;box-shadow:0 1px 2px rgba(79,70,229,.4)}
+.btn-primary:hover{background:var(--brand-700)}
+.btn-secondary{background:#fff;color:var(--text);border-color:var(--border-strong)}
+.btn-secondary:hover{background:var(--gray-100)}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{filter:brightness(.95)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-ghost{background:transparent;color:var(--text-muted)}
+.btn-ghost:hover{background:var(--gray-100);color:var(--text)}
+.btn-sm{padding:6px 10px;font-size:var(--fs-xs)}
+.btn-lg{padding:12px 20px;font-size:var(--fs-base)}
+
+/* ============================ KPI / DASH ============================ */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:24px}
+.kpi{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:20px;position:relative;overflow:hidden;
+  box-shadow:var(--shadow-xs);transition:transform var(--t-base),box-shadow var(--t-base);
+}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.kpi-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:14px}
+.kpi-label{font-size:var(--fs-xs);font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em}
+.kpi-icon{
+  width:36px;height:36px;border-radius:8px;display:grid;place-items:center;
+  background:var(--brand-50);color:var(--brand-600);font-size:1rem;
+}
+.kpi-value{font-size:var(--fs-2xl);font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi-foot{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:var(--fs-xs);color:var(--text-muted)}
+.kpi-foot .delta{font-weight:600}
+.delta.up{color:var(--success)} .delta.down{color:var(--danger)}
+.kpi.success .kpi-icon{background:var(--success-bg);color:var(--success-fg)}
+.kpi.warning .kpi-icon{background:var(--warning-bg);color:var(--warning-fg)}
+.kpi.info    .kpi-icon{background:var(--info-bg);color:var(--info-fg)}
+
+/* ============================ TABLES ============================ */
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r-md);background:#fff}
+.table{width:100%;border-collapse:separate;border-spacing:0;font-size:var(--fs-sm)}
+.table thead th{
+  position:sticky;top:0;background:var(--gray-50);color:var(--gray-600);
+  text-align:left;font-weight:600;font-size:var(--fs-xs);
+  text-transform:uppercase;letter-spacing:.04em;
+  padding:12px 14px;border-bottom:1px solid var(--border);white-space:nowrap;
+}
+.table tbody td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+.table tbody tr:last-child td{border-bottom:0}
+.table tbody tr{transition:background var(--t-fast)}
+.table tbody tr:hover{background:var(--gray-50)}
+.empty{padding:48px 20px;text-align:center;color:var(--text-muted)}
+.empty i{font-size:1.8rem;display:block;margin-bottom:8px;color:var(--text-subtle)}
+
+/* ============================ BADGES ============================ */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 8px;border-radius:var(--r-full);
+  font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.7}
+.badge-success{background:var(--success-bg);color:var(--success-fg)}
+.badge-warning{background:var(--warning-bg);color:var(--warning-fg)}
+.badge-danger {background:var(--danger-bg); color:var(--danger-fg)}
+.badge-info   {background:var(--info-bg);   color:var(--info-fg)}
+.badge-neutral{background:var(--gray-100);  color:var(--gray-700)}
+
+/* ============================ EXCEL / EQUALIZAÇÃO ============================ */
+.eq-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.eq-meta{display:flex;align-items:center;gap:10px;font-size:var(--fs-sm);color:var(--text-muted)}
+.eq-meta b{color:var(--text)}
+.excel-wrap{
+  width:100%;overflow:auto;max-height:65vh;
+  border:1px solid var(--border-strong);border-radius:var(--r-md);background:#fff;
+}
+.excel{
+  width:max-content;min-width:100%;border-collapse:collapse;
+  font-family:'JetBrains Mono','Segoe UI',ui-monospace,monospace;
+  font-size:.75rem;
+}
+.excel th,.excel td{border:1px solid var(--gray-200);padding:6px 10px;white-space:nowrap}
+.excel thead tr:nth-child(1) th{
+  background:linear-gradient(180deg,#fb923c,#f97316);color:#fff;font-weight:700;
+  text-transform:uppercase;letter-spacing:.04em;
+  position:sticky;top:0;z-index:11;text-align:center;
+}
+.excel thead tr:nth-child(2) th{
+  background:var(--gray-100);color:var(--gray-800);text-align:center;font-weight:600;
+  position:sticky;top:30px;z-index:10;
+}
+.excel thead tr:nth-child(3) th{
+  background:var(--gray-700);color:#fff;text-align:center;font-weight:600;
+  position:sticky;top:62px;z-index:10;
+}
+.excel .sticky-col{position:sticky;left:0;background:#fff;z-index:5;box-shadow:1px 0 0 var(--gray-200)}
+.excel thead .sticky-col{background:var(--gray-700);color:#fff;z-index:12}
+.excel tbody tr:nth-child(even) td{background:var(--gray-25)}
+.excel tbody tr:hover td{background:#fff8e1}
+.excel tbody tr:hover .sticky-col{background:#fff8e1}
+.cell-win{background:#dcfce7 !important;color:#065f46;font-weight:700}
+.cell-yes{color:#065f46;font-weight:700;text-align:center}
+.cell-no {background:#fee2e2 !important;color:#991b1b;font-weight:700;text-align:center}
+.cell-num{text-align:right;font-variant-numeric:tabular-nums}
+
+/* ============================ TOASTS ============================ */
+#toasts{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+.toast{
+  min-width:280px;max-width:380px;background:#fff;border:1px solid var(--border);
+  border-left:4px solid var(--brand-500); border-radius:10px;
+  padding:12px 14px;box-shadow:var(--shadow-lg);
+  display:flex;align-items:start;gap:10px;animation:slideIn .25s ease both;
+}
+.toast.success{border-left-color:var(--success)}
+.toast.error  {border-left-color:var(--danger)}
+.toast.warning{border-left-color:var(--warning)}
+.toast b{display:block;font-size:var(--fs-sm)}
+.toast span{font-size:var(--fs-xs);color:var(--text-muted)}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:10px;border:2px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:var(--gray-400)}
+
+/* ============================ RESPONSIVE ============================ */
+@media (max-width:1024px){
+  .app{grid-template-columns:72px 1fr}
+  .brand-name,.brand-sub,.nav-label,.nav-item span,.side-footer{display:none}
+  .nav-item{justify-content:center;padding:12px}
+  .nav-item.active::before{display:none}
+  .brand{justify-content:center;padding:18px 0}
+  .search{width:200px}
+}
+@media (max-width:720px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .content{padding:18px}
+  .topbar{padding:0 16px} .search{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important}
 }
 </style>
-
 </head>
 <body>
 
-<div class="app-container">
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="sidebar-header">
-      ⚡ <span>Processo de Compras</span>
+<div class="app">
+  <!-- =================== SIDEBAR =================== -->
+  <aside class="sidebar" aria-label="Navegação principal">
+    <div class="brand">
+      <div class="brand-mark"><i class="lucide lucide-shopping-cart"></i></div>
+      <div>
+        <div class="brand-name">SmartCompras</div>
+        <div class="brand-sub">Procurement Suite</div>
+      </div>
     </div>
 
-    <div class="sidebar-menu">
-      <div class="menu-section">
-        <div class="menu-section-title">Fluxo de Compras</div>
-        <div class="menu-item active" onclick="showPage('requisicao')">
-          <div>📋</div>
-          <div>Requisição</div>
-        </div>
-        <div class="menu-item" onclick="showPage('fornecedores')">
-          <div>🏢</div>
-          <div>Fornecedores</div>
-        </div>
-        <div class="menu-item" onclick="showPage('cotacao')">
-          <div>💰</div>
-          <div>Cotações</div>
-        </div>
-        <div class="menu-item" onclick="showPage('analise-tecnica')">
-          <div>✅</div>
-          <div>Análise Técnica</div>
-        </div>
-        <div class="menu-item" onclick="showPage('equalizacao')">
-          <div>⚖️</div>
-          <div>Equalização</div>
+    <nav class="nav">
+      <div class="nav-section">
+        <div class="nav-label">Principal</div>
+        <div class="nav-item active" data-page="dashboard">
+          <i class="lucide lucide-layout-dashboard"></i><span>Visão Geral</span>
         </div>
       </div>
 
-      <div class="menu-section">
-        <div class="menu-section-title">Análise e Resultado</div>
-        <div class="menu-item" onclick="showPage('resumo')">
-          <div>📊</div>
-          <div>Resumo Executivo</div>
-        </div>
-        <div class="menu-item" onclick="showPage('historico')">
-          <div>📜</div>
-          <div>Histórico</div>
+      <div class="nav-section">
+        <div class="nav-label">Cadastros</div>
+        <div class="nav-item" data-page="requisicoes"><i class="lucide lucide-clipboard-list"></i><span>Requisições</span></div>
+        <div class="nav-item" data-page="fornecedores"><i class="lucide lucide-building-2"></i><span>Fornecedores</span></div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-label">Processo Técnico</div>
+        <div class="nav-item" data-page="cotacoes"><i class="lucide lucide-file-text"></i><span>Cotações</span></div>
+        <div class="nav-item" data-page="analise"><i class="lucide lucide-circle-check"></i><span>Análise Técnica</span></div>
+        <div class="nav-item" data-page="equalizacao"><i class="lucide lucide-scale"></i><span>Matriz Equalização</span></div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-label">Resultados</div>
+        <div class="nav-item" data-page="resumo"><i class="lucide lucide-trending-up"></i><span>Resumo Financeiro</span></div>
+        <div class="nav-item" data-page="contratos"><i class="lucide lucide-file-signature"></i><span>Contratos</span></div>
+      </div>
+    </nav>
+
+    <div class="side-footer">v2.0 · © SmartCompras</div>
+  </aside>
+
+  <!-- =================== MAIN =================== -->
+  <main class="main">
+    <header class="topbar">
+      <div class="crumbs">
+        <i class="lucide lucide-home"></i>
+        <span>Compras</span>
+        <i class="lucide lucide-chevron-right"></i>
+        <strong id="crumb-page">Visão Geral</strong>
+      </div>
+      <div class="topbar-actions">
+        <label class="search">
+          <i class="lucide lucide-search"></i>
+          <input type="search" id="search-global" placeholder="Buscar processo, fornecedor, contrato…" />
+        </label>
+        <button class="icon-btn" title="Notificações"><i class="lucide lucide-bell"></i></button>
+        <button class="icon-btn" title="Ajuda"><i class="lucide lucide-circle-help"></i></button>
+        <div class="user-chip" title="Comprador logado">
+          <div class="avatar">C</div>
+          <div class="user-meta"><b>Comprador</b><span>Departamento Compras</span></div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- MAIN CONTENT -->
-  <div class="main-content">
-    <div class="top-header">
-      <div class="page-name">📋 Requisição de Compra</div>
-      <div style="color: var(--gray-600); font-size: 13px;">Sistema de Processo de Compras</div>
-    </div>
+    </header>
 
     <div class="content">
-      <!-- REQUISIÇÃO -->
-      <div id="page-requisicao" class="page active">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Nova Requisição de Compra</div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Departamento *</label>
-              <input type="text" id="req-depart" placeholder="Ex: Compras" value="Compras">
-            </div>
-            <div class="form-group">
-              <label>Solicitante *</label>
-              <input type="text" id="req-solicitante" placeholder="Ex: João Silva">
-            </div>
-            <div class="form-group">
-              <label>Número do Processo *</label>
-              <input type="text" id="req-numero" placeholder="Ex: 142536/2026">
-            </div>
-          </div>
-          <button class="btn btn-primary" onclick="salvarRequisicao()">✓ Criar Requisição</button>
-        </div>
+      <div class="content-inner">
 
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Requisições Cadastradas</div>
+        <!-- ============ DASHBOARD ============ -->
+        <section class="page active" id="dashboard">
+          <div class="page-head">
+            <div>
+              <h1 class="page-title">Visão Geral</h1>
+              <p class="page-desc">Monitore processos ativos, contratações e saving gerado em tempo real.</p>
+            </div>
+            <button class="btn btn-primary" id="btn-nova-req"><i class="lucide lucide-plus"></i> Nova Requisição</button>
           </div>
-          <div id="lista-requisicoes"></div>
-        </div>
-      </div>
 
-      <!-- FORNECEDORES -->
-      <div id="page-fornecedores" class="page" style="display:none;">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Novo Fornecedor</div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Classificação *</label>
-              <select id="forn-classif">
-                <option value="">Selecione...</option>
-                <option value="Fabricante">Fabricante</option>
-                <option value="Distribuidor">Distribuidor</option>
-                <option value="Agente">Agente</option>
-              </select>
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="kpi-top">
+                <span class="kpi-label">Processos em andamento</span>
+                <div class="kpi-icon"><i class="lucide lucide-activity"></i></div>
+              </div>
+              <div class="kpi-value" id="kpi-processos">0</div>
+              <div class="kpi-foot"><span class="delta up">▲ 0%</span> vs. mês anterior</div>
             </div>
-            <div class="form-group">
-              <label>Nome *</label>
-              <input type="text" id="forn-nome" placeholder="Nome da empresa">
+            <div class="kpi success">
+              <div class="kpi-top">
+                <span class="kpi-label">Total contratado</span>
+                <div class="kpi-icon"><i class="lucide lucide-banknote"></i></div>
+              </div>
+              <div class="kpi-value" id="kpi-contratado">R$ 0</div>
+              <div class="kpi-foot"><span class="delta up">▲ 0%</span> YTD</div>
             </div>
-            <div class="form-group">
-              <label>CNPJ *</label>
-              <input type="text" id="forn-cnpj" placeholder="00.000.000/0000-00">
+            <div class="kpi warning">
+              <div class="kpi-top">
+                <span class="kpi-label">Saving gerado</span>
+                <div class="kpi-icon"><i class="lucide lucide-piggy-bank"></i></div>
+              </div>
+              <div class="kpi-value" id="kpi-saving">R$ 0</div>
+              <div class="kpi-foot"><span class="delta up">▲ 0%</span> economia média</div>
             </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Email *</label>
-              <input type="email" id="forn-email" placeholder="email@fornecedor.com">
-            </div>
-            <div class="form-group">
-              <label>Telefone</label>
-              <input type="text" id="forn-telefone" placeholder="(00) 9999-9999">
-            </div>
-            <div class="form-group">
-              <label>UF *</label>
-              <select id="forn-uf" onchange="atualizarCidades()">
-                <option value="">Selecione...</option>
-                <option value="AM">AM</option><option value="SP">SP</option>
-                <option value="MG">MG</option><option value="RJ">RJ</option>
-                <option value="BA">BA</option><option value="RS">RS</option>
-                <option value="PR">PR</option><option value="SC">SC</option>
-                <option value="GO">GO</option><option value="MT">MT</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Cidade</label>
-              <input type="text" id="forn-cidade" placeholder="Cidade">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>ICMS Origem (%)</label>
-              <input type="number" step="0.01" id="forn-icms" placeholder="18" value="18">
-            </div>
-            <div class="form-group">
-              <label>IPI</label>
-              <input type="text" id="forn-ipi" placeholder="ISENTO ou valor">
-            </div>
-            <div class="form-group">
-              <label>PIS/COFINS</label>
-              <input type="text" id="forn-pis" placeholder="ISENTO ou valor">
-            </div>
-          </div>
-          <button class="btn btn-primary" onclick="salvarFornecedor()">✓ Cadastrar Fornecedor</button>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Fornecedores Cadastrados</div>
-          </div>
-          <div id="lista-fornecedores"></div>
-        </div>
-      </div>
-
-      <!-- COTAÇÕES -->
-      <div id="page-cotacao" class="page" style="display:none;">
-        <div class="alert alert-info">
-          ℹ️ Cole dados do Excel diretamente na tabela
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Selecionar Requisição</div>
-          </div>
-          <div class="form-group">
-            <label>Processo</label>
-            <select id="cotacao-processo" onchange="carregarDadosCotacao()">
-              <option value="">-- Selecione --</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="cotacao-container" style="display:none;">
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">📋 Cole os Dados do Excel Aqui</div>
-            </div>
-            <textarea id="textarea-cotacoes" placeholder="Cole toda a tabela do Excel aqui e clique em 'Processar Dados'" style="width: 100%; min-height: 150px; padding: 10px; font-family: monospace; font-size: 12px; border: 1px solid #d1d5db; border-radius: 6px;"></textarea>
-            <div style="margin-top: 10px; display: flex; gap: 10px;">
-              <button class="btn btn-primary" onclick="processarDadosColados()">▶ Processar Dados</button>
-              <button class="btn btn-secondary" onclick="limparTextarea()">Limpar</button>
+            <div class="kpi info">
+              <div class="kpi-top">
+                <span class="kpi-label">Tempo médio (dias)</span>
+                <div class="kpi-icon"><i class="lucide lucide-timer"></i></div>
+              </div>
+              <div class="kpi-value">7,2</div>
+              <div class="kpi-foot"><span class="delta down">▼ 1,1d</span> ciclo de compra</div>
             </div>
           </div>
 
           <div class="card">
-            <div class="card-header">
-              <div class="card-title">📋 Tabela de Cotações</div>
+            <div class="card-head">
+              <div>
+                <div class="card-title">Últimas requisições</div>
+                <div class="card-sub">Atualizado há instantes</div>
+              </div>
+              <button class="btn btn-secondary btn-sm"><i class="lucide lucide-external-link"></i> Ver tudo</button>
             </div>
-            <div style="overflow-x: auto;">
-              <table id="tabela-cotacoes-input" style="border: 2px solid #3b82f6; background: white;">
-                <thead style="background: #dbeafe; border-bottom: 2px solid #3b82f6;">
-                  <tr>
-                    <th style="padding: 8px; min-width: 80px; text-align: center; border-right: 1px solid #e5e7eb;">Fornecedor</th>
-                    <th style="padding: 8px; min-width: 80px; text-align: center; border-right: 1px solid #e5e7eb;">Entrega</th>
-                    <th style="padding: 8px; min-width: 80px; text-align: center; border-right: 1px solid #e5e7eb;">Pagamento</th>
-                    <th style="padding: 8px; min-width: 60px; text-align: center; border-right: 1px solid #e5e7eb;">Frete</th>
-                    <th style="padding: 8px; min-width: 100px; text-align: center; border-right: 1px solid #e5e7eb;">Garantia</th>
-                    <th style="padding: 8px; min-width: 100px; text-align: center; border-right: 1px solid #e5e7eb;">Vigência</th>
-                    <th style="padding: 8px; min-width: 80px; text-align: center; border-right: 1px solid #e5e7eb;">Nº Cotação</th>
-                    <th style="padding: 8px; min-width: 80px; text-align: center; border-right: 1px solid #e5e7eb;">Código</th>
-                    <th style="padding: 8px; min-width: 200px; text-align: center; border-right: 1px solid #e5e7eb;">Descrição</th>
-                    <th style="padding: 8px; min-width: 70px; text-align: center; border-right: 1px solid #e5e7eb;">Unidade</th>
-                    <th style="padding: 8px; min-width: 80px; text-align: center; border-right: 1px solid #e5e7eb;">Qtd</th>
-                    <th style="padding: 8px; min-width: 100px; text-align: center; border-right: 1px solid #e5e7eb;">Vlr Unit.</th>
-                    <th style="padding: 8px; min-width: 100px; text-align: center; border-right: 1px solid #e5e7eb;">Valor Total</th>
-                    <th style="padding: 8px; min-width: 120px; text-align: center; border-right: 1px solid #e5e7eb;">Vlr Equalizado</th>
-                    <th style="padding: 8px; min-width: 100px; text-align: center; border-right: 1px solid #e5e7eb;">Fabricante</th>
-                    <th style="padding: 8px; min-width: 80px; text-align: center;">AP. TEC.</th>
-                  </tr>
-                </thead>
-                <tbody id="corpo-cotacoes">
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr>
+                  <th>Processo</th><th>Departamento</th><th>Solicitante</th>
+                  <th>Itens</th><th>Status</th><th>Atualizado</th>
+                </tr></thead>
+                <tbody id="tabela-requisicoes">
+                  <tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma requisição cadastrada</div></td></tr>
                 </tbody>
               </table>
             </div>
-            <div style="margin-top: 15px; display: flex; gap: 10px;">
-              <button class="btn btn-primary" onclick="salvarCotacoesTabela()">✓ Salvar Cotações</button>
-              <button class="btn btn-secondary" onclick="limparTabela()">Limpar Tabela</button>
-              <button class="btn btn-secondary" onclick="adicionarLinhaTabela()">+ Nova Linha</button>
-            </div>
           </div>
+        </section>
 
+        <!-- ============ REQUISIÇÕES ============ -->
+        <section class="page" id="requisicoes">
+          <div class="page-head">
+            <div><h1 class="page-title">Requisições</h1><p class="page-desc">Cadastre e acompanhe as solicitações de compra.</p></div>
+          </div>
           <div class="card">
-            <div class="card-header">
-              <div class="card-title">Cotações Registradas</div>
-            </div>
-            <div class="filter-bar">
-              <label>Buscar:</label>
-              <input type="text" id="busca-cotacoes" placeholder="Código, descrição ou fornecedor..." onkeyup="filtrarCotacoes()">
-              <button class="btn btn-secondary btn-sm" onclick="downloadCotacoesExcel()">📥 Download Excel</button>
-              <button class="btn btn-danger btn-sm" onclick="excluirSelecionadas()">Excluir Selecionadas</button>
-            </div>
-            <div id="lista-cotacoes"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ANÁLISE TÉCNICA -->
-      <div id="page-analise-tecnica" class="page" style="display:none;">
-        <div class="alert alert-info">
-          ℹ️ Análise técnica dos produtos cotados com parecer e status
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Nova Análise Técnica</div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Código do Item *</label>
-              <select id="analise-codigo" onchange="carregarDadosAnalise()">
-                <option value="">-- Selecione --</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Fornecedor *</label>
-              <input type="text" id="analise-forn" readonly style="background: #f0f0f0;">
-            </div>
-            <div class="form-group">
-              <label>Descrição *</label>
-              <input type="text" id="analise-descricao" readonly style="background: #f0f0f0;">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Ficha Técnica</label>
-              <input type="text" id="analise-ficha" placeholder="URL ou referência da ficha">
-            </div>
-            <div class="form-group">
-              <label>Data FT</label>
-              <input type="date" id="analise-data-ft">
-            </div>
-            <div class="form-group">
-              <label>Fabricante</label>
-              <input type="text" id="analise-fabricante">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Produto/Modelo</label>
-              <input type="text" id="analise-modelo">
-            </div>
-            <div class="form-group">
-              <label>Revisão</label>
-              <input type="text" id="analise-revisao">
-            </div>
-            <div class="form-group">
-              <label>Norma Técnica</label>
-              <input type="text" id="analise-norma">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Responsável</label>
-              <input type="text" id="analise-responsavel">
-            </div>
-            <div class="form-group">
-              <label>Data da Análise</label>
-              <input type="date" id="analise-data">
-            </div>
-            <div class="form-group">
-              <label>Status Técnico *</label>
-              <select id="analise-status">
-                <option value="">-- Selecione --</option>
-                <option value="Aprovado">✓ Aprovado</option>
-                <option value="Reprovado">✕ Reprovado</option>
-                <option value="Solicitação de Informações">❓ Solicitação de Informações</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Recomendação/Parecer Técnico</label>
-            <textarea id="analise-parecer" placeholder="Descreva o parecer técnico e recomendações" style="min-height: 100px;"></textarea>
-          </div>
-          <button class="btn btn-primary" onclick="salvarAnalise()">✓ Registrar Análise</button>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Análises Registradas</div>
-          </div>
-          <div id="lista-analise-tecnica"></div>
-        </div>
-      </div>
-
-      <!-- EQUALIZAÇÃO -->
-      <div id="page-equalizacao" class="page" style="display:none;">
-        <div class="alert alert-info">
-          ℹ️ Equalização detalhada - Comparação completa de fornecedores com impostos, descontos e DIFAL
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Selecionar Requisição</div>
-          </div>
-          <div class="form-group">
-            <label>Processo</label>
-            <select id="equal-processo" onchange="carregarDadosEqualizacao()">
-              <option value="">-- Selecione --</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="equalizacao-container" style="display:none;">
-          <div class="card">
-            <div class="card-header">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                  <div class="card-title">PROCESSO DE CONTRATAÇÃO <span id="equal-numero" style="color: #1e40af; font-weight: bold;">-</span></div>
-                </div>
-                <div style="font-size: 12px; color: #666;">
-                  <button class="btn btn-secondary btn-sm" onclick="exportarEqualizacao()">📥 Exportar Excel</button>
-                </div>
+            <div class="card-head"><div class="card-title">Nova requisição de compra</div></div>
+            <div class="form-grid">
+              <div class="field"><label>Departamento <span class="req">*</span></label><input class="input" id="req-depart" placeholder="Ex.: Manutenção"></div>
+              <div class="field"><label>Solicitante <span class="req">*</span></label><input class="input" id="req-solicitante" placeholder="Nome completo"></div>
+              <div class="field"><label>Número do processo <span class="req">*</span></label><input class="input" id="req-numero" placeholder="#2026-XXXX"></div>
+              <div class="field"><label>Prioridade</label>
+                <select class="select" id="req-prioridade"><option>Normal</option><option>Alta</option><option>Urgente</option></select>
               </div>
             </div>
-
-            <div style="margin-bottom: 20px;">
-              <div id="equal-tabs" style="display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap;"></div>
+            <div style="margin-top:18px;display:flex;gap:10px;justify-content:flex-end">
+              <button class="btn btn-secondary">Cancelar</button>
+              <button class="btn btn-primary" id="btn-criar-req"><i class="lucide lucide-plus"></i> Criar requisição</button>
             </div>
-
-            <div id="equal-tabelas" style="overflow-x: auto;"></div>
           </div>
+        </section>
 
+        <!-- ============ FORNECEDORES ============ -->
+        <section class="page" id="fornecedores">
+          <div class="page-head"><div><h1 class="page-title">Fornecedores</h1><p class="page-desc">Base unificada de parceiros homologados.</p></div></div>
           <div class="card">
-            <div class="card-header">
-              <div class="card-title">Resumo Comparativo - Totais por Fornecedor</div>
+            <div class="card-head"><div class="card-title">Novo fornecedor</div></div>
+            <div class="form-grid">
+              <div class="field"><label>Classificação <span class="req">*</span></label>
+                <select class="select" id="forn-classif"><option>Selecione…</option><option>Fabricante</option><option>Distribuidor</option><option>Prestador de serviços</option></select>
+              </div>
+              <div class="field"><label>Razão social / Nome <span class="req">*</span></label><input class="input" id="forn-nome"></div>
+              <div class="field"><label>CNPJ <span class="req">*</span></label><input class="input" id="forn-cnpj" placeholder="00.000.000/0000-00"></div>
+              <div class="field"><label>E-mail corporativo <span class="req">*</span></label><input class="input" id="forn-email" type="email"></div>
+              <div class="field"><label>Telefone</label><input class="input" id="forn-tel" placeholder="(11) 0000-0000"></div>
+              <div class="field"><label>Estado (UF) <span class="req">*</span></label>
+                <select class="select" id="forn-uf"><option>--</option><option>SP</option><option>RJ</option><option>MG</option><option>RS</option><option>PR</option><option>SC</option><option>BA</option><option>AM</option></select>
+              </div>
+              <div class="field"><label>ICMS padrão (%)</label><input class="input" id="forn-icms" type="number" step="0.01" value="18"></div>
+              <div class="field"><label>IPI (%)</label><input class="input" id="forn-ipi" type="number" step="0.01" value="0"></div>
+              <div class="field"><label>PIS / COFINS (%)</label><input class="input" id="forn-pis" type="number" step="0.01" value="0"></div>
             </div>
-            <div id="equal-resumo-totais"></div>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">Recomendação Final</div>
+            <div style="margin-top:18px;display:flex;justify-content:flex-end">
+              <button class="btn btn-primary" id="btn-salvar-forn"><i class="lucide lucide-save"></i> Salvar fornecedor</button>
             </div>
-            <div id="equal-recomendacao"></div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- RESUMO EXECUTIVO -->
-      <div id="page-resumo" class="page" style="display:none;">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Selecionar Requisição</div>
-          </div>
-          <div class="form-group">
-            <label>Processo</label>
-            <select id="resumo-processo" onchange="carregarDadosResumo()">
-              <option value="">-- Selecione --</option>
-            </select>
-          </div>
-        </div>
+        <!-- ============ COTAÇÕES ============ -->
+        <section class="page" id="cotacoes">
+          <div class="page-head"><div><h1 class="page-title">Cotações</h1><p class="page-desc">Cole dados do Excel em rodadas — o sistema identifica valor inicial e final.</p></div></div>
 
-        <div id="resumo-container" style="display:none;">
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">Cotações Selecionadas para Contratação</div>
-              <div style="font-size: 13px; color: #666; margin-top: 8px;">
-                <strong>Requisição:</strong> <span id="resumo-numero" style="color: #1e40af; font-weight: bold;">-</span>
+          <div class="card" style="background:var(--info-bg);border-color:#bae6fd">
+            <div style="display:flex;gap:10px;align-items:start">
+              <i class="lucide lucide-info" style="color:var(--info-fg);font-size:1.2rem;margin-top:2px"></i>
+              <div style="font-size:var(--fs-sm);color:var(--info-fg)">
+                <b>Dica:</b> Cole os dados do Excel repetidas vezes para criar rodadas. A 1ª colagem é o <b>Valor Inicial</b>; a última, o <b>Valor Final</b> na Equalização.
               </div>
             </div>
-            <div id="resumo-tabela"></div>
           </div>
 
           <div class="card">
-            <div class="card-header">
-              <div class="card-title">Resumo Financeiro</div>
-            </div>
-            <div id="resumo-financeiro"></div>
+            <div class="card-head"><div class="card-title">1. Selecionar processo ativo</div></div>
+            <div class="field"><label>Processo</label><select class="select" id="cot-processo"><option>Selecione…</option></select></div>
           </div>
 
           <div class="card">
-            <div class="card-header">
-              <div class="card-title">Análise de Economia</div>
+            <div class="card-head">
+              <div class="card-title">2. Inserção de dados (cole do Excel)</div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-secondary btn-sm" id="btn-limpar"><i class="lucide lucide-eraser"></i> Limpar</button>
+                <button class="btn btn-primary btn-sm" id="btn-processar"><i class="lucide lucide-zap"></i> Processar tabela</button>
+              </div>
             </div>
-            <div id="resumo-economia"></div>
+            <textarea class="textarea" id="cot-textarea" placeholder="Fornecedor&#9;Entrega&#9;Pagamento&#9;Frete&#9;Garantia&#9;Vigência&#9;Nº Cot.&#9;Código&#9;Desc.&#9;UND&#9;Qtd&#9;V.Unit&#9;V.Total"></textarea>
           </div>
-        </div>
-      </div>
 
-      <!-- HISTÓRICO -->
-      <div id="page-historico" class="page" style="display:none;">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Registrar Contrato</div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Requisição *</label>
-              <select id="hist-requisicao" onchange="atualizarDadosHistorico()">
-                <option value="">-- Selecione --</option>
-              </select>
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">3. Validação e ajustes finais</div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-secondary btn-sm" id="btn-add-linha"><i class="lucide lucide-plus"></i> Adicionar linha</button>
+                <button class="btn btn-success btn-sm" id="btn-salvar-cot"><i class="lucide lucide-check"></i> Salvar cotações</button>
+              </div>
             </div>
-            <div class="form-group">
-              <label>Nº da Requisição</label>
-              <input type="text" id="hist-numero-req" readonly style="background: #f0f0f0;">
-            </div>
-            <div class="form-group">
-              <label>Nº Contrato *</label>
-              <input type="text" id="hist-numero" placeholder="Ex: CT-001/2026">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Fornecedor Selecionado *</label>
-              <input type="text" id="hist-fornecedor" placeholder="Nome do fornecedor">
-            </div>
-            <div class="form-group">
-              <label>Data Contrato</label>
-              <input type="date" id="hist-data-contrato">
-            </div>
-            <div class="form-group">
-              <label>Valor Total R$</label>
-              <input type="number" step="0.01" id="hist-valor" placeholder="0.00">
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr>
+                  <th>Fornecedor</th><th>Entrega</th><th>Pagamento</th><th>Frete</th><th>Garantia</th>
+                  <th>Vigência</th><th>Nº Cot.</th><th>Código</th><th>Descrição</th>
+                  <th>UND</th><th>Qtd</th><th>V. Unit (R$)</th><th>V. Total</th>
+                </tr></thead>
+                <tbody id="tabela-cotacoes">
+                  <tr><td colspan="13"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma cotação processada ainda.</div></td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Prazo (dias)</label>
-              <input type="number" id="hist-prazo" placeholder="30">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Observações</label>
-            <textarea id="hist-observacoes" placeholder="Notas sobre o contrato" style="min-height: 80px;"></textarea>
-          </div>
-          <button class="btn btn-primary" onclick="salvarContrato()">✓ Registrar Contrato</button>
-        </div>
+        </section>
 
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Contratos Registrados</div>
+        <!-- ============ ANÁLISE TÉCNICA ============ -->
+        <section class="page" id="analise">
+          <div class="page-head"><div><h1 class="page-title">Análise técnica</h1><p class="page-desc">Pareceres dos engenheiros responsáveis por item cotado.</p></div></div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Lançar parecer técnico</div></div>
+            <div class="form-grid">
+              <div class="field"><label>Item cotado <span class="req">*</span></label><select class="select" id="ana-item"><option>Selecione…</option></select></div>
+              <div class="field"><label>Fornecedor</label><input class="input" id="ana-forn" readonly placeholder="—"></div>
+              <div class="field"><label>Engenheiro / Técnico responsável</label><input class="input" id="ana-eng"></div>
+              <div class="field"><label>Status final <span class="req">*</span></label>
+                <select class="select" id="ana-status"><option>— Avaliação —</option><option value="SIM">✓ Aprovado (SIM)</option><option value="NÃO">✗ Reprovado (NÃO)</option></select>
+              </div>
+            </div>
+            <div class="field" style="margin-top:16px"><label>Descrição do material</label><textarea class="textarea" id="ana-desc"></textarea></div>
+            <div style="margin-top:18px;display:flex;justify-content:flex-end">
+              <button class="btn btn-primary" id="btn-gravar-ana"><i class="lucide lucide-save"></i> Gravar avaliação</button>
+            </div>
           </div>
-          <div id="historico-container"></div>
-        </div>
+        </section>
+
+        <!-- ============ EQUALIZAÇÃO ============ -->
+        <section class="page" id="equalizacao">
+          <div class="page-head">
+            <div><h1 class="page-title">Matriz de equalização</h1><p class="page-desc">Comparativo multifornecedor com rodadas, impostos e parecer técnico.</p></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-secondary" id="btn-imprimir"><i class="lucide lucide-printer"></i> Imprimir</button>
+              <button class="btn btn-primary" id="btn-exportar"><i class="lucide lucide-download"></i> Exportar CSV</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="eq-toolbar">
+              <div class="eq-meta">
+                <i class="lucide lucide-folder-open"></i>
+                <span>Processo:</span> <b id="eq-processo">#2026-0142 — Manutenção predial</b>
+                <span class="badge badge-info" id="eq-fornecedores">0 fornecedores</span>
+                <span class="badge badge-neutral" id="eq-rodadas">0 rodadas</span>
+              </div>
+              <select class="select" id="eq-select" style="max-width:280px"><option>Selecione um processo</option></select>
+            </div>
+
+            <div class="excel-wrap" id="eq-tabela-container">
+              <div class="empty"><i class="lucide lucide-inbox"></i> Selecione um processo para visualizar a matriz</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ RESUMO ============ -->
+        <section class="page" id="resumo">
+          <div class="page-head"><div><h1 class="page-title">Resumo financeiro</h1><p class="page-desc">Consolidado sugerido para fechamento da contratação.</p></div></div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Selecione o processo</div></div>
+            <select class="select" id="res-processo"><option>Selecione…</option></select>
+          </div>
+          <div class="kpi-grid">
+            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Valor inicial</span><div class="kpi-icon"><i class="lucide lucide-arrow-up-from-line"></i></div></div><div class="kpi-value" id="res-inicial">R$ 0</div></div>
+            <div class="kpi success"><div class="kpi-top"><span class="kpi-label">Valor final sugerido</span><div class="kpi-icon"><i class="lucide lucide-check-check"></i></div></div><div class="kpi-value" id="res-final">R$ 0</div></div>
+            <div class="kpi warning"><div class="kpi-top"><span class="kpi-label">Saving</span><div class="kpi-icon"><i class="lucide lucide-trending-down"></i></div></div><div class="kpi-value" id="res-saving">R$ 0</div><div class="kpi-foot"><span class="delta up" id="res-percent">0%</span> de economia</div></div>
+          </div>
+        </section>
+
+        <!-- ============ CONTRATOS ============ -->
+        <section class="page" id="contratos">
+          <div class="page-head"><div><h1 class="page-title">Contratos</h1><p class="page-desc">Gere e registre o fechamento do processo.</p></div></div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Gerar novo contrato (fechamento)</div></div>
+            <div class="form-grid">
+              <div class="field"><label>Requisição origem <span class="req">*</span></label><select class="select" id="con-req"><option>Selecione…</option></select></div>
+              <div class="field"><label>Nº do pedido / contrato <span class="req">*</span></label><input class="input" id="con-numero"></div>
+              <div class="field"><label>Fornecedor vencedor <span class="req">*</span></label><select class="select" id="con-forn"><option>Selecione…</option></select></div>
+              <div class="field"><label>Data emissão</label><input class="input" id="con-data" type="date"></div>
+              <div class="field"><label>Valor final (R$)</label><input class="input" id="con-valor" type="number" step="0.01"></div>
+              <div class="field"><label>Prazo execução (dias)</label><input class="input" id="con-prazo" type="number"></div>
+            </div>
+            <div style="margin-top:18px;display:flex;justify-content:flex-end;gap:10px">
+              <button class="btn btn-secondary">Cancelar</button>
+              <button class="btn btn-success" id="btn-efetivar"><i class="lucide lucide-lock"></i> Efetivar contrato</button>
+            </div>
+          </div>
+        </section>
+
       </div>
     </div>
-  </div>
+  </main>
 </div>
 
+<div id="toasts" aria-live="polite"></div>
+
 <script>
-let state = {
-  requisicoes: (() => { try { return JSON.parse(localStorage.getItem('req_compras') || '[]'); } catch(e) { return []; } })(),
-  fornecedores: (() => { try { return JSON.parse(localStorage.getItem('forn_compras') || '[]'); } catch(e) { return []; } })(),
-  cotacoes: (() => { try { return JSON.parse(localStorage.getItem('cotacao_compras') || '[]'); } catch(e) { return []; } })(),
-  analises: (() => { try { return JSON.parse(localStorage.getItem('analise_compras') || '[]'); } catch(e) { return []; } })(),
-  contratos: (() => { try { return JSON.parse(localStorage.getItem('contrato_compras') || '[]'); } catch(e) { return []; } })(),
-  reqSelecionada: null,
-  cotacoesFiltradas: []
-};
-
-function salvarState() {
-  localStorage.setItem('req_compras', JSON.stringify(state.requisicoes));
-  localStorage.setItem('forn_compras', JSON.stringify(state.fornecedores));
-  localStorage.setItem('cotacao_compras', JSON.stringify(state.cotacoes));
-  localStorage.setItem('analise_compras', JSON.stringify(state.analises));
-  localStorage.setItem('contrato_compras', JSON.stringify(state.contratos));
-}
-
-function showPage(pageName) {
-  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-  document.getElementById('page-' + pageName).style.display = 'block';
-
-  const titles = {
-    'requisicao': '📋 Requisição de Compra',
-    'fornecedores': '🏢 Cadastro de Fornecedores',
-    'cotacao': '💰 Cotações',
-    'analise-tecnica': '✅ Análise Técnica',
-    'equalizacao': '⚖️ Equalização',
-    'resumo': '📊 Resumo Executivo',
-    'historico': '📜 Histórico de Contratos'
+  // ===== STATE =====
+  let state = {
+    requisicoes: JSON.parse(localStorage.getItem('sc_requisicoes') || '[]'),
+    fornecedores: JSON.parse(localStorage.getItem('sc_fornecedores') || '[]'),
+    cotacoes: JSON.parse(localStorage.getItem('sc_cotacoes') || '[]'),
+    analises: JSON.parse(localStorage.getItem('sc_analises') || '[]'),
+    contratos: JSON.parse(localStorage.getItem('sc_contratos') || '[]'),
   };
 
-  document.querySelector('.page-name').textContent = titles[pageName] || 'Sistema';
-  document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-  event.target.closest('.menu-item').classList.add('active');
-}
-
-// REQUISIÇÃO
-function salvarRequisicao() {
-  const depart = document.getElementById('req-depart').value.trim();
-  const solicitante = document.getElementById('req-solicitante').value.trim();
-  const numero = document.getElementById('req-numero').value.trim();
-
-  if (!depart || !solicitante || !numero) {
-    alert('Preencha todos os campos obrigatórios (*)');
-    return;
+  function salvar() {
+    localStorage.setItem('sc_requisicoes', JSON.stringify(state.requisicoes));
+    localStorage.setItem('sc_fornecedores', JSON.stringify(state.fornecedores));
+    localStorage.setItem('sc_cotacoes', JSON.stringify(state.cotacoes));
+    localStorage.setItem('sc_analises', JSON.stringify(state.analises));
+    localStorage.setItem('sc_contratos', JSON.stringify(state.contratos));
   }
 
-  const novaReq = {
-    id: Date.now(),
-    depart, solicitante, numero,
-    dataCriacao: new Date().toISOString().split('T')[0],
-    status: 'Requisição Criada',
-    itens: 0
-  };
-
-  state.requisicoes.push(novaReq);
-  salvarState();
-
-  document.getElementById('req-depart').value = 'Compras';
-  document.getElementById('req-solicitante').value = '';
-  document.getElementById('req-numero').value = '';
-
-  renderizarRequisicoes();
-  atualizarSelectsProcesso();
-  atualizarSelectEqualizacao();
-  atualizarSelectResumo();
-  atualizarSelectHistorico();
-}
-
-function renderizarRequisicoes() {
-  const container = document.getElementById('lista-requisicoes');
-  if (state.requisicoes.length === 0) {
-    container.innerHTML = '<div class="alert alert-info">Nenhuma requisição cadastrada</div>';
-    return;
+  function toast(titulo, msg, tipo = 'success') {
+    const t = document.createElement('div');
+    t.className = `toast ${tipo}`;
+    t.innerHTML = `<i class="lucide lucide-${tipo === 'success' ? 'check-circle' : tipo === 'error' ? 'alert-circle' : 'info'}"></i>
+                   <div><b>${titulo}</b><span>${msg}</span></div>`;
+    document.getElementById('toasts').appendChild(t);
+    setTimeout(() => t.remove(), 4000);
   }
 
-  let html = '<table><thead><tr><th>Departamento</th><th>Solicitante</th><th>Número</th><th>Status</th><th>Data</th><th>Ação</th></tr></thead><tbody>';
+  // ===== NAVEGAÇÃO SPA =====
+  const items = document.querySelectorAll('.nav-item');
+  const pages = document.querySelectorAll('.page');
+  const crumb = document.getElementById('crumb-page');
 
-  state.requisicoes.forEach(req => {
-    let badgeClass = 'badge-warning';
-    if (req.status.includes('Contratado')) badgeClass = 'badge-success';
-    else if (req.status.includes('Equalizado')) badgeClass = 'badge-info';
+  items.forEach(it => it.addEventListener('click', () => {
+    items.forEach(i => i.classList.remove('active'));
+    it.classList.add('active');
+    const id = it.dataset.page;
+    pages.forEach(p => p.classList.toggle('active', p.id === id));
+    crumb.textContent = it.querySelector('span').textContent;
+    document.querySelector('.content').scrollTo({top: 0, behavior: 'smooth'});
 
-    html += `<tr>
-      <td>${req.depart}</td>
-      <td>${req.solicitante}</td>
-      <td><strong>${req.numero}</strong></td>
-      <td><span class="badge ${badgeClass}">${req.status}</span></td>
-      <td>${req.dataCriacao}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="excluirRequisicao(${req.id})">✕</button></td>
-    </tr>`;
-  });
+    // Carregar dados quando entra em uma página
+    if (id === 'requisicoes') renderRequisicoes();
+    if (id === 'cotacoes') atualizarSelectProcesso();
+    if (id === 'equalizacao') atualizarSelectEqualizacao();
+    if (id === 'resumo') atualizarSelectResumo();
+    if (id === 'contratos') atualizarSelectContratos();
+  }));
 
-  html += '</tbody></table>';
-  container.innerHTML = html;
-}
+  // ===== REQUISIÇÕES =====
+  document.getElementById('btn-criar-req').addEventListener('click', () => {
+    const depart = document.getElementById('req-depart').value.trim();
+    const solicitante = document.getElementById('req-solicitante').value.trim();
+    const numero = document.getElementById('req-numero').value.trim();
+    const prioridade = document.getElementById('req-prioridade').value;
 
-function excluirRequisicao(id) {
-  if (!confirm('Excluir requisição?')) return;
-  state.requisicoes = state.requisicoes.filter(r => r.id !== id);
-  salvarState();
-  renderizarRequisicoes();
-  atualizarSelectsProcesso();
-  atualizarSelectEqualizacao();
-  atualizarSelectResumo();
-  atualizarSelectHistorico();
-}
-
-function atualizarSelectsProcesso() {
-  const select = document.getElementById('cotacao-processo');
-  select.innerHTML = '<option value="">-- Selecione --</option>' +
-    state.requisicoes.map(r => `<option value="${r.id}">${r.numero} - ${r.depart}</option>`).join('');
-}
-
-function atualizarStatusRequisicao(reqId, novoStatus) {
-  const req = state.requisicoes.find(r => r.id === reqId);
-  if (req) {
-    req.status = novoStatus;
-    salvarState();
-    renderizarRequisicoes();
-  }
-}
-
-// FORNECEDORES
-function salvarFornecedor() {
-  const classif = document.getElementById('forn-classif').value;
-  const nome = document.getElementById('forn-nome').value.trim().toUpperCase();
-  const cnpj = document.getElementById('forn-cnpj').value.trim();
-  const email = document.getElementById('forn-email').value.trim();
-  const telefone = document.getElementById('forn-telefone').value.trim();
-  const uf = document.getElementById('forn-uf').value;
-  const cidade = document.getElementById('forn-cidade').value.trim();
-  const icms = parseFloat(document.getElementById('forn-icms').value) || 18;
-  const ipi = document.getElementById('forn-ipi').value.trim() || 'ISENTO';
-  const pis = document.getElementById('forn-pis').value.trim() || 'ISENTO';
-
-  if (!classif || !nome || !cnpj || !email || !uf) {
-    alert('Preencha todos os campos obrigatórios (*)');
-    return;
-  }
-
-  const novoForn = {
-    id: Date.now(),
-    classif, nome, cnpj, email, telefone, uf, cidade, icms, ipi, pis,
-    dataCadastro: new Date().toISOString().split('T')[0]
-  };
-
-  state.fornecedores.push(novoForn);
-  salvarState();
-
-  document.getElementById('forn-classif').value = '';
-  document.getElementById('forn-nome').value = '';
-  document.getElementById('forn-cnpj').value = '';
-  document.getElementById('forn-email').value = '';
-  document.getElementById('forn-telefone').value = '';
-  document.getElementById('forn-uf').value = '';
-  document.getElementById('forn-cidade').value = '';
-  document.getElementById('forn-icms').value = '18';
-  document.getElementById('forn-ipi').value = '';
-  document.getElementById('forn-pis').value = '';
-
-  renderizarFornecedores();
-  atualizarSelectFornecedor();
-}
-
-function renderizarFornecedores() {
-  const container = document.getElementById('lista-fornecedores');
-  if (state.fornecedores.length === 0) {
-    container.innerHTML = '<div class="alert alert-info">Nenhum fornecedor cadastrado</div>';
-    return;
-  }
-
-  let html = '<table><thead><tr><th>Classificação</th><th>Nome</th><th>CNPJ</th><th>Email</th><th>UF</th><th>ICMS</th><th>IPI</th><th>PIS</th><th>Ação</th></tr></thead><tbody>';
-
-  state.fornecedores.forEach(forn => {
-    html += `<tr>
-      <td>${forn.classif}</td>
-      <td><strong>${forn.nome}</strong></td>
-      <td>${forn.cnpj}</td>
-      <td>${forn.email}</td>
-      <td>${forn.uf}</td>
-      <td>${forn.icms}%</td>
-      <td>${forn.ipi}</td>
-      <td>${forn.pis}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="excluirFornecedor(${forn.id})">✕</button></td>
-    </tr>`;
-  });
-
-  html += '</tbody></table>';
-  container.innerHTML = html;
-}
-
-function excluirFornecedor(id) {
-  if (!confirm('Excluir fornecedor?')) return;
-  state.fornecedores = state.fornecedores.filter(f => f.id !== id);
-  salvarState();
-  renderizarFornecedores();
-  atualizarSelectFornecedor();
-}
-
-function atualizarSelectFornecedor() {
-  const select = document.getElementById('cotacao-forn');
-  if (select) {
-    select.innerHTML = state.fornecedores.map(f => `<option value="${f.id}">${f.nome} (${f.uf})</option>`).join('');
-  }
-}
-
-function atualizarCidades() {}
-
-// PROCESSAR DADOS DO TEXTAREA
-function processarDadosColados() {
-  const texto = document.getElementById('textarea-cotacoes').value.trim();
-
-  if (!texto) {
-    alert('Cole os dados do Excel no textarea primeiro');
-    return;
-  }
-
-  const linhas = texto.split('\n').filter(l => l.trim());
-
-  if (linhas.length === 0) {
-    alert('Nenhuma linha encontrada');
-    return;
-  }
-
-  const tbody = document.getElementById('corpo-cotacoes');
-
-  gerarLinhasTabela(linhas.length + 5);
-
-  linhas.forEach((linhaTexto, idxLinha) => {
-    const row = tbody.rows[idxLinha];
-    if (!row) return;
-
-    let valores = linhaTexto.split('\t');
-
-    if (valores.length > 1 && valores[0].match(/^\d+$/)) {
-      valores = valores.slice(1);
-    }
-
-    valores = valores.map(v => {
-      let limpo = v.trim();
-      limpo = limpo.replace(/R\$\s*/g, '');
-      limpo = limpo.replace(/\./g, '');
-      limpo = limpo.replace(',', '.');
-      return limpo;
-    });
-
-    valores.forEach((valor, idxCol) => {
-      if (idxCol < row.children.length) {
-        const td = row.children[idxCol];
-        const input = td.querySelector('input');
-
-        if (input && !input.readOnly) {
-          input.value = valor || '';
-        }
-      }
-    });
-
-    atualizarValoresTotais(idxLinha);
-  });
-
-  alert(`✅ ${linhas.length} linha(s) processada(s) com sucesso!`);
-  document.getElementById('textarea-cotacoes').value = '';
-}
-
-function limparTextarea() {
-  document.getElementById('textarea-cotacoes').value = '';
-}
-
-// TABELA DE COTAÇÕES
-function carregarDadosCotacao() {
-  const reqId = parseInt(document.getElementById('cotacao-processo').value);
-  if (!reqId) {
-    document.getElementById('cotacao-container').style.display = 'none';
-    return;
-  }
-
-  state.reqSelecionada = state.requisicoes.find(r => r.id === reqId);
-  document.getElementById('cotacao-container').style.display = 'block';
-
-  gerarLinhasTabela(15);
-  renderizarListaCotacoes();
-  atualizarSelectFornecedor();
-}
-
-function gerarLinhasTabela(numLinhas) {
-  const tbody = document.getElementById('corpo-cotacoes');
-  tbody.innerHTML = '';
-
-  for (let i = 0; i < numLinhas; i++) {
-    const tr = document.createElement('tr');
-    tr.style.borderBottom = '1px solid #e5e7eb';
-
-    const colunas = ['fornecedor', 'entrega', 'pagamento', 'frete', 'garantia', 'vigencia', 'numero', 'codigo', 'descricao', 'unidade', 'qtd', 'vunit', 'vtotal', 'vequalizado', 'fabricante', 'aptec'];
-
-    colunas.forEach((col, idx) => {
-      const td = document.createElement('td');
-      td.style.padding = '5px';
-      td.style.borderRight = idx < colunas.length - 1 ? '1px solid #e5e7eb' : 'none';
-
-      const input = document.createElement('input');
-      input.type = col === 'qtd' || col === 'vunit' ? 'number' : 'text';
-      input.step = col === 'vunit' ? '0.01' : '1';
-      input.style.width = '100%';
-      input.style.padding = '4px';
-      input.style.border = '1px solid #d1d5db';
-      input.style.borderRadius = '4px';
-      input.style.fontFamily = 'inherit';
-      input.style.fontSize = '12px';
-      input.dataset.coluna = col;
-      input.dataset.linha = i;
-
-      if (col === 'vtotal' || col === 'vequalizado') {
-        input.readOnly = true;
-        input.style.background = '#f3f4f6';
-      }
-
-      if (col === 'qtd' || col === 'vunit') {
-        input.addEventListener('change', () => atualizarValoresTotais(i));
-      }
-
-      td.appendChild(input);
-      tr.appendChild(td);
-    });
-
-    tbody.appendChild(tr);
-  }
-}
-
-function atualizarValoresTotais(linha) {
-  const tbody = document.getElementById('corpo-cotacoes');
-  const row = tbody.rows[linha];
-
-  const qtdInput = row.querySelector('input[data-coluna="qtd"]');
-  const vunitInput = row.querySelector('input[data-coluna="vunit"]');
-  const vtotalInput = row.querySelector('input[data-coluna="vtotal"]');
-  const vequalInput = row.querySelector('input[data-coluna="vequalizado"]');
-
-  const qtd = parseFloat(qtdInput.value) || 0;
-  const vunit = parseFloat(vunitInput.value) || 0;
-  const vtotal = qtd * vunit;
-
-  vtotalInput.value = vtotal > 0 ? vtotal.toFixed(2) : '';
-  vequalInput.value = vtotal > 0 ? (vtotal * 1.2).toFixed(2) : '';
-}
-
-function salvarCotacoesTabela() {
-  if (!state.reqSelecionada) {
-    alert('Selecione uma requisição');
-    return;
-  }
-
-  const tbody = document.getElementById('corpo-cotacoes');
-  let cotacoesSalvas = 0;
-
-  Array.from(tbody.rows).forEach((row) => {
-    const inputs = row.querySelectorAll('input');
-    const dados = {};
-
-    inputs.forEach(input => {
-      dados[input.dataset.coluna] = input.value.trim();
-    });
-
-    if (!dados.codigo && !dados.descricao && !dados.qtd && !dados.vunit) {
+    if (!depart || !solicitante || !numero) {
+      toast('Erro', 'Preencha todos os campos obrigatórios', 'error');
       return;
     }
 
-    if (!dados.codigo || !dados.descricao || !dados.qtd || !dados.vunit) {
-      alert(`Linha ${row.rowIndex}: Preencha Código, Descrição, Qtd e Vlr Unit. (obrigatórios)`);
+    state.requisicoes.push({
+      id: Date.now(),
+      depart, solicitante, numero, prioridade,
+      status: 'Em cotação',
+      data: new Date().toLocaleDateString('pt-BR')
+    });
+    salvar();
+    toast('Sucesso', 'Requisição criada com sucesso');
+    document.getElementById('req-depart').value = '';
+    document.getElementById('req-solicitante').value = '';
+    document.getElementById('req-numero').value = '';
+    renderRequisicoes();
+    atualizarSelectProcesso();
+  });
+
+  document.getElementById('btn-nova-req').addEventListener('click', () => {
+    document.querySelector('[data-page="requisicoes"]').click();
+  });
+
+  function renderRequisicoes() {
+    const tbody = document.getElementById('tabela-requisicoes');
+    if (state.requisicoes.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma requisição cadastrada</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = state.requisicoes.map(r => `
+      <tr>
+        <td><b>${r.numero}</b></td>
+        <td>${r.depart}</td>
+        <td>${r.solicitante}</td>
+        <td>0</td>
+        <td><span class="badge badge-info">${r.status}</span></td>
+        <td>${r.data}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ===== FORNECEDORES =====
+  document.getElementById('btn-salvar-forn').addEventListener('click', () => {
+    const classif = document.getElementById('forn-classif').value;
+    const nome = document.getElementById('forn-nome').value.trim();
+    const cnpj = document.getElementById('forn-cnpj').value.trim();
+    const email = document.getElementById('forn-email').value.trim();
+
+    if (!classif || !nome || !cnpj || !email) {
+      toast('Erro', 'Preencha todos os campos obrigatórios', 'error');
       return;
     }
 
-    let fornId = null;
-    if (dados.fornecedor) {
-      const forn = state.fornecedores.find(f => f.nome.toUpperCase() === dados.fornecedor.toUpperCase());
-      fornId = forn ? forn.id : null;
+    state.fornecedores.push({
+      id: Date.now(),
+      classif, nome, cnpj, email,
+      tel: document.getElementById('forn-tel').value,
+      uf: document.getElementById('forn-uf').value,
+      icms: parseFloat(document.getElementById('forn-icms').value) || 18,
+      ipi: parseFloat(document.getElementById('forn-ipi').value) || 0,
+      pis: parseFloat(document.getElementById('forn-pis').value) || 0
+    });
+    salvar();
+    toast('Sucesso', 'Fornecedor cadastrado');
+    document.getElementById('forn-nome').value = '';
+    document.getElementById('forn-cnpj').value = '';
+    document.getElementById('forn-email').value = '';
+  });
+
+  // ===== COTAÇÕES =====
+  function atualizarSelectProcesso() {
+    const sel = document.getElementById('cot-processo');
+    sel.innerHTML = '<option>Selecione…</option>' +
+      state.requisicoes.map(r => `<option value="${r.id}">${r.numero} — ${r.depart}</option>`).join('');
+  }
+
+  document.getElementById('btn-processar').addEventListener('click', () => {
+    const texto = document.getElementById('cot-textarea').value.trim();
+    if (!texto) {
+      toast('Erro', 'Cole dados do Excel primeiro', 'error');
+      return;
     }
 
-    const novaCotacao = {
-      id: Date.now() + Math.random(),
-      reqId: state.reqSelecionada.id,
-      fornId: fornId,
-      codigo: dados.codigo,
-      descricao: dados.descricao,
-      unidade: dados.unidade || 'UND',
-      qtd: parseInt(dados.qtd) || 0,
-      vunit: parseFloat(dados.vunit) || 0,
-      numero: dados.numero || 'INICIAL',
-      fabricante: dados.fabricante || '',
-      entrega: dados.entrega || '',
-      pagamento: dados.pagamento || '',
-      frete: dados.frete || '',
-      garantia: dados.garantia || '',
-      vigencia: dados.vigencia || '',
-      dataCotacao: new Date().toISOString().split('T')[0]
-    };
-
-    state.cotacoes.push(novaCotacao);
-    cotacoesSalvas++;
-  });
-
-  if (cotacoesSalvas === 0) {
-    alert('Nenhuma cotação para salvar. Preencha a tabela.');
-    return;
-  }
-
-  salvarState();
-
-  if (state.reqSelecionada && cotacoesSalvas > 0) {
-    atualizarStatusRequisicao(state.reqSelecionada.id, 'Cotações Registradas');
-  }
-
-  renderizarListaCotacoes();
-  atualizarSelectAnalise();
-  atualizarSelectEqualizacao();
-  atualizarSelectResumo();
-
-  gerarLinhasTabela(15);
-
-  alert(`✓ ${cotacoesSalvas} cotação(ões) salva(s) com sucesso!`);
-}
-
-function limparTabela() {
-  if (confirm('Limpar toda a tabela? Esta ação não pode ser desfeita.')) {
-    gerarLinhasTabela(15);
-  }
-}
-
-function adicionarLinhaTabela() {
-  const tbody = document.getElementById('corpo-cotacoes');
-  const numLinhas = tbody.rows.length;
-  gerarLinhasTabela(numLinhas + 5);
-}
-
-function renderizarListaCotacoes() {
-  if (!state.reqSelecionada) return;
-
-  const cotacoes = state.cotacoes.filter(c => c.reqId === state.reqSelecionada.id);
-  state.cotacoesFiltradas = cotacoes;
-  const container = document.getElementById('lista-cotacoes');
-
-  if (cotacoes.length === 0) {
-    container.innerHTML = '<div class="alert alert-info">Nenhuma cotação registrada</div>';
-    return;
-  }
-
-  let html = '<table><thead><tr><th style="width: 40px;"><input type="checkbox" id="selecionar-todas" onchange="selecionarTodasCotacoes()"></th><th>Código</th><th>Descrição</th><th>Unidade</th><th>Qtd</th><th>Fornecedor</th><th>V. Unitário</th><th>V. Total</th><th>Fabricante</th><th>Nº Cotação</th><th>Entrega</th><th>Pagamento</th><th>Frete</th><th>Garantia</th><th>Vigência</th><th>Ação</th></tr></thead><tbody>';
-
-  cotacoes.forEach((cot, idx) => {
-    const forn = state.fornecedores.find(f => f.id === cot.fornId);
-    const vtotal = cot.qtd * cot.vunit;
-    html += `<tr>
-      <td style="text-align: center;"><input type="checkbox" class="cot-checkbox" value="${cot.id}"></td>
-      <td><strong>${cot.codigo}</strong></td>
-      <td>${cot.descricao}</td>
-      <td>${cot.unidade}</td>
-      <td style="text-align: center;">${cot.qtd}</td>
-      <td>${forn ? forn.nome : 'Indefinido'}</td>
-      <td style="text-align: right;">R$ ${cot.vunit.toFixed(2)}</td>
-      <td style="text-align: right;"><strong>R$ ${vtotal.toFixed(2)}</strong></td>
-      <td>${cot.fabricante || '-'}</td>
-      <td>${cot.numero}</td>
-      <td>${cot.entrega || '-'}</td>
-      <td>${cot.pagamento || '-'}</td>
-      <td>${cot.frete || '-'}</td>
-      <td>${cot.garantia || '-'}</td>
-      <td>${cot.vigencia || '-'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="excluirCotacao(${cot.id})">✕</button></td>
-    </tr>`;
-  });
-
-  html += '</tbody></table>';
-  container.innerHTML = html;
-}
-
-function filtrarCotacoes() {
-  const termo = document.getElementById('busca-cotacoes').value.toLowerCase();
-  const linhas = document.querySelectorAll('#lista-cotacoes table tbody tr');
-
-  linhas.forEach(linha => {
-    const texto = linha.textContent.toLowerCase();
-    linha.style.display = texto.includes(termo) ? '' : 'none';
-  });
-}
-
-function selecionarTodasCotacoes() {
-  const checkAll = document.getElementById('selecionar-todas').checked;
-  document.querySelectorAll('.cot-checkbox').forEach(cb => cb.checked = checkAll);
-}
-
-function excluirSelecionadas() {
-  const selecionadas = Array.from(document.querySelectorAll('.cot-checkbox:checked')).map(cb => parseFloat(cb.value));
-
-  if (selecionadas.length === 0) {
-    alert('Selecione pelo menos uma cotação para excluir');
-    return;
-  }
-
-  if (!confirm(`Excluir ${selecionadas.length} cotação(ões)?`)) return;
-
-  state.cotacoes = state.cotacoes.filter(c => !selecionadas.includes(c.id));
-  salvarState();
-  renderizarListaCotacoes();
-  atualizarSelectAnalise();
-}
-
-function downloadCotacoesExcel() {
-  const cotacoes = state.cotacoesFiltradas;
-  if (cotacoes.length === 0) {
-    alert('Nenhuma cotação para download');
-    return;
-  }
-
-  let csv = 'Código\tDescrição\tUnidade\tQtd\tFornecedor\tV. Unitário\tV. Total\tFabricante\tNº Cotação\tEntrega\tPagamento\tFrete\tGarantia\tVigência\n';
-
-  cotacoes.forEach(cot => {
-    const forn = state.fornecedores.find(f => f.id === cot.fornId);
-    const vtotal = cot.qtd * cot.vunit;
-    csv += `${cot.codigo}\t${cot.descricao}\t${cot.unidade}\t${cot.qtd}\t${forn ? forn.nome : 'N/A'}\t${cot.vunit.toFixed(2)}\t${vtotal.toFixed(2)}\t${cot.fabricante || '-'}\t${cot.numero}\t${cot.entrega || '-'}\t${cot.pagamento || '-'}\t${cot.frete || '-'}\t${cot.garantia || '-'}\t${cot.vigencia || '-'}\n`;
-  });
-
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `cotacoes_${Date.now()}.csv`;
-  link.click();
-}
-
-function excluirCotacao(id) {
-  if (!confirm('Excluir cotação?')) return;
-  state.cotacoes = state.cotacoes.filter(c => c.id !== id);
-  salvarState();
-  renderizarListaCotacoes();
-  atualizarSelectAnalise();
-}
-
-// ANÁLISE TÉCNICA
-function atualizarSelectAnalise() {
-  const select = document.getElementById('analise-codigo');
-  select.innerHTML = '<option value="">-- Selecione --</option>' +
-    state.cotacoes.map(c => {
-      const req = state.requisicoes.find(r => r.id === c.reqId);
-      const forn = state.fornecedores.find(f => f.id === c.fornId);
-      return `<option value="${c.id}|${c.reqId}">${c.codigo} - ${c.descricao} (${forn ? forn.nome : 'N/A'}, ${req ? req.numero : 'N/A'})</option>`;
+    const linhas = texto.split('\n');
+    const tbody = document.getElementById('tabela-cotacoes');
+    tbody.innerHTML = linhas.map((linha, idx) => {
+      const [forn, entreg, pagto, frete, garantia, vigencia, nroCot, cod, desc, und, qtd, vunit] = linha.split('\t');
+      const vtotal = (parseFloat(qtd) || 0) * (parseFloat(vunit) || 0);
+      return `
+        <tr>
+          <td>${forn || ''}</td>
+          <td>${entreg || ''}</td>
+          <td>${pagto || ''}</td>
+          <td>${frete || ''}</td>
+          <td>${garantia || ''}</td>
+          <td>${vigencia || ''}</td>
+          <td>${nroCot || ''}</td>
+          <td><b>${cod || ''}</b></td>
+          <td>${desc || ''}</td>
+          <td>${und || ''}</td>
+          <td>${qtd || ''}</td>
+          <td>${vunit || ''}</td>
+          <td>${vtotal.toFixed(2)}</td>
+        </tr>
+      `;
     }).join('');
-}
-
-function carregarDadosAnalise() {
-  const sel = document.getElementById('analise-codigo').value;
-  if (!sel) {
-    document.getElementById('analise-forn').value = '';
-    document.getElementById('analise-descricao').value = '';
-    return;
-  }
-
-  const [cotId, reqId] = sel.split('|');
-  const cot = state.cotacoes.find(c => c.id === parseFloat(cotId));
-  const forn = cot ? state.fornecedores.find(f => f.id === cot.fornId) : null;
-
-  if (cot && forn) {
-    document.getElementById('analise-forn').value = forn.nome;
-    document.getElementById('analise-descricao').value = cot.descricao;
-  }
-}
-
-function salvarAnalise() {
-  const sel = document.getElementById('analise-codigo').value;
-  if (!sel) {
-    alert('Selecione um item');
-    return;
-  }
-
-  const status = document.getElementById('analise-status').value;
-  if (!status) {
-    alert('Selecione o Status Técnico');
-    return;
-  }
-
-  const [cotId] = sel.split('|');
-  const ficha = document.getElementById('analise-ficha').value.trim();
-  const dataFt = document.getElementById('analise-data-ft').value;
-  const fabricante = document.getElementById('analise-fabricante').value.trim();
-  const modelo = document.getElementById('analise-modelo').value.trim();
-  const revisao = document.getElementById('analise-revisao').value.trim();
-  const norma = document.getElementById('analise-norma').value.trim();
-  const responsavel = document.getElementById('analise-responsavel').value.trim();
-  const dataAnalise = document.getElementById('analise-data').value;
-  const parecer = document.getElementById('analise-parecer').value.trim();
-
-  const novaAnalise = {
-    id: Date.now(),
-    cotacaoId: parseFloat(cotId),
-    ficha, dataFt, fabricante, modelo, revisao, norma, responsavel, dataAnalise, parecer, status,
-    dataCriacao: new Date().toISOString().split('T')[0]
-  };
-
-  state.analises.push(novaAnalise);
-  salvarState();
-
-  document.getElementById('analise-codigo').value = '';
-  document.getElementById('analise-forn').value = '';
-  document.getElementById('analise-descricao').value = '';
-  document.getElementById('analise-ficha').value = '';
-  document.getElementById('analise-data-ft').value = '';
-  document.getElementById('analise-fabricante').value = '';
-  document.getElementById('analise-modelo').value = '';
-  document.getElementById('analise-revisao').value = '';
-  document.getElementById('analise-norma').value = '';
-  document.getElementById('analise-responsavel').value = '';
-  document.getElementById('analise-data').value = '';
-  document.getElementById('analise-parecer').value = '';
-  document.getElementById('analise-status').value = '';
-
-  renderizarAnalises();
-}
-
-function renderizarAnalises() {
-  const container = document.getElementById('lista-analise-tecnica');
-  if (state.analises.length === 0) {
-    container.innerHTML = '<div class="alert alert-info">Nenhuma análise registrada</div>';
-    return;
-  }
-
-  let html = '<table><thead><tr><th>Código</th><th>Descrição</th><th>Fabricante</th><th>Modelo</th><th>Norma</th><th>Responsável</th><th>Data</th><th>Status</th><th>Parecer</th><th>Ação</th></tr></thead><tbody>';
-
-  state.analises.forEach(ana => {
-    const cot = state.cotacoes.find(c => c.id === ana.cotacaoId);
-    const parecer = ana.parecer.substring(0, 50) + (ana.parecer.length > 50 ? '...' : '');
-    let statusBadge = 'badge-warning';
-    if (ana.status === 'Aprovado') statusBadge = 'badge-success';
-    else if (ana.status === 'Reprovado') statusBadge = 'badge-danger';
-
-    html += `<tr>
-      <td><strong>${cot ? cot.codigo : 'N/A'}</strong></td>
-      <td>${cot ? cot.descricao : 'N/A'}</td>
-      <td>${ana.fabricante || '-'}</td>
-      <td>${ana.modelo || '-'}</td>
-      <td>${ana.norma || '-'}</td>
-      <td>${ana.responsavel || '-'}</td>
-      <td>${ana.dataAnalise || '-'}</td>
-      <td><span class="badge ${statusBadge}">${ana.status}</span></td>
-      <td><small>${parecer}</small></td>
-      <td><button class="btn btn-danger btn-sm" onclick="excluirAnalise(${ana.id})">✕</button></td>
-    </tr>`;
+    toast('Sucesso', `${linhas.length} linha(s) processada(s)`);
   });
 
-  html += '</tbody></table>';
-  container.innerHTML = html;
-}
+  document.getElementById('btn-limpar').addEventListener('click', () => {
+    document.getElementById('cot-textarea').value = '';
+  });
 
-function excluirAnalise(id) {
-  if (!confirm('Excluir análise?')) return;
-  state.analises = state.analises.filter(a => a.id !== id);
-  salvarState();
-  renderizarAnalises();
-}
+  document.getElementById('btn-salvar-cot').addEventListener('click', () => {
+    const processoId = document.getElementById('cot-processo').value;
+    const processo = state.requisicoes.find(r => r.id == processoId);
 
-// EQUALIZAÇÃO
-const ALIQUOTAS_ICMS = {
-  'AM': 18, 'AP': 18, 'BA': 18, 'CE': 18, 'DF': 18, 'ES': 18, 'GO': 18, 'MA': 18, 'MG': 18,
-  'MS': 18, 'MT': 18, 'PA': 18, 'PB': 18, 'PE': 18, 'PI': 18, 'PR': 18, 'RJ': 18, 'RN': 18,
-  'RO': 18, 'RR': 18, 'RS': 18, 'SC': 18, 'SP': 18, 'SE': 18, 'TO': 18
-};
-
-function calcularDIFAL(ufOrigem, baseCalculo) {
-  const ALIQUOTA_COMPRADORA = 18;
-  const ALIQUOTA_INTERESTADUAL = 7;
-  const difal = Math.max(0, (ALIQUOTA_COMPRADORA - ALIQUOTA_INTERESTADUAL) * baseCalculo / 100);
-  return difal;
-}
-
-function atualizarSelectEqualizacao() {
-  const select = document.getElementById('equal-processo');
-  select.innerHTML = '<option value="">-- Selecione --</option>' +
-    state.requisicoes.map(r => `<option value="${r.id}">${r.numero} - ${r.depart}</option>`).join('');
-}
-
-function carregarDadosEqualizacao() {
-  const reqId = parseInt(document.getElementById('equal-processo').value);
-  if (!reqId) {
-    document.getElementById('equalizacao-container').style.display = 'none';
-    return;
-  }
-
-  state.reqSelecionada = state.requisicoes.find(r => r.id === reqId);
-  document.getElementById('equalizacao-container').style.display = 'block';
-  renderizarEqualizacao();
-}
-
-function renderizarEqualizacao() {
-  if (!state.reqSelecionada) return;
-
-  document.getElementById('equal-numero').textContent = state.reqSelecionada.numero;
-  atualizarStatusRequisicao(state.reqSelecionada.id, 'Equalizado');
-
-  const cotacoes = state.cotacoes.filter(c => c.reqId === state.reqSelecionada.id);
-  const fornecedoresUnicos = [...new Set(cotacoes.map(c => c.fornId))].filter(f => f);
-  const itensPorCodigo = {};
-
-  cotacoes.forEach(cot => {
-    if (!itensPorCodigo[cot.codigo]) {
-      itensPorCodigo[cot.codigo] = {
-        descricao: cot.descricao,
-        unidade: cot.unidade,
-        qtd: cot.qtd,
-        cotacoes: []
-      };
+    if (!processoId || !processo) {
+      toast('Erro', 'Selecione um processo', 'error');
+      return;
     }
-    itensPorCodigo[cot.codigo].cotacoes.push(cot);
-  });
 
-  // Tabela comparativa com TODOS os fornecedores
-  let htmlTabela = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; background: white; font-size: 11px;">';
+    const tbody = document.getElementById('tabela-cotacoes');
+    const linhas = tbody.querySelectorAll('tr');
 
-  // Cabeçalhos
-  htmlTabela += '<thead style="background: #1e40af; color: white; position: sticky; top: 0;"><tr>';
-  htmlTabela += '<th style="padding: 10px; text-align: left; border-right: 1px solid #d1d5db;">Nº</th>';
-  htmlTabela += '<th style="padding: 10px; text-align: left; border-right: 1px solid #d1d5db;">Código</th>';
-  htmlTabela += '<th style="padding: 10px; text-align: left; border-right: 1px solid #d1d5db;">Descrição</th>';
-  htmlTabela += '<th style="padding: 10px; text-align: center; border-right: 1px solid #d1d5db;">UND</th>';
-  htmlTabela += '<th style="padding: 10px; text-align: center; border-right: 1px solid #d1d5db;">QTD</th>';
-
-  fornecedoresUnicos.forEach(fornId => {
-    const forn = state.fornecedores.find(f => f.id === fornId);
-    if (forn) {
-      htmlTabela += `<th style="padding: 10px; text-align: center; border-right: 1px solid #d1d5db; background: #3b82f6; min-width: 200px;">${forn.nome}<br><small style="font-weight: normal; font-size: 10px;">${forn.uf} | ICMS ${forn.icms}%</small></th>`;
-    }
-  });
-
-  htmlTabela += '</tr></thead><tbody>';
-
-  let numItem = 1;
-  let totaisPorFornecedor = {};
-  fornecedoresUnicos.forEach(fornId => totaisPorFornecedor[fornId] = { inicial: 0, difal: 0, final: 0 });
-
-  Object.entries(itensPorCodigo).forEach(([codigo, item]) => {
-    htmlTabela += `<tr style="border-bottom: 1px solid #e5e7eb;">
-      <td style="padding: 8px; border-right: 1px solid #d1d5db;">${numItem}</td>
-      <td style="padding: 8px; border-right: 1px solid #d1d5db;"><strong>${codigo}</strong></td>
-      <td style="padding: 8px; border-right: 1px solid #d1d5db;">${item.descricao}</td>
-      <td style="padding: 8px; text-align: center; border-right: 1px solid #d1d5db;">${item.unidade}</td>
-      <td style="padding: 8px; text-align: center; border-right: 1px solid #d1d5db;">${item.qtd}</td>`;
-
-    // Para cada fornecedor
-    const precosPorFornecedor = [];
-    fornecedoresUnicos.forEach(fornId => {
-      const forn = state.fornecedores.find(f => f.id === fornId);
-      const cotacoesFornItem = item.cotacoes.filter(c => c.fornId === fornId);
-
-      if (cotacoesFornItem.length > 0) {
-        const vunitInicial = cotacoesFornItem[0].vunit;
-        const vunitFinal = cotacoesFornItem[cotacoesFornItem.length - 1].vunit;
-        const difal = calcularDIFAL(forn.uf, vunitFinal);
-        const totalComDifal = (vunitFinal + difal) * item.qtd;
-        const totalSemDifal = vunitFinal * item.qtd;
-
-        precosPorFornecedor.push({
-          fornId,
-          vunitInicial,
-          vunitFinal,
-          difal,
-          totalSemDifal,
-          totalComDifal,
-          forn
+    linhas.forEach(tr => {
+      const tds = tr.querySelectorAll('td');
+      if (tds.length === 13) {
+        state.cotacoes.push({
+          id: Date.now() + Math.random(),
+          processoId: parseInt(processoId),
+          fornecedor: tds[0].textContent,
+          codigo: tds[7].textContent,
+          descricao: tds[8].textContent,
+          unidade: tds[9].textContent,
+          qtd: parseInt(tds[10].textContent) || 0,
+          vunit: parseFloat(tds[11].textContent) || 0,
+          entrega: tds[1].textContent,
+          pagamento: tds[2].textContent,
+          frete: tds[3].textContent,
+          garantia: tds[4].textContent,
+          vigencia: tds[5].textContent,
+          nroCot: tds[6].textContent
         });
-
-        totaisPorFornecedor[fornId].inicial += vunitInicial * item.qtd;
-        totaisPorFornecedor[fornId].final += totalSemDifal;
-        totaisPorFornecedor[fornId].difal += difal * item.qtd;
       }
     });
 
-    // Encontrar menor preço
-    const menorTotal = Math.min(...precosPorFornecedor.map(p => p.totalComDifal));
+    salvar();
+    processo.status = 'Análise técnica';
+    toast('Sucesso', 'Cotações salvas');
+    document.getElementById('tabela-cotacoes').innerHTML = '<tr><td colspan="13"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma cotação processada ainda.</div></td></tr>';
+    document.getElementById('cot-textarea').value = '';
+  });
 
-    fornecedoresUnicos.forEach(fornId => {
-      const preco = precosPorFornecedor.find(p => p.fornId === fornId);
+  // ===== ANÁLISE TÉCNICA =====
+  document.getElementById('btn-gravar-ana').addEventListener('click', () => {
+    const item = document.getElementById('ana-item').value;
+    const status = document.getElementById('ana-status').value;
 
-      if (preco) {
-        const isMinor = preco.totalComDifal === menorTotal ? 'style="background: #dcfce7; font-weight: 600; color: #059669;"' : '';
-        htmlTabela += `<td ${isMinor} style="padding: 8px; border-right: 1px solid #d1d5db;">
-          <div style="font-size: 10px; margin-bottom: 3px;"><strong>Inicial:</strong> R$ ${(preco.vunitInicial * item.qtd).toFixed(2)}</div>
-          <div style="font-size: 10px; margin-bottom: 3px;"><strong>Final:</strong> R$ ${preco.totalSemDifal.toFixed(2)}</div>
-          <div style="font-size: 10px; margin-bottom: 3px;"><strong>DIFAL:</strong> R$ ${(preco.difal * item.qtd).toFixed(2)}</div>
-          <div style="font-size: 11px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 3px; margin-top: 3px;"><strong>TOTAL:</strong> R$ ${preco.totalComDifal.toFixed(2)}</div>
-        </td>`;
-      } else {
-        htmlTabela += `<td style="padding: 8px; border-right: 1px solid #d1d5db; text-align: center; color: #999;">-</td>`;
-      }
+    if (!item || !status) {
+      toast('Erro', 'Preencha os campos obrigatórios', 'error');
+      return;
+    }
+
+    state.analises.push({
+      id: Date.now(),
+      cotacaoId: parseInt(item),
+      engenheiro: document.getElementById('ana-eng').value,
+      status: status,
+      descricao: document.getElementById('ana-desc').value,
+      data: new Date().toLocaleDateString('pt-BR')
     });
 
-    htmlTabela += '</tr>';
-    numItem++;
+    salvar();
+    toast('Sucesso', 'Avaliação gravada');
+    document.getElementById('ana-item').value = '';
+    document.getElementById('ana-status').value = '— Avaliação —';
+    document.getElementById('ana-desc').value = '';
   });
 
-  htmlTabela += '</tbody></table></div>';
-  document.getElementById('equal-tabelas').innerHTML = htmlTabela;
+  // ===== EQUALIZAÇÃO =====
+  function atualizarSelectEqualizacao() {
+    const sel = document.getElementById('eq-select');
+    sel.innerHTML = '<option>Selecione um processo</option>' +
+      state.requisicoes.map(r => `<option value="${r.id}">${r.numero} — ${r.depart}</option>`).join('');
 
-  // Limpar abas
-  document.getElementById('equal-tabs').innerHTML = '';
+    sel.addEventListener('change', () => {
+      const processoId = sel.value;
+      if (!processoId) return;
 
-  // Resumo comparativo
-  let htmlResumoTotais = '<table style="width: 100%; border-collapse: collapse;"><thead style="background: #f3f4f6; border-bottom: 2px solid #1e40af;"><tr>';
-  htmlResumoTotais += '<th style="padding: 12px; text-align: left;">Fornecedor</th>';
-  htmlResumoTotais += '<th style="padding: 12px; text-align: right;">Valor Inicial</th>';
-  htmlResumoTotais += '<th style="padding: 12px; text-align: right;">Valor Final</th>';
-  htmlResumoTotais += '<th style="padding: 12px; text-align: right;">DIFAL Total</th>';
-  htmlResumoTotais += '<th style="padding: 12px; text-align: right; background: #1e40af; color: white;">TOTAL COM DIFAL</th>';
-  htmlResumoTotais += '<th style="padding: 12px; text-align: right; background: #10b981; color: white;">GANHO/ECONOMIA</th>';
-  htmlResumoTotais += '</tr></thead><tbody>';
+      const processo = state.requisicoes.find(r => r.id == processoId);
+      const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
+      const fornecedores = [...new Set(cotProc.map(c => c.fornecedor))];
 
-  let maiorTotal = Math.max(...Object.values(totaisPorFornecedor).map(t => t.final + t.difal));
+      document.getElementById('eq-processo').textContent = processo.numero + ' — ' + processo.depart;
+      document.getElementById('eq-fornecedores').textContent = fornecedores.length + ' fornecedor(es)';
+      document.getElementById('eq-rodadas').textContent = '2 rodadas (est.)';
 
-  Object.entries(totaisPorFornecedor).forEach(([fornId, dados]) => {
-    const forn = state.fornecedores.find(f => f.id === fornId);
-    if (!forn) return;
+      let html = '<table class="excel"><thead>';
+      html += '<tr><th class="sticky-col" colspan="3">Item</th>';
+      fornecedores.forEach(f => html += '<th colspan="2">' + f + '</th>');
+      html += '</tr>';
+      html += '<tr><th class="sticky-col">Cód.</th><th class="sticky-col" style="left:60px">Descrição</th><th class="sticky-col" style="left:240px">Qtd</th>';
+      fornecedores.forEach(f => html += '<th>V. Inicial</th><th>V. Final</th>');
+      html += '</tr></thead><tbody>';
 
-    const totalComDifal = dados.final + dados.difal;
-    const ganho = maiorTotal - totalComDifal;
-    const isMelhor = totalComDifal === Math.min(...Object.values(totaisPorFornecedor).map(t => t.final + t.difal));
+      const itensPorCod = {};
+      cotProc.forEach(c => {
+        if (!itensPorCod[c.codigo]) {
+          itensPorCod[c.codigo] = { desc: c.descricao, qtd: c.qtd, cotacoes: {} };
+        }
+        itensPorCod[c.codigo].cotacoes[c.fornecedor] = c.vunit;
+      });
 
-    htmlResumoTotais += `<tr style="${isMelhor ? 'background: #dcfce7; font-weight: 600;' : ''} border-bottom: 1px solid #e5e7eb;">
-      <td style="padding: 12px;"><strong>${forn.nome}</strong></td>
-      <td style="padding: 12px; text-align: right;">R$ ${dados.inicial.toFixed(2)}</td>
-      <td style="padding: 12px; text-align: right;">R$ ${dados.final.toFixed(2)}</td>
-      <td style="padding: 12px; text-align: right;">R$ ${dados.difal.toFixed(2)}</td>
-      <td style="padding: 12px; text-align: right; background: ${isMelhor ? '#1e40af' : '#e5e7eb'}; color: ${isMelhor ? 'white' : 'inherit'};"><strong>R$ ${totalComDifal.toFixed(2)}</strong></td>
-      <td style="padding: 12px; text-align: right; background: #f0fdf4;"><span style="color: #059669; font-weight: 600;">R$ ${ganho.toFixed(2)}</span></td>
-    </tr>`;
+      Object.entries(itensPorCod).forEach(([cod, item]) => {
+        html += `<tr><td class="sticky-col"><b>${cod}</b></td><td class="sticky-col" style="left:60px">${item.desc}</td><td class="sticky-col cell-num" style="left:240px">${item.qtd}</td>`;
+        fornecedores.forEach(f => {
+          const v = item.cotacoes[f] || 0;
+          html += `<td class="cell-num">${(v).toFixed(2)}</td><td class="cell-num">${(v * 0.95).toFixed(2)}</td>`;
+        });
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+      document.getElementById('eq-tabela-container').innerHTML = html;
+    });
+  }
+
+  // ===== RESUMO =====
+  function atualizarSelectResumo() {
+    const sel = document.getElementById('res-processo');
+    sel.innerHTML = '<option>Selecione…</option>' +
+      state.requisicoes.map(r => `<option value="${r.id}">${r.numero}</option>`).join('');
+
+    sel.addEventListener('change', () => {
+      const processoId = sel.value;
+      if (!processoId) return;
+
+      const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
+      const inicial = cotProc.reduce((s, c) => s + (c.qtd * c.vunit), 0);
+      const final = inicial * 0.95;
+      const saving = inicial - final;
+
+      document.getElementById('res-inicial').textContent = 'R$ ' + inicial.toFixed(2);
+      document.getElementById('res-final').textContent = 'R$ ' + final.toFixed(2);
+      document.getElementById('res-saving').textContent = 'R$ ' + saving.toFixed(2);
+      document.getElementById('res-percent').textContent = (saving / inicial * 100).toFixed(1) + '%';
+    });
+  }
+
+  // ===== CONTRATOS =====
+  function atualizarSelectContratos() {
+    const req = document.getElementById('con-req');
+    const forn = document.getElementById('con-forn');
+
+    req.innerHTML = '<option>Selecione…</option>' +
+      state.requisicoes.map(r => `<option value="${r.id}">${r.numero}</option>`).join('');
+
+    forn.innerHTML = '<option>Selecione…</option>' +
+      state.fornecedores.map(f => `<option value="${f.id}">${f.nome}</option>`).join('');
+  }
+
+  document.getElementById('btn-efetivar').addEventListener('click', () => {
+    const req = document.getElementById('con-req').value;
+    const numero = document.getElementById('con-numero').value.trim();
+    const forn = document.getElementById('con-forn').value;
+    const valor = parseFloat(document.getElementById('con-valor').value) || 0;
+
+    if (!req || !numero || !forn || !valor) {
+      toast('Erro', 'Preencha todos os campos', 'error');
+      return;
+    }
+
+    state.contratos.push({
+      id: Date.now(),
+      requisicaoId: parseInt(req),
+      numero, fornecedorId: parseInt(forn),
+      data: document.getElementById('con-data').value,
+      valor, prazo: parseInt(document.getElementById('con-prazo').value) || 0
+    });
+
+    salvar();
+    toast('Sucesso', 'Contrato efetivado');
+    document.getElementById('con-numero').value = '';
+    document.getElementById('con-valor').value = '';
+    document.getElementById('con-prazo').value = '';
   });
 
-  htmlResumoTotais += '</tbody></table>';
-  document.getElementById('equal-resumo-totais').innerHTML = htmlResumoTotais;
-
-  // Recomendação final detalhada
-  const melhorFornecedor = Object.entries(totaisPorFornecedor).reduce((best, [fornId, dados]) => {
-    const forn = state.fornecedores.find(f => f.id === fornId);
-    const totalComDifal = dados.final + dados.difal;
-    return {
-      total: totalComDifal,
-      forn,
-      fornId,
-      inicial: dados.inicial,
-      final: dados.final,
-      difal: dados.difal
-    };
-  }, { total: Infinity });
-
-  const piorTotal = Math.max(...Object.entries(totaisPorFornecedor).map(([_, d]) => d.final + d.difal));
-  const economiaAbsoluta = piorTotal - melhorFornecedor.total;
-  const economiaPercentual = ((economiaAbsoluta / piorTotal) * 100).toFixed(1);
-  const reducaoPreco = ((melhorFornecedor.inicial - melhorFornecedor.final) / melhorFornecedor.inicial * 100).toFixed(1);
-
-  let htmlRecomendacao = `<div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 20px; border-radius: 8px;">
-    <div style="font-size: 24px; font-weight: 700; margin-bottom: 15px;">✓ RECOMENDAÇÃO FINAL</div>
-
-    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 6px; margin-bottom: 15px;">
-      <div style="font-size: 20px; font-weight: 700; margin-bottom: 10px;">${melhorFornecedor.forn.nome}</div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-        <div>
-          <div style="opacity: 0.9; font-size: 12px; margin-bottom: 3px;">VALOR TOTAL</div>
-          <div style="font-size: 18px; font-weight: 700;">R$ ${melhorFornecedor.total.toFixed(2)}</div>
-        </div>
-        <div>
-          <div style="opacity: 0.9; font-size: 12px; margin-bottom: 3px;">REDUÇÃO DE PREÇO</div>
-          <div style="font-size: 18px; font-weight: 700;">${reducaoPreco}% (R$ ${(melhorFornecedor.inicial - melhorFornecedor.final).toFixed(2)})</div>
-        </div>
-        <div>
-          <div style="opacity: 0.9; font-size: 12px; margin-bottom: 3px;">DIFERENCIAL ICMS (DIFAL)</div>
-          <div style="font-size: 18px; font-weight: 700;">R$ ${melhorFornecedor.difal.toFixed(2)}</div>
-        </div>
-      </div>
-    </div>
-
-    <div style="border-top: 2px solid rgba(255,255,255,0.2); padding-top: 15px;">
-      <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">💰 ECONOMIA POTENCIAL</div>
-      <div style="font-size: 28px; font-weight: 700; color: #fbbf24; margin-bottom: 5px;">R$ ${economiaAbsoluta.toFixed(2)}</div>
-      <div style="opacity: 0.9; font-size: 13px;">Isso representa <strong>${economiaPercentual}%</strong> de economia em relação ao fornecedor mais caro</div>
-    </div>
-  </div>`;
-
-  document.getElementById('equal-recomendacao').innerHTML = htmlRecomendacao;
-}
-
-function exportarEqualizacao() {
-  alert('Função de exportação em desenvolvimento. Em breve você poderá exportar a equalização em formato Excel.');
-}
-
-// RESUMO EXECUTIVO
-function atualizarSelectResumo() {
-  const select = document.getElementById('resumo-processo');
-  select.innerHTML = '<option value="">-- Selecione --</option>' +
-    state.requisicoes.map(r => `<option value="${r.id}">${r.numero} - ${r.depart}</option>`).join('');
-}
-
-function carregarDadosResumo() {
-  const reqId = parseInt(document.getElementById('resumo-processo').value);
-  if (!reqId) {
-    document.getElementById('resumo-container').style.display = 'none';
-    return;
-  }
-
-  state.reqSelecionada = state.requisicoes.find(r => r.id === reqId);
-  document.getElementById('resumo-container').style.display = 'block';
-  renderizarResumo();
-}
-
-function renderizarResumo() {
-  if (!state.reqSelecionada) return;
-
-  document.getElementById('resumo-numero').textContent = state.reqSelecionada.numero;
-  atualizarStatusRequisicao(state.reqSelecionada.id, 'Resumo Executivo');
-
-  const cotacoes = state.cotacoes.filter(c => c.reqId === state.reqSelecionada.id);
-
-  let htmlTabela = '<table><thead><tr><th>Código</th><th>Descrição</th><th>Qtd</th><th>Fornecedor</th><th>V. Unit.</th><th>V. Total</th></tr></thead><tbody>';
-
-  cotacoes.forEach(c => {
-    const forn = state.fornecedores.find(f => f.id === c.fornId);
-    const vtotal = c.qtd * c.vunit;
-    htmlTabela += `<tr><td><strong>${c.codigo}</strong></td><td>${c.descricao}</td><td>${c.qtd}</td><td>${forn ? forn.nome : 'N/A'}</td><td>R$ ${c.vunit.toFixed(2)}</td><td>R$ ${vtotal.toFixed(2)}</td></tr>`;
+  // ===== IMPRESSÃO / EXPORTAÇÃO =====
+  document.getElementById('btn-imprimir').addEventListener('click', () => {
+    window.print();
+    toast('Sucesso', 'Abrindo impressão…');
   });
 
-  htmlTabela += '</tbody></table>';
-  document.getElementById('resumo-tabela').innerHTML = htmlTabela;
+  document.getElementById('btn-exportar').addEventListener('click', () => {
+    const processoId = document.getElementById('eq-select').value;
+    if (!processoId) {
+      toast('Erro', 'Selecione um processo', 'error');
+      return;
+    }
 
-  const subtotal = cotacoes.reduce((sum, c) => sum + (c.qtd * c.vunit), 0);
-  const difal = cotacoes.reduce((sum, c) => {
-    const forn = state.fornecedores.find(f => f.id === c.fornId);
-    return sum + (calcularDIFAL(forn ? forn.uf : 'SP', c.vunit) * c.qtd);
-  }, 0);
-  const total = subtotal + difal;
+    let csv = 'Código,Descrição,Quantidade\n';
+    const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
+    cotProc.forEach(c => {
+      csv += `"${c.codigo}","${c.descricao}",${c.qtd}\n`;
+    });
 
-  let htmlFinanceiro = `<table><tr><td style="padding: 10px;"><strong>Subtotal:</strong></td><td style="padding: 10px; text-align: right;">R$ ${subtotal.toFixed(2)}</td></tr><tr><td style="padding: 10px;"><strong>DIFAL Total:</strong></td><td style="padding: 10px; text-align: right;">R$ ${difal.toFixed(2)}</td></tr><tr style="background: #f0f0f0;"><td style="padding: 10px;"><strong>TOTAL:</strong></td><td style="padding: 10px; text-align: right;"><strong>R$ ${total.toFixed(2)}</strong></td></tr></table>`;
-
-  document.getElementById('resumo-financeiro').innerHTML = htmlFinanceiro;
-  document.getElementById('resumo-economia').innerHTML = '<div class="alert alert-info">Análise de economia baseada na equalização realizada</div>';
-}
-
-// HISTÓRICO
-function atualizarSelectHistorico() {
-  const select = document.getElementById('hist-requisicao');
-  select.innerHTML = '<option value="">-- Selecione --</option>' +
-    state.requisicoes.map(r => `<option value="${r.id}">${r.numero} - ${r.depart}</option>`).join('');
-}
-
-function atualizarDadosHistorico() {
-  const reqId = parseInt(document.getElementById('hist-requisicao').value);
-  if (!reqId) {
-    document.getElementById('hist-numero-req').value = '';
-    return;
-  }
-  const req = state.requisicoes.find(r => r.id === reqId);
-  if (req) {
-    document.getElementById('hist-numero-req').value = req.numero;
-  }
-}
-
-function salvarContrato() {
-  const reqId = parseInt(document.getElementById('hist-requisicao').value);
-  const fornecedor = document.getElementById('hist-fornecedor').value.trim();
-  const numero = document.getElementById('hist-numero').value.trim();
-  const dataContrato = document.getElementById('hist-data-contrato').value;
-  const valor = parseFloat(document.getElementById('hist-valor').value) || 0;
-  const prazo = parseInt(document.getElementById('hist-prazo').value) || 0;
-  const observacoes = document.getElementById('hist-observacoes').value.trim();
-
-  if (!reqId || !fornecedor) {
-    alert('Preencha requisição e fornecedor');
-    return;
-  }
-
-  const novoContrato = {
-    id: Date.now(),
-    reqId, fornecedor, numero, dataContrato, valor, prazo, observacoes,
-    dataCadastro: new Date().toISOString().split('T')[0]
-  };
-
-  state.contratos.push(novoContrato);
-  salvarState();
-
-  atualizarStatusRequisicao(reqId, 'Contratado');
-
-  document.getElementById('hist-requisicao').value = '';
-  document.getElementById('hist-fornecedor').value = '';
-  document.getElementById('hist-numero').value = '';
-  document.getElementById('hist-data-contrato').value = '';
-  document.getElementById('hist-valor').value = '';
-  document.getElementById('hist-prazo').value = '';
-  document.getElementById('hist-observacoes').value = '';
-
-  renderizarHistorico();
-
-  alert('✓ Contrato salvo e status atualizado para "Contratado"');
-}
-
-function renderizarHistorico() {
-  const container = document.getElementById('historico-container');
-  if (state.contratos.length === 0) {
-    container.innerHTML = '<div class="alert alert-info">Nenhum contrato registrado</div>';
-    return;
-  }
-
-  let html = '<table><thead><tr><th>Nº Requisição</th><th>Nº Contrato</th><th>Fornecedor</th><th>Valor</th><th>Prazo (dias)</th><th>Data Contrato</th><th>Data Cadastro</th><th>Ação</th></tr></thead><tbody>';
-
-  state.contratos.forEach(contrato => {
-    const req = state.requisicoes.find(r => r.id === contrato.reqId);
-    html += `<tr><td><strong>${req ? req.numero : 'N/A'}</strong></td><td>${contrato.numero}</td><td>${contrato.fornecedor}</td><td style="text-align: right;">R$ ${contrato.valor.toFixed(2)}</td><td style="text-align: center;">${contrato.prazo}</td><td>${contrato.dataContrato}</td><td>${contrato.dataCadastro}</td><td><button class="btn btn-danger btn-sm" onclick="excluirContrato(${contrato.id})">✕</button></td></tr>`;
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'equalizacao.csv';
+    a.click();
+    toast('Sucesso', 'Arquivo exportado');
   });
 
-  html += '</tbody></table>';
-  container.innerHTML = html;
-}
-
-function excluirContrato(id) {
-  if (!confirm('Excluir contrato?')) return;
-  state.contratos = state.contratos.filter(c => c.id !== id);
-  salvarState();
-  renderizarHistorico();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  renderizarRequisicoes();
-  renderizarFornecedores();
-  renderizarAnalises();
-  renderizarHistorico();
-  atualizarSelectsProcesso();
-  atualizarSelectFornecedor();
-  atualizarSelectAnalise();
-  atualizarSelectEqualizacao();
-  atualizarSelectResumo();
-  atualizarSelectHistorico();
-});
-
+  // ===== INICIALIZAR =====
+  renderRequisicoes();
 </script>
-
 </body>
 </html>
