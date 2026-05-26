@@ -511,7 +511,7 @@ table tr:hover {
       <!-- COTAÇÕES -->
       <div id="page-cotacao" class="page" style="display:none;">
         <div class="alert alert-info">
-          ℹ️ Selecione uma requisição para adicionar cotações. Você pode inserir uma a uma ou importar múltiplas do Excel.
+          ℹ️ Cole dados do Excel diretamente na tabela com Ctrl+V
         </div>
         <div class="card">
           <div class="card-header">
@@ -526,69 +526,40 @@ table tr:hover {
         </div>
 
         <div id="cotacao-container" style="display:none;">
-          <!-- IMPORTAÇÃO RÁPIDA DO EXCEL -->
           <div class="card">
             <div class="card-header">
-              <div class="card-title">📋 Importação Rápida do Excel</div>
-              <div style="font-size: 12px; color: #666; margin-top: 5px;">
-                Cole dados do Excel direto aqui. Formato esperado: Código | Descrição | Unidade | Qtd | V.Unitário | Fabricante
-              </div>
+              <div class="card-title">📋 Tabela de Cotações - Cole do Excel</div>
             </div>
-            <div class="form-group">
-              <label>Cole os dados aqui (uma linha por cotação):</label>
-              <textarea id="cotacao-import" placeholder="Código&#10;Descrição&#10;UND&#10;100&#10;50.00&#10;Fabricante&#10;&#10;Ou: CBN-001&#9;Cabo de Cobre&#9;UND&#9;100&#9;50.00&#9;ABC Inc" style="min-height: 120px; font-family: monospace; font-size: 12px;"></textarea>
+            <div style="overflow-x: auto;">
+              <table id="tabela-cotacoes-input" style="border: 2px solid #3b82f6; background: white;">
+                <thead style="background: #dbeafe; border-bottom: 2px solid #3b82f6;">
+                  <tr>
+                    <th style="padding: 8px; min-width: 80px; text-align: center; border-right: 1px solid #e5e7eb;">Fornecedor</th>
+                    <th style="padding: 8px; min-width: 80px; text-align: center; border-right: 1px solid #e5e7eb;">Entrega</th>
+                    <th style="padding: 8px; min-width: 80px; text-align: center; border-right: 1px solid #e5e7eb;">Pagamento</th>
+                    <th style="padding: 8px; min-width: 60px; text-align: center; border-right: 1px solid #e5e7eb;">Frete</th>
+                    <th style="padding: 8px; min-width: 100px; text-align: center; border-right: 1px solid #e5e7eb;">Garantia</th>
+                    <th style="padding: 8px; min-width: 100px; text-align: center; border-right: 1px solid #e5e7eb;">Vigência</th>
+                    <th style="padding: 8px; min-width: 80px; text-align: center; border-right: 1px solid #e5e7eb;">Nº Cotação</th>
+                    <th style="padding: 8px; min-width: 80px; text-align: center; border-right: 1px solid #e5e7eb;">Código</th>
+                    <th style="padding: 8px; min-width: 200px; text-align: center; border-right: 1px solid #e5e7eb;">Descrição</th>
+                    <th style="padding: 8px; min-width: 70px; text-align: center; border-right: 1px solid #e5e7eb;">Unidade</th>
+                    <th style="padding: 8px; min-width: 80px; text-align: center; border-right: 1px solid #e5e7eb;">Qtd</th>
+                    <th style="padding: 8px; min-width: 100px; text-align: center; border-right: 1px solid #e5e7eb;">Vlr Unit.</th>
+                    <th style="padding: 8px; min-width: 100px; text-align: center; border-right: 1px solid #e5e7eb;">Valor Total</th>
+                    <th style="padding: 8px; min-width: 120px; text-align: center; border-right: 1px solid #e5e7eb;">Vlr Equalizado</th>
+                    <th style="padding: 8px; min-width: 100px; text-align: center;">Fabricante</th>
+                  </tr>
+                </thead>
+                <tbody id="corpo-cotacoes">
+                </tbody>
+              </table>
             </div>
-            <div style="display: flex; gap: 10px;">
-              <button class="btn btn-primary" onclick="importarCotacoesExcel()">📥 Importar do Excel</button>
-              <button class="btn btn-secondary" onclick="limparImportacao()">Limpar</button>
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+              <button class="btn btn-primary" onclick="salvarCotacoesTabela()">✓ Salvar Cotações</button>
+              <button class="btn btn-secondary" onclick="limparTabela()">Limpar Tabela</button>
+              <button class="btn btn-secondary" onclick="adicionarLinhaTabela()">+ Nova Linha</button>
             </div>
-            <div id="import-resultado" style="margin-top: 10px;"></div>
-          </div>
-
-          <!-- ENTRADA INDIVIDUAL -->
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">Adicionar Cotação Individual</div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Fornecedor *</label>
-                <select id="cotacao-forn"></select>
-              </div>
-              <div class="form-group">
-                <label>Nº Cotação</label>
-                <input type="text" id="cotacao-numero" placeholder="INICIAL ou número">
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Código *</label>
-                <input type="text" id="cotacao-codigo" placeholder="EX: 404004">
-              </div>
-              <div class="form-group">
-                <label>Descrição *</label>
-                <input type="text" id="cotacao-descricao" placeholder="Descrição do produto">
-              </div>
-              <div class="form-group">
-                <label>Unidade</label>
-                <input type="text" id="cotacao-unidade" placeholder="UND" value="UND">
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Quantidade *</label>
-                <input type="number" id="cotacao-qtd" placeholder="0">
-              </div>
-              <div class="form-group">
-                <label>Valor Unitário *</label>
-                <input type="number" step="0.01" id="cotacao-vunit" placeholder="0.00">
-              </div>
-              <div class="form-group">
-                <label>Fabricante</label>
-                <input type="text" id="cotacao-fabricante" placeholder="Nome do fabricante">
-              </div>
-            </div>
-            <button class="btn btn-primary" onclick="salvarCotacao()">+ Adicionar Cotação</button>
           </div>
 
           <div class="card">
@@ -1023,140 +994,171 @@ function atualizarCidades() {
 }
 
 // ═════════════════════════════════════════════════════════════════
-// IMPORTAÇÃO DE COTAÇÕES DO EXCEL
+// TABELA DE COTAÇÕES INTERATIVA
 // ═════════════════════════════════════════════════════════════════
 
-function importarCotacoesExcel() {
-  if (!state.reqSelecionada) {
-    alert('Selecione uma requisição primeiro');
+function carregarDadosCotacao() {
+  const reqId = parseInt(document.getElementById('cotacao-processo').value);
+  if (!reqId) {
+    document.getElementById('cotacao-container').style.display = 'none';
     return;
   }
 
-  const texto = document.getElementById('cotacao-import').value.trim();
-  if (!texto) {
-    alert('Cole os dados do Excel no campo de texto');
-    return;
-  }
+  state.reqSelecionada = state.requisicoes.find(r => r.id === reqId);
+  document.getElementById('cotacao-container').style.display = 'block';
 
-  const fornId = parseInt(document.getElementById('cotacao-forn').value);
-  if (!fornId) {
-    alert('Selecione um fornecedor');
-    return;
-  }
+  // Inicializar tabela com 15 linhas vazias
+  gerarLinhasTabela(15);
+  renderizarListaCotacoes();
+  atualizarSelectFornecedor();
+}
 
-  // Parse dos dados
-  const linhas = texto.split('\n').filter(l => l.trim());
-  let cotacoesImportadas = 0;
-  let erros = [];
+function gerarLinhasTabela(numLinhas) {
+  const tbody = document.getElementById('corpo-cotacoes');
+  tbody.innerHTML = '';
 
-  // Detectar formato: separado por tabs ou quebra de linha (colunas em linhas)
-  const primeiraLinha = linhas[0];
-  const temTabs = primeiraLinha.includes('\t');
+  for (let i = 0; i < numLinhas; i++) {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #e5e7eb';
 
-  if (temTabs) {
-    // Formato: uma linha por cotação, colunas separadas por tabs
-    linhas.forEach((linha, idx) => {
-      const partes = linha.split('\t').map(p => p.trim());
+    const colunas = ['fornecedor', 'entrega', 'pagamento', 'frete', 'garantia', 'vigencia', 'numero', 'codigo', 'descricao', 'unidade', 'qtd', 'vunit', 'vtotal', 'vequalizado', 'fabricante'];
 
-      if (partes.length < 4) {
-        erros.push(`Linha ${idx + 1}: Dados insuficientes`);
-        return;
+    colunas.forEach((col, idx) => {
+      const td = document.createElement('td');
+      td.style.padding = '5px';
+      td.style.borderRight = idx < colunas.length - 1 ? '1px solid #e5e7eb' : 'none';
+
+      const input = document.createElement('input');
+      input.type = col === 'qtd' || col === 'vunit' ? 'number' : 'text';
+      input.step = col === 'vunit' ? '0.01' : '1';
+      input.style.width = '100%';
+      input.style.padding = '4px';
+      input.style.border = '1px solid #d1d5db';
+      input.style.borderRadius = '4px';
+      input.style.fontFamily = 'inherit';
+      input.style.fontSize = '12px';
+      input.dataset.coluna = col;
+      input.dataset.linha = i;
+
+      // Se for valor total ou equalizado, deixar readonly
+      if (col === 'vtotal' || col === 'vequalizado') {
+        input.readOnly = true;
+        input.style.background = '#f3f4f6';
       }
 
-      const [codigo, descricao, unidade, qtd, vunit, fabricante] = partes;
-
-      if (!codigo || !descricao || !qtd || !vunit) {
-        erros.push(`Linha ${idx + 1}: Campos obrigatórios faltando`);
-        return;
+      // Atualizar valor total e equalizado quando mudar qtd ou vunit
+      if (col === 'qtd' || col === 'vunit') {
+        input.addEventListener('change', () => atualizarValoresTotais(i));
       }
 
-      try {
-        const novaCotacao = {
-          id: Date.now() + Math.random(),
-          reqId: state.reqSelecionada.id,
-          fornId: fornId,
-          codigo: codigo.trim(),
-          descricao: descricao.trim(),
-          unidade: (unidade || 'UND').trim(),
-          qtd: parseInt(qtd) || 0,
-          vunit: parseFloat(vunit) || 0,
-          numero: 'IMPORTADO',
-          fabricante: (fabricante || '').trim(),
-          dataCotacao: new Date().toISOString().split('T')[0]
-        };
-
-        if (novaCotacao.qtd > 0 && novaCotacao.vunit > 0) {
-          state.cotacoes.push(novaCotacao);
-          cotacoesImportadas++;
-        } else {
-          erros.push(`Linha ${idx + 1}: Quantidade ou valor inválidos`);
-        }
-      } catch (e) {
-        erros.push(`Linha ${idx + 1}: Erro ao processar - ${e.message}`);
-      }
+      td.appendChild(input);
+      tr.appendChild(td);
     });
-  } else {
-    // Formato: dados em blocos (pode ser com quebra entre registros)
-    // Processa grupos de 6 linhas como um registro
-    for (let i = 0; i < linhas.length; i += 6) {
-      const bloco = linhas.slice(i, i + 6);
-      if (bloco.length < 4) continue;
 
-      const [codigo, descricao, unidade, qtd, vunit, fabricante] = bloco.map(l => l.trim());
+    tbody.appendChild(tr);
+  }
+}
 
-      if (!codigo || !descricao || !qtd || !vunit) continue;
+function atualizarValoresTotais(linha) {
+  const tbody = document.getElementById('corpo-cotacoes');
+  const row = tbody.rows[linha];
 
-      try {
-        const novaCotacao = {
-          id: Date.now() + Math.random(),
-          reqId: state.reqSelecionada.id,
-          fornId: fornId,
-          codigo: codigo,
-          descricao: descricao,
-          unidade: (unidade || 'UND'),
-          qtd: parseInt(qtd) || 0,
-          vunit: parseFloat(vunit) || 0,
-          numero: 'IMPORTADO',
-          fabricante: (fabricante || ''),
-          dataCotacao: new Date().toISOString().split('T')[0]
-        };
+  const qtdInput = row.querySelector('input[data-coluna="qtd"]');
+  const vunitInput = row.querySelector('input[data-coluna="vunit"]');
+  const vtotalInput = row.querySelector('input[data-coluna="vtotal"]');
+  const vequalInput = row.querySelector('input[data-coluna="vequalizado"]');
 
-        if (novaCotacao.qtd > 0 && novaCotacao.vunit > 0) {
-          state.cotacoes.push(novaCotacao);
-          cotacoesImportadas++;
-        }
-      } catch (e) {
-        // Silenciosamente ignora erros de parsing
-      }
-    }
+  const qtd = parseFloat(qtdInput.value) || 0;
+  const vunit = parseFloat(vunitInput.value) || 0;
+  const vtotal = qtd * vunit;
+
+  vtotalInput.value = vtotal > 0 ? vtotal.toFixed(2) : '';
+  vequalInput.value = vtotal > 0 ? (vtotal * 1.2).toFixed(2) : ''; // DIFAL placeholder
+}
+
+function salvarCotacoesTabela() {
+  if (!state.reqSelecionada) {
+    alert('Selecione uma requisição');
+    return;
   }
 
-  if (cotacoesImportadas === 0) {
-    document.getElementById('import-resultado').innerHTML =
-      '<div class="alert" style="background: #fee2e2; border-color: #dc2626; color: #991b1b;">❌ Nenhuma cotação importada. Verifique o formato dos dados.</div>';
+  const tbody = document.getElementById('corpo-cotacoes');
+  let cotacoesSalvas = 0;
+  let linhasVazias = 0;
+
+  Array.from(tbody.rows).forEach((row) => {
+    const inputs = row.querySelectorAll('input');
+    const dados = {};
+
+    inputs.forEach(input => {
+      dados[input.dataset.coluna] = input.value.trim();
+    });
+
+    // Verificar se a linha tem dados
+    if (!dados.codigo && !dados.descricao && !dados.qtd && !dados.vunit) {
+      linhasVazias++;
+      return;
+    }
+
+    if (!dados.codigo || !dados.descricao || !dados.qtd || !dados.vunit) {
+      alert(`Linha ${row.rowIndex}: Preencha Código, Descrição, Qtd e Vlr Unit. (obrigatórios)`);
+      return;
+    }
+
+    // Encontrar fornecedor por nome
+    let fornId = null;
+    if (dados.fornecedor) {
+      const forn = state.fornecedores.find(f => f.nome.toUpperCase() === dados.fornecedor.toUpperCase());
+      fornId = forn ? forn.id : null;
+    }
+
+    const novaCotacao = {
+      id: Date.now() + Math.random(),
+      reqId: state.reqSelecionada.id,
+      fornId: fornId,
+      codigo: dados.codigo,
+      descricao: dados.descricao,
+      unidade: dados.unidade || 'UND',
+      qtd: parseInt(dados.qtd) || 0,
+      vunit: parseFloat(dados.vunit) || 0,
+      numero: dados.numero || 'INICIAL',
+      fabricante: dados.fabricante || '',
+      entrega: dados.entrega || '',
+      pagamento: dados.pagamento || '',
+      frete: dados.frete || '',
+      garantia: dados.garantia || '',
+      vigencia: dados.vigencia || '',
+      dataCotacao: new Date().toISOString().split('T')[0]
+    };
+
+    state.cotacoes.push(novaCotacao);
+    cotacoesSalvas++;
+  });
+
+  if (cotacoesSalvas === 0) {
+    alert('Nenhuma cotação para salvar. Preencha a tabela.');
     return;
   }
 
   salvarState();
   renderizarListaCotacoes();
 
-  let msg = `<div class="alert" style="background: #f0fdf4; border-color: #10b981; color: #059669;">✓ ${cotacoesImportadas} cotação(ões) importada(s) com sucesso!</div>`;
-  if (erros.length > 0) {
-    msg += `<div class="alert" style="background: #fffbeb; border-color: #f59e0b; color: #92400e; margin-top: 10px;">⚠️ ${erros.length} linha(s) com aviso:<br><small>${erros.join('<br>')}</small></div>`;
-  }
+  // Limpar tabela após salvar
+  gerarLinhasTabela(15);
 
-  document.getElementById('import-resultado').innerHTML = msg;
-
-  // Limpar campo após sucesso
-  setTimeout(() => {
-    document.getElementById('cotacao-import').value = '';
-    document.getElementById('import-resultado').innerHTML = '';
-  }, 3000);
+  alert(`✓ ${cotacoesSalvas} cotação(ões) salva(s) com sucesso!`);
 }
 
-function limparImportacao() {
-  document.getElementById('cotacao-import').value = '';
-  document.getElementById('import-resultado').innerHTML = '';
+function limparTabela() {
+  if (confirm('Limpar toda a tabela? Esta ação não pode ser desfeita.')) {
+    gerarLinhasTabela(15);
+  }
+}
+
+function adicionarLinhaTabela() {
+  const tbody = document.getElementById('corpo-cotacoes');
+  const numLinhas = tbody.rows.length;
+  gerarLinhasTabela(numLinhas + 5);
 }
 
 // ═════════════════════════════════════════════════════════════════
