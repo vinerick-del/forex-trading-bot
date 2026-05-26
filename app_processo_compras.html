@@ -865,7 +865,7 @@ function salvarRequisicao() {
     id: Date.now(),
     depart, solicitante, numero,
     dataCriacao: new Date().toISOString().split('T')[0],
-    status: 'Aguardando Cotação',
+    status: 'Requisição Criada',
     itens: 0
   };
 
@@ -914,8 +914,17 @@ function excluirRequisicao(id) {
 
 function atualizarSelectsProcesso() {
   const select = document.getElementById('cotacao-processo');
-  select.innerHTML = '<option value="">-- Selecione --</option>' + 
+  select.innerHTML = '<option value="">-- Selecione --</option>' +
     state.requisicoes.map(r => `<option value="${r.id}">${r.numero} - ${r.depart}</option>`).join('');
+}
+
+function atualizarStatusRequisicao(reqId, novoStatus) {
+  const req = state.requisicoes.find(r => r.id === reqId);
+  if (req) {
+    req.status = novoStatus;
+    salvarState();
+    renderizarRequisicoes();
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════
@@ -1227,6 +1236,12 @@ function salvarCotacoesTabela() {
   }
 
   salvarState();
+
+  // Atualizar status da requisição
+  if (state.reqSelecionada && cotacoesSalvas > 0) {
+    atualizarStatusRequisicao(state.reqSelecionada.id, 'Cotações Registradas');
+  }
+
   renderizarListaCotacoes();
 
   // Limpar tabela após salvar
@@ -1499,17 +1514,20 @@ function renderizarEqualizacao() {
 
   document.getElementById('equal-numero').textContent = state.reqSelecionada.numero;
 
+  // Atualizar status
+  atualizarStatusRequisicao(state.reqSelecionada.id, 'Equalizado');
+
   const cotacoes = state.cotacoes.filter(c => c.reqId === state.reqSelecionada.id);
 
-  let htmlTabela = '<table><thead><tr><th>Código</th><th>Descrição</th><th>Qtd</th>';
+  let htmlTabela = '<table><thead><tr><th style="min-width: 80px;">Código</th><th>Descrição</th><th style="min-width: 70px;">Qtd</th>';
   const fornecedoresUnicos = [...new Set(cotacoes.map(c => c.fornId))];
 
   fornecedoresUnicos.forEach(fornId => {
     const forn = state.fornecedores.find(f => f.id === fornId);
-    if (forn) htmlTabela += `<th>${forn.nome}</th>`;
+    if (forn) htmlTabela += `<th style="min-width: 120px;">${forn.nome}</th>`;
   });
 
-  htmlTabela += '<th>Melhor Preço</th></tr></thead><tbody>';
+  htmlTabela += '<th style="min-width: 100px;">Melhor Preço</th></tr></thead><tbody>';
 
   const itensPorCodigo = {};
   cotacoes.forEach(cot => {
@@ -1520,7 +1538,7 @@ function renderizarEqualizacao() {
   });
 
   Object.entries(itensPorCodigo).forEach(([codigo, item]) => {
-    htmlTabela += `<tr><td>${codigo}</td><td>${item.descricao}</td><td>${item.qtd}</td>`;
+    htmlTabela += `<tr><td><strong>${codigo}</strong></td><td>${item.descricao}</td><td>${item.qtd}</td>`;
 
     const precos = item.cotacoes.map(c => ({ fornId: c.fornId, vunit: c.vunit, vtotal: c.qtd * c.vunit }));
     const menorPreco = Math.min(...precos.map(p => p.vtotal));
@@ -1533,7 +1551,7 @@ function renderizarEqualizacao() {
         const comDifal = preco.vunit + difal;
         const totalComDifal = comDifal * item.qtd;
         const isMelhor = totalComDifal === menorPreco ? 'style="background: #dcfce7; font-weight: 600;"' : '';
-        htmlTabela += `<td ${isMelhor}>R$ ${preco.vunit.toFixed(2)} (DIFAL: R$ ${difal.toFixed(2)})</td>`;
+        htmlTabela += `<td ${isMelhor}>R$ ${preco.vunit.toFixed(2)}</td>`;
       } else {
         htmlTabela += `<td>-</td>`;
       }
@@ -1641,6 +1659,9 @@ function renderizarResumo() {
 
   document.getElementById('resumo-numero').textContent = state.reqSelecionada.numero;
 
+  // Atualizar status
+  atualizarStatusRequisicao(state.reqSelecionada.id, 'Resumo Executivo');
+
   const cotacoes = state.cotacoes.filter(c => c.reqId === state.reqSelecionada.id);
 
   let htmlTabela = '<table><thead><tr><th>Código</th><th>Descrição</th><th>Qtd</th><th>Fornecedor</th><th>V. Unit.</th><th>V. Total</th></tr></thead><tbody>';
@@ -1721,6 +1742,9 @@ function salvarContrato() {
   state.contratos.push(novoContrato);
   salvarState();
 
+  // Atualizar status da requisição
+  atualizarStatusRequisicao(reqId, 'Contratado');
+
   document.getElementById('hist-requisicao').value = '';
   document.getElementById('hist-fornecedor').value = '';
   document.getElementById('hist-numero').value = '';
@@ -1730,6 +1754,8 @@ function salvarContrato() {
   document.getElementById('hist-observacoes').value = '';
 
   renderizarHistorico();
+
+  alert('✓ Contrato salvo e status atualizado para "Contratado"');
 }
 
 function renderizarHistorico() {
