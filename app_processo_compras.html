@@ -770,7 +770,7 @@ table tr:hover {
       <!-- EQUALIZAÇÃO -->
       <div id="page-equalizacao" class="page" style="display:none;">
         <div class="alert alert-info">
-          ℹ️ Análise detalhada de fornecedores com impostos e condições comerciais
+          ℹ️ Equalização detalhada - Comparação completa de fornecedores com impostos, descontos e DIFAL
         </div>
         <div class="card">
           <div class="card-header">
@@ -787,31 +787,33 @@ table tr:hover {
         <div id="equalizacao-container" style="display:none;">
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Análise Comparativa de Preços</div>
-              <div style="font-size: 13px; color: #666; margin-top: 8px;">
-                <strong>Requisição:</strong> <span id="equal-numero" style="color: #1e40af; font-weight: bold;">-</span>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div class="card-title">PROCESSO DE CONTRATAÇÃO <span id="equal-numero" style="color: #1e40af; font-weight: bold;">-</span></div>
+                </div>
+                <div style="font-size: 12px; color: #666;">
+                  <button class="btn btn-secondary btn-sm" onclick="exportarEqualizacao()">📥 Exportar Excel</button>
+                </div>
               </div>
             </div>
-            <div id="equal-tabela"></div>
-          </div>
 
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">Análise Detalhada por Fornecedor</div>
+            <div style="margin-bottom: 20px;">
+              <div id="equal-tabs" style="display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap;"></div>
             </div>
-            <div id="equal-detalhes-forn"></div>
+
+            <div id="equal-tabelas" style="overflow-x: auto;"></div>
           </div>
 
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Resumo Financeiro por Fornecedor</div>
+              <div class="card-title">Resumo Comparativo - Totais por Fornecedor</div>
             </div>
-            <div id="equal-resumo-forn"></div>
+            <div id="equal-resumo-totais"></div>
           </div>
 
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Recomendação Equilibrada</div>
+              <div class="card-title">Recomendação Final</div>
             </div>
             <div id="equal-recomendacao"></div>
           </div>
@@ -1617,166 +1619,195 @@ function renderizarEqualizacao() {
   atualizarStatusRequisicao(state.reqSelecionada.id, 'Equalizado');
 
   const cotacoes = state.cotacoes.filter(c => c.reqId === state.reqSelecionada.id);
-
-  let htmlTabela = '<table><thead><tr><th style="min-width: 80px;">Código</th><th>Descrição</th><th style="min-width: 70px;">Qtd</th>';
-  const fornecedoresUnicos = [...new Set(cotacoes.map(c => c.fornId))];
-
-  fornecedoresUnicos.forEach(fornId => {
-    const forn = state.fornecedores.find(f => f.id === fornId);
-    if (forn) htmlTabela += `<th style="min-width: 120px;">${forn.nome}</th>`;
-  });
-
-  htmlTabela += '<th style="min-width: 100px;">Melhor Preço</th></tr></thead><tbody>';
-
+  const fornecedoresUnicos = [...new Set(cotacoes.map(c => c.fornId))].filter(f => f);
   const itensPorCodigo = {};
+
   cotacoes.forEach(cot => {
     if (!itensPorCodigo[cot.codigo]) {
-      itensPorCodigo[cot.codigo] = { descricao: cot.descricao, qtd: cot.qtd, cotacoes: [] };
+      itensPorCodigo[cot.codigo] = {
+        descricao: cot.descricao,
+        unidade: cot.unidade,
+        qtd: cot.qtd,
+        cotacoes: []
+      };
     }
     itensPorCodigo[cot.codigo].cotacoes.push(cot);
   });
 
-  Object.entries(itensPorCodigo).forEach(([codigo, item]) => {
-    htmlTabela += `<tr><td><strong>${codigo}</strong></td><td>${item.descricao}</td><td>${item.qtd}</td>`;
+  let htmlTabs = '';
+  let htmlTabelas = '';
+  let totalGeral = 0;
+  const totaisFornecedores = {};
 
-    const precos = item.cotacoes.map(c => ({ fornId: c.fornId, vunit: c.vunit, qtd: c.qtd }));
-    const menorPreco = Math.min(...precos.map(p => p.vunit * p.qtd));
-
-    fornecedoresUnicos.forEach(fornId => {
-      const preco = precos.find(p => p.fornId === fornId);
-      const forn = state.fornecedores.find(f => f.id === fornId);
-      if (preco) {
-        const totalComDifal = preco.vunit * preco.qtd;
-        const isMelhor = totalComDifal === menorPreco ? 'style="background: #dcfce7; font-weight: 600;"' : '';
-        htmlTabela += `<td ${isMelhor}>R$ ${preco.vunit.toFixed(2)}</td>`;
-      } else {
-        htmlTabela += `<td>-</td>`;
-      }
-    });
-
-    htmlTabela += `<td><strong>R$ ${menorPreco.toFixed(2)}</strong></td></tr>`;
-  });
-
-  htmlTabela += '</tbody></table>';
-  document.getElementById('equal-tabela').innerHTML = htmlTabela;
-
-  let htmlDetalhes = '';
-  fornecedoresUnicos.forEach(fornId => {
+  fornecedoresUnicos.forEach((fornId, idx) => {
     const forn = state.fornecedores.find(f => f.id === fornId);
     if (!forn) return;
 
+    const isActive = idx === 0 ? 'active' : '';
+    htmlTabs += `<button class="btn ${isActive}" style="padding: 0.5rem 1rem; border: 2px solid #d1d5db; cursor: pointer; ${isActive ? 'background: #1e40af; color: white; border-color: #1e40af;' : ''}" onclick="mostrarTabFornecedor(${fornId})">${forn.nome} (${forn.uf})</button>`;
+
     const cotacoesForn = cotacoes.filter(c => c.fornId === fornId);
-    const qtdItens = cotacoesForn.length;
-    const subtotal = cotacoesForn.reduce((sum, c) => sum + (c.qtd * c.vunit), 0);
+    const analisesForn = state.analises.filter(a => {
+      const cot = state.cotacoes.find(c => c.id === a.cotacaoId);
+      return cot && cot.fornId === fornId;
+    });
+
+    let subtotalForn = 0;
+    let htmlTabela = `<div id="tab-fornecedor-${fornId}" style="display: ${idx === 0 ? 'block' : 'none'}; margin-top: 20px;">
+      <div style="background: #f3f4f6; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+          <div><strong>ICMS:</strong> ${forn.icms}% | <strong>IPI:</strong> ${forn.ipi}</div>
+          <div><strong>PIS/COFINS:</strong> ${forn.pis}</div>
+          <div><strong>Entrega:</strong> ${cotacoesForn[0]?.entrega || '-'}</div>
+          <div><strong>Pagamento:</strong> ${cotacoesForn[0]?.pagamento || '-'}</div>
+          <div><strong>Frete:</strong> ${cotacoesForn[0]?.frete || '-'}</div>
+          <div><strong>Garantia:</strong> ${cotacoesForn[0]?.garantia || '-'}</div>
+          <div><strong>Vigência:</strong> ${cotacoesForn[0]?.vigencia || '-'}</div>
+        </div>
+      </div>
+
+      <table style="width: 100%; border-collapse: collapse; background: white; font-size: 12px;">
+        <thead style="background: #dbeafe; border-bottom: 2px solid #1e40af;">
+          <tr>
+            <th style="padding: 8px; border-right: 1px solid #e5e7eb;">Nº</th>
+            <th style="padding: 8px; border-right: 1px solid #e5e7eb;">Código</th>
+            <th style="padding: 8px; border-right: 1px solid #e5e7eb;">Descrição</th>
+            <th style="padding: 8px; text-align: center; border-right: 1px solid #e5e7eb;">UND</th>
+            <th style="padding: 8px; text-align: center; border-right: 1px solid #e5e7eb;">QTD</th>
+            <th style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">V.UNI</th>
+            <th style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">% DESC</th>
+            <th style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">DESC R$</th>
+            <th style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">V.UNI DESC</th>
+            <th style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">DIFAL</th>
+            <th style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">V.TOTAL</th>
+            <th style="padding: 8px; text-align: center; border-right: 1px solid #e5e7eb;">APROV TEC</th>
+            <th style="padding: 8px; text-align: center;">DECISÃO</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+    let numItem = 1;
+    Object.entries(itensPorCodigo).forEach(([codigo, item]) => {
+      const cotacao = item.cotacoes.find(c => c.fornId === fornId);
+      if (!cotacao) return;
+
+      const vunit = cotacao.vunit;
+      const desconto = 0; // Será preenchido pelo usuário se necessário
+      const percentDesc = desconto > 0 ? ((desconto / vunit) * 100).toFixed(1) : '0';
+      const vunitDesc = vunit - desconto;
+      const difal = calcularDIFAL(forn.uf, vunitDesc);
+      const vtotal = (vunitDesc + difal) * item.qtd;
+
+      subtotalForn += (vunitDesc * item.qtd);
+
+      const analise = analisesForn.find(a => {
+        const cot = state.cotacoes.find(c => c.id === a.cotacaoId);
+        return cot && cot.codigo === codigo;
+      });
+
+      let aprovacaoTecnica = '-';
+      let badgeClass = '';
+      if (analise) {
+        aprovacaoTecnica = analise.status === 'Aprovado' ? '✓ Aprovado' : analise.status === 'Reprovado' ? '✕ Reprovado' : '❓ Info';
+        badgeClass = analise.status === 'Aprovado' ? 'style="background: #d1fae5; color: #059669; padding: 3px 6px; border-radius: 3px; font-weight: 600; font-size: 11px;"' :
+                     analise.status === 'Reprovado' ? 'style="background: #fee2e2; color: #991b1b; padding: 3px 6px; border-radius: 3px; font-weight: 600; font-size: 11px;"' :
+                     'style="background: #fef3c7; color: #92400e; padding: 3px 6px; border-radius: 3px; font-weight: 600; font-size: 11px;"';
+      }
+
+      htmlTabela += `<tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 8px; border-right: 1px solid #e5e7eb;">${numItem}</td>
+        <td style="padding: 8px; border-right: 1px solid #e5e7eb;"><strong>${codigo}</strong></td>
+        <td style="padding: 8px; border-right: 1px solid #e5e7eb;">${item.descricao}</td>
+        <td style="padding: 8px; text-align: center; border-right: 1px solid #e5e7eb;">${item.unidade}</td>
+        <td style="padding: 8px; text-align: center; border-right: 1px solid #e5e7eb;">${item.qtd}</td>
+        <td style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">R$ ${vunit.toFixed(2)}</td>
+        <td style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">${percentDesc}%</td>
+        <td style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">R$ ${desconto.toFixed(2)}</td>
+        <td style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">R$ ${vunitDesc.toFixed(2)}</td>
+        <td style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">R$ ${(difal).toFixed(2)}</td>
+        <td style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;"><strong>R$ ${vtotal.toFixed(2)}</strong></td>
+        <td style="padding: 8px; text-align: center; border-right: 1px solid #e5e7eb;"><span ${badgeClass}>${aprovacaoTecnica}</span></td>
+        <td style="padding: 8px; text-align: center;"><input type="checkbox" class="decisao-checkbox" data-codigo="${codigo}"></td>
+      </tr>`;
+
+      numItem++;
+    });
+
     const difal = cotacoesForn.reduce((sum, c) => sum + (calcularDIFAL(forn.uf, c.vunit) * c.qtd), 0);
-    const totalComDifal = subtotal + difal;
+    const totalComDifal = subtotalForn + difal;
 
-    htmlDetalhes += `<div class="details-row">
-      <div style="margin-bottom: 10px; font-weight: 600; color: #1e40af;">${forn.nome}</div>
-      <div class="details-grid">
-        <div class="detail-item">
-          <div class="detail-label">Classificação</div>
-          <div class="detail-value">${forn.classif}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">UF</div>
-          <div class="detail-value">${forn.uf}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">ICMS</div>
-          <div class="detail-value">${forn.icms}%</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">IPI</div>
-          <div class="detail-value">${forn.ipi}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">PIS/COFINS</div>
-          <div class="detail-value">${forn.pis}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">Itens</div>
-          <div class="detail-value">${qtdItens}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">Subtotal</div>
-          <div class="detail-value" style="font-weight: 600;">R$ ${subtotal.toFixed(2)}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">DIFAL Total</div>
-          <div class="detail-value" style="font-weight: 600;">R$ ${difal.toFixed(2)}</div>
-        </div>
-      </div>
-      <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
-        <strong>Total com DIFAL: R$ ${totalComDifal.toFixed(2)}</strong>
-      </div>
+    htmlTabela += `</tbody>
+      <tfoot style="background: #f3f4f6; font-weight: 600;">
+        <tr>
+          <td colspan="5" style="padding: 10px; border-right: 1px solid #e5e7eb; text-align: right;"><strong>SUBTOTAL:</strong></td>
+          <td colspan="5" style="padding: 10px; text-align: right;"><strong>R$ ${subtotalForn.toFixed(2)}</strong></td>
+          <td style="padding: 10px; text-align: right;"><strong>R$ ${difal.toFixed(2)}</strong></td>
+          <td colspan="2" style="padding: 10px; text-align: right; background: #1e40af; color: white;"><strong>R$ ${totalComDifal.toFixed(2)}</strong></td>
+        </tr>
+      </tfoot>
+    </table>
     </div>`;
+
+    htmlTabelas += htmlTabela;
+    totaisFornecedores[fornId] = { forn, subtotal: subtotalForn, difal, total: subtotalForn + difal };
+    totalGeral += subtotalForn + difal;
   });
 
-  document.getElementById('equal-detalhes-forn').innerHTML = htmlDetalhes;
+  document.getElementById('equal-tabs').innerHTML = htmlTabs;
+  document.getElementById('equal-tabelas').innerHTML = htmlTabelas;
 
-  let htmlResumoForn = '<table><thead><tr><th>Fornecedor</th><th>Subtotal</th><th>DIFAL Total</th><th>Total</th><th>Entrega</th><th>Pagamento</th><th>Frete</th><th>Garantia</th><th>Vigência</th></tr></thead><tbody>';
+  let htmlResumoTotais = '<table style="width: 100%; border-collapse: collapse;"><thead style="background: #f3f4f6;"><tr><th style="padding: 10px; text-align: left; border-bottom: 2px solid #1e40af;">Fornecedor</th><th style="padding: 10px; text-align: right; border-bottom: 2px solid #1e40af;">Subtotal</th><th style="padding: 10px; text-align: right; border-bottom: 2px solid #1e40af;">DIFAL</th><th style="padding: 10px; text-align: right; border-bottom: 2px solid #1e40af;">TOTAL</th></tr></thead><tbody>';
 
-  fornecedoresUnicos.forEach(fornId => {
-    const forn = state.fornecedores.find(f => f.id === fornId);
-    const cotacoesForn = cotacoes.filter(c => c.fornId === fornId);
-
-    let subtotal = 0, difal = 0;
-    let entrega = '', pagamento = '', frete = '', garantia = '', vigencia = '';
-
-    cotacoesForn.forEach(c => {
-      subtotal += c.qtd * c.vunit;
-      difal += calcularDIFAL(forn.uf, c.vunit) * c.qtd;
-      if (!entrega) entrega = c.entrega;
-      if (!pagamento) pagamento = c.pagamento;
-      if (!frete) frete = c.frete;
-      if (!garantia) garantia = c.garantia;
-      if (!vigencia) vigencia = c.vigencia;
-    });
-
-    const total = subtotal + difal;
-    htmlResumoForn += `<tr><td><strong>${forn.nome}</strong></td><td>R$ ${subtotal.toFixed(2)}</td><td>R$ ${difal.toFixed(2)}</td><td><strong>R$ ${total.toFixed(2)}</strong></td><td>${entrega || '-'}</td><td>${pagamento || '-'}</td><td>${frete || '-'}</td><td>${garantia || '-'}</td><td>${vigencia || '-'}</td></tr>`;
+  Object.entries(totaisFornecedores).forEach(([fornId, dados]) => {
+    const isMelhor = dados.total === Math.min(...Object.values(totaisFornecedores).map(d => d.total)) ? 'style="background: #dcfce7; font-weight: 600;"' : '';
+    htmlResumoTotais += `<tr ${isMelhor}>
+      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>${dados.forn.nome}</strong></td>
+      <td style="padding: 10px; text-align: right; border-bottom: 1px solid #e5e7eb;">R$ ${dados.subtotal.toFixed(2)}</td>
+      <td style="padding: 10px; text-align: right; border-bottom: 1px solid #e5e7eb;">R$ ${dados.difal.toFixed(2)}</td>
+      <td style="padding: 10px; text-align: right; border-bottom: 1px solid #e5e7eb;"><strong>R$ ${dados.total.toFixed(2)}</strong></td>
+    </tr>`;
   });
 
-  htmlResumoForn += '</tbody></table>';
-  document.getElementById('equal-resumo-forn').innerHTML = htmlResumoForn;
+  htmlResumoTotais += '</tbody></table>';
+  document.getElementById('equal-resumo-totais').innerHTML = htmlResumoTotais;
 
-  let melhorFornecedor = null;
-  let menorTotal = Infinity;
+  const melhorFornecedor = Object.entries(totaisFornecedores).reduce((best, [_, dados]) =>
+    dados.total < best.total ? dados : best
+  );
 
-  fornecedoresUnicos.forEach(fornId => {
-    const forn = state.fornecedores.find(f => f.id === fornId);
-    const cotacoesForn = cotacoes.filter(c => c.fornId === fornId);
-    let total = 0;
-    cotacoesForn.forEach(c => {
-      total += c.qtd * c.vunit + (calcularDIFAL(forn.uf, c.vunit) * c.qtd);
-    });
-    if (total < menorTotal) {
-      menorTotal = total;
-      melhorFornecedor = forn;
-    }
-  });
-
-  let economia = 0;
-  const totalGeral = fornecedoresUnicos.reduce((sum, fornId) => {
-    const forn = state.fornecedores.find(f => f.id === fornId);
-    const cotacoesForn = cotacoes.filter(c => c.fornId === fornId);
-    let total = 0;
-    cotacoesForn.forEach(c => {
-      total += c.qtd * c.vunit + (calcularDIFAL(forn.uf, c.vunit) * c.qtd);
-    });
-    return sum + total;
-  }, 0);
-
-  economia = totalGeral - menorTotal;
+  const economia = totalGeral - melhorFornecedor.total;
 
   let htmlRecomendacao = `<div class="alert alert-success">
-    <strong>✓ Recomendação:</strong> ${melhorFornecedor ? melhorFornecedor.nome : 'N/A'}<br>
-    <strong>Valor Total:</strong> R$ ${menorTotal.toFixed(2)}<br>
-    <strong>Economia Potencial:</strong> R$ ${economia.toFixed(2)} (${((economia / totalGeral) * 100).toFixed(1)}%)
+    <strong>✓ RECOMENDAÇÃO FINAL:</strong> <strong style="font-size: 16px; color: #059669;">${melhorFornecedor.forn.nome}</strong><br><br>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 10px;">
+      <div><strong>Valor Total Recomendado:</strong> R$ ${melhorFornecedor.total.toFixed(2)}</div>
+      <div><strong>Economia Potencial:</strong> R$ ${economia.toFixed(2)} (${((economia / totalGeral) * 100).toFixed(1)}%)</div>
+    </div>
   </div>`;
 
   document.getElementById('equal-recomendacao').innerHTML = htmlRecomendacao;
+}
+
+function mostrarTabFornecedor(fornId) {
+  const fornecedoresUnicos = [...new Set(state.cotacoes.map(c => c.fornId))].filter(f => f);
+  fornecedoresUnicos.forEach(fId => {
+    const tab = document.getElementById(`tab-fornecedor-${fId}`);
+    if (tab) tab.style.display = fId === fornId ? 'block' : 'none';
+  });
+
+  document.querySelectorAll('#equal-tabs button').forEach(btn => {
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.borderColor = '#d1d5db';
+  });
+
+  event.target.style.background = '#1e40af';
+  event.target.style.color = 'white';
+  event.target.style.borderColor = '#1e40af';
+}
+
+function exportarEqualizacao() {
+  alert('Função de exportação em desenvolvimento. Em breve você poderá exportar a equalização em formato Excel.');
 }
 
 // RESUMO EXECUTIVO
