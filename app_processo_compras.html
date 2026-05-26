@@ -245,6 +245,20 @@ table {
   border-collapse: collapse;
   background: white;
   margin-top: 1rem;
+  font-size: 13px;
+}
+
+table td, table th {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#lista-cotacoes table,
+#lista-analise-tecnica table,
+#historico-container table {
+  font-size: 12px;
+  overflow-x: auto;
 }
 
 table thead {
@@ -665,6 +679,9 @@ table tr:hover {
           <div class="card">
             <div class="card-header">
               <div class="card-title">Análise Comparativa de Preços</div>
+              <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                <strong>Requisição:</strong> <span id="equal-numero"></span>
+              </div>
             </div>
             <div id="equal-tabela"></div>
           </div>
@@ -703,6 +720,9 @@ table tr:hover {
           <div class="card">
             <div class="card-header">
               <div class="card-title">Cotações Selecionadas para Contratação</div>
+              <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                <strong>Requisição:</strong> <span id="resumo-numero"></span>
+              </div>
             </div>
             <div id="resumo-tabela"></div>
           </div>
@@ -732,19 +752,24 @@ table tr:hover {
           <div class="form-row">
             <div class="form-group">
               <label>Requisição *</label>
-              <select id="hist-requisicao">
+              <select id="hist-requisicao" onchange="atualizarDadosHistorico()">
                 <option value="">-- Selecione --</option>
               </select>
             </div>
             <div class="form-group">
-              <label>Fornecedor Selecionado *</label>
-              <input type="text" id="hist-fornecedor" placeholder="Nome do fornecedor">
+              <label>Nº da Requisição</label>
+              <input type="text" id="hist-numero-req" readonly style="background: #f0f0f0;">
             </div>
             <div class="form-group">
-              <label>Nº Contrato</label>
+              <label>Nº Contrato *</label>
               <input type="text" id="hist-numero" placeholder="Ex: CT-001/2026">
             </div>
           </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fornecedor Selecionado *</label>
+              <input type="text" id="hist-fornecedor" placeholder="Nome do fornecedor">
+            </div>
           <div class="form-row">
             <div class="form-group">
               <label>Data Contrato</label>
@@ -1046,18 +1071,21 @@ function renderizarListaCotacoes() {
     return;
   }
 
-  let html = '<table><thead><tr><th>Código</th><th>Descrição</th><th>Qtd</th><th>Fornecedor</th><th>V. Unit.</th><th>V. Total</th><th>Ação</th></tr></thead><tbody>';
-  
+  let html = '<table><thead><tr><th>Código</th><th>Descrição</th><th>Unidade</th><th>Qtd</th><th>Fornecedor</th><th>V. Unitário</th><th>V. Total</th><th>Fabricante</th><th>Nº Cotação</th><th>Ação</th></tr></thead><tbody>';
+
   cotacoes.forEach(cot => {
     const forn = state.fornecedores.find(f => f.id === cot.fornId);
     const vtotal = cot.qtd * cot.vunit;
     html += `<tr>
-      <td>${cot.codigo}</td>
+      <td><strong>${cot.codigo}</strong></td>
       <td>${cot.descricao}</td>
-      <td>${cot.qtd}</td>
+      <td>${cot.unidade}</td>
+      <td style="text-align: center;">${cot.qtd}</td>
       <td>${forn ? forn.nome : 'Indefinido'}</td>
-      <td>R$ ${cot.vunit.toFixed(2)}</td>
-      <td>R$ ${vtotal.toFixed(2)}</td>
+      <td style="text-align: right;">R$ ${cot.vunit.toFixed(2)}</td>
+      <td style="text-align: right;"><strong>R$ ${vtotal.toFixed(2)}</strong></td>
+      <td>${cot.fabricante || '-'}</td>
+      <td>${cot.numero}</td>
       <td><button class="btn btn-danger btn-sm" onclick="excluirCotacao(${cot.id})">✕</button></td>
     </tr>`;
   });
@@ -1080,7 +1108,11 @@ function excluirCotacao(id) {
 function atualizarSelectAnalise() {
   const select = document.getElementById('analise-codigo');
   select.innerHTML = '<option value="">-- Selecione --</option>' +
-    state.cotacoes.map(c => `<option value="${c.id}|${c.reqId}">${c.codigo} - ${c.descricao}</option>`).join('');
+    state.cotacoes.map(c => {
+      const req = state.requisicoes.find(r => r.id === c.reqId);
+      const forn = state.fornecedores.find(f => f.id === c.fornId);
+      return `<option value="${c.id}|${c.reqId}">${c.codigo} - ${c.descricao} (${forn ? forn.nome : 'N/A'}, ${req ? req.numero : 'N/A'})</option>`;
+    }).join('');
 }
 
 function carregarDadosAnalise() {
@@ -1152,17 +1184,20 @@ function renderizarAnalises() {
     return;
   }
 
-  let html = '<table><thead><tr><th>Código</th><th>Descrição</th><th>Fabricante</th><th>Norma</th><th>Responsável</th><th>Data</th><th>Ação</th></tr></thead><tbody>';
+  let html = '<table><thead><tr><th>Código</th><th>Descrição</th><th>Fabricante</th><th>Modelo</th><th>Norma</th><th>Responsável</th><th>Data</th><th>Parecer</th><th>Ação</th></tr></thead><tbody>';
 
   state.analises.forEach(ana => {
     const cot = state.cotacoes.find(c => c.id === ana.cotacaoId);
+    const parecer = ana.parecer.substring(0, 50) + (ana.parecer.length > 50 ? '...' : '');
     html += `<tr>
-      <td>${cot ? cot.codigo : 'N/A'}</td>
+      <td><strong>${cot ? cot.codigo : 'N/A'}</strong></td>
       <td>${cot ? cot.descricao : 'N/A'}</td>
-      <td>${ana.fabricante}</td>
-      <td>${ana.norma}</td>
-      <td>${ana.responsavel}</td>
-      <td>${ana.dataAnalise}</td>
+      <td>${ana.fabricante || '-'}</td>
+      <td>${ana.modelo || '-'}</td>
+      <td>${ana.norma || '-'}</td>
+      <td>${ana.responsavel || '-'}</td>
+      <td>${ana.dataAnalise || '-'}</td>
+      <td><small>${parecer}</small></td>
       <td><button class="btn btn-danger btn-sm" onclick="excluirAnalise(${ana.id})">✕</button></td>
     </tr>`;
   });
@@ -1216,6 +1251,8 @@ function carregarDadosEqualizacao() {
 
 function renderizarEqualizacao() {
   if (!state.reqSelecionada) return;
+
+  document.getElementById('equal-numero').textContent = state.reqSelecionada.numero;
 
   const cotacoes = state.cotacoes.filter(c => c.reqId === state.reqSelecionada.id);
 
@@ -1357,6 +1394,8 @@ function carregarDadosResumo() {
 function renderizarResumo() {
   if (!state.reqSelecionada) return;
 
+  document.getElementById('resumo-numero').textContent = state.reqSelecionada.numero;
+
   const cotacoes = state.cotacoes.filter(c => c.reqId === state.reqSelecionada.id);
 
   let htmlTabela = '<table><thead><tr><th>Código</th><th>Descrição</th><th>Qtd</th><th>Fornecedor</th><th>V. Unit.</th><th>V. Total</th></tr></thead><tbody>';
@@ -1402,6 +1441,18 @@ function atualizarSelectHistorico() {
     state.requisicoes.map(r => `<option value="${r.id}">${r.numero} - ${r.depart}</option>`).join('');
 }
 
+function atualizarDadosHistorico() {
+  const reqId = parseInt(document.getElementById('hist-requisicao').value);
+  if (!reqId) {
+    document.getElementById('hist-numero-req').value = '';
+    return;
+  }
+  const req = state.requisicoes.find(r => r.id === reqId);
+  if (req) {
+    document.getElementById('hist-numero-req').value = req.numero;
+  }
+}
+
 function salvarContrato() {
   const reqId = parseInt(document.getElementById('hist-requisicao').value);
   const fornecedor = document.getElementById('hist-fornecedor').value.trim();
@@ -1443,15 +1494,18 @@ function renderizarHistorico() {
     return;
   }
 
-  let html = '<table><thead><tr><th>Nº Contrato</th><th>Fornecedor</th><th>Valor</th><th>Prazo (dias)</th><th>Data</th><th>Ação</th></tr></thead><tbody>';
+  let html = '<table><thead><tr><th>Nº Requisição</th><th>Nº Contrato</th><th>Fornecedor</th><th>Valor</th><th>Prazo (dias)</th><th>Data Contrato</th><th>Data Cadastro</th><th>Ação</th></tr></thead><tbody>';
 
   state.contratos.forEach(contrato => {
+    const req = state.requisicoes.find(r => r.id === contrato.reqId);
     html += `<tr>
+      <td><strong>${req ? req.numero : 'N/A'}</strong></td>
       <td>${contrato.numero}</td>
       <td>${contrato.fornecedor}</td>
-      <td>R$ ${contrato.valor.toFixed(2)}</td>
-      <td>${contrato.prazo}</td>
+      <td style="text-align: right;">R$ ${contrato.valor.toFixed(2)}</td>
+      <td style="text-align: center;">${contrato.prazo}</td>
       <td>${contrato.dataContrato}</td>
+      <td>${contrato.dataCadastro}</td>
       <td><button class="btn btn-danger btn-sm" onclick="excluirContrato(${contrato.id})">✕</button></td>
     </tr>`;
   });
