@@ -530,6 +530,8 @@ table tr:hover {
             <div class="card-header">
               <div class="card-title">📋 Tabela de Cotações - Cole do Excel</div>
             </div>
+            <!-- Textarea invisível para capturar paste -->
+            <textarea id="paste-helper" style="position: absolute; left: -9999px; width: 1px; height: 1px;"></textarea>
             <div style="overflow-x: auto;">
               <table id="tabela-cotacoes-input" style="border: 2px solid #3b82f6; background: white;">
                 <thead style="background: #dbeafe; border-bottom: 2px solid #3b82f6;">
@@ -994,6 +996,51 @@ function atualizarCidades() {
 }
 
 // ═════════════════════════════════════════════════════════════════
+// PROCESSAR PASTE NA TABELA
+// ═════════════════════════════════════════════════════════════════
+
+function processarPaste(clipboardData, linhaInicio, colunaInicio, tbody) {
+  const linhas = clipboardData.split('\n').filter(l => l.trim());
+
+  if (linhas.length === 0) return;
+
+  const colunasNomes = ['fornecedor', 'entrega', 'pagamento', 'frete', 'garantia', 'vigencia', 'numero', 'codigo', 'descricao', 'unidade', 'qtd', 'vunit', 'vtotal', 'vequalizado', 'fabricante'];
+
+  // Processar cada linha do clipboard
+  linhas.forEach((linhaTexto, idxLinha) => {
+    const linhaAtual = linhaInicio + idxLinha;
+
+    // Expandir tabela se necessário
+    while (linhaAtual >= tbody.rows.length) {
+      gerarLinhasTabela(tbody.rows.length + 5);
+    }
+
+    const row = tbody.rows[linhaAtual];
+    const valores = linhaTexto.split('\t');
+
+    // Distribuir valores nas colunas
+    valores.forEach((valor, idxCol) => {
+      const colunaAtual = colunaInicio + idxCol;
+
+      if (colunaAtual < row.children.length) {
+        const td = row.children[colunaAtual];
+        const input = td.querySelector('input');
+
+        if (input && !input.readOnly) {
+          input.value = valor.trim();
+
+          // Recalcular totais se foi alterado qtd ou vunit
+          const colunaInput = colunasNomes[colunaAtual];
+          if (colunaInput === 'qtd' || colunaInput === 'vunit') {
+            atualizarValoresTotais(linhaAtual);
+          }
+        }
+      }
+    });
+  });
+}
+
+// ═════════════════════════════════════════════════════════════════
 // TABELA DE COTAÇÕES INTERATIVA
 // ═════════════════════════════════════════════════════════════════
 
@@ -1051,68 +1098,18 @@ function gerarLinhasTabela(numLinhas) {
         input.addEventListener('change', () => atualizarValoresTotais(i));
       }
 
+      // Quando input recebe focus, armazena a posição para paste
+      input.addEventListener('focus', () => {
+        input.dataset.linhaFoco = i;
+        const colunasLista = ['fornecedor', 'entrega', 'pagamento', 'frete', 'garantia', 'vigencia', 'numero', 'codigo', 'descricao', 'unidade', 'qtd', 'vunit', 'vtotal', 'vequalizado', 'fabricante'];
+        input.dataset.colunaFoco = colunasLista.indexOf(col);
+      });
+
       // Handler para paste inteligente
       input.addEventListener('paste', (e) => {
         e.preventDefault();
         const clipboardData = e.clipboardData.getData('text');
-
-        // Parse do conteúdo colado
-        const linhas = clipboardData.split('\n').filter(l => l.trim());
-
-        if (linhas.length === 0) return;
-
-        // Verificar se é múltiplas linhas com múltiplas colunas
-        const primeiraLinha = linhas[0].split('\t');
-
-        if (primeiraLinha.length > 1) {
-          // Múltiplas colunas - distribuir em grid
-          let linhaAtual = parseInt(input.dataset.linha);
-          const colunaAtual = parseInt(Array.from(input.parentElement.parentElement.children).indexOf(input.parentElement));
-
-          linhas.forEach((linha, idxLinha) => {
-            const colunas = linha.split('\t');
-
-            if (linhaAtual >= tbody.rows.length) {
-              gerarLinhasTabela(tbody.rows.length + 5);
-            }
-
-            colunas.forEach((valor, idxCol) => {
-              const colIdx = colunaAtual + idxCol;
-              const row = tbody.rows[linhaAtual];
-
-              if (row && colIdx < row.children.length) {
-                const inp = row.children[colIdx].querySelector('input');
-                if (inp && !inp.readOnly) {
-                  inp.value = valor.trim();
-                  inp.dispatchEvent(new Event('change'));
-                }
-              }
-            });
-
-            linhaAtual++;
-          });
-        } else {
-          // Apenas uma coluna - preencher verticalmente
-          let linhaAtual = parseInt(input.dataset.linha);
-          const colIndex = Array.from(input.parentElement.parentElement.children).indexOf(input.parentElement);
-
-          linhas.forEach((valor) => {
-            if (linhaAtual >= tbody.rows.length) {
-              gerarLinhasTabela(tbody.rows.length + 5);
-            }
-
-            const row = tbody.rows[linhaAtual];
-            if (row && colIndex < row.children.length) {
-              const inp = row.children[colIndex].querySelector('input');
-              if (inp && !inp.readOnly) {
-                inp.value = valor.trim();
-                inp.dispatchEvent(new Event('change'));
-              }
-            }
-
-            linhaAtual++;
-          });
-        }
+        processarPaste(clipboardData, i, col, tbody);
       });
 
       td.appendChild(input);
