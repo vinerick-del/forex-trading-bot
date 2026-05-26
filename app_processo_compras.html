@@ -1634,176 +1634,177 @@ function renderizarEqualizacao() {
     itensPorCodigo[cot.codigo].cotacoes.push(cot);
   });
 
-  let htmlTabs = '';
-  let htmlTabelas = '';
-  let totalGeral = 0;
-  const totaisFornecedores = {};
+  // Tabela comparativa com TODOS os fornecedores
+  let htmlTabela = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; background: white; font-size: 11px;">';
 
-  fornecedoresUnicos.forEach((fornId, idx) => {
+  // Cabeçalhos
+  htmlTabela += '<thead style="background: #1e40af; color: white; position: sticky; top: 0;"><tr>';
+  htmlTabela += '<th style="padding: 10px; text-align: left; border-right: 1px solid #d1d5db;">Nº</th>';
+  htmlTabela += '<th style="padding: 10px; text-align: left; border-right: 1px solid #d1d5db;">Código</th>';
+  htmlTabela += '<th style="padding: 10px; text-align: left; border-right: 1px solid #d1d5db;">Descrição</th>';
+  htmlTabela += '<th style="padding: 10px; text-align: center; border-right: 1px solid #d1d5db;">UND</th>';
+  htmlTabela += '<th style="padding: 10px; text-align: center; border-right: 1px solid #d1d5db;">QTD</th>';
+
+  fornecedoresUnicos.forEach(fornId => {
+    const forn = state.fornecedores.find(f => f.id === fornId);
+    if (forn) {
+      htmlTabela += `<th style="padding: 10px; text-align: center; border-right: 1px solid #d1d5db; background: #3b82f6; min-width: 200px;">${forn.nome}<br><small style="font-weight: normal; font-size: 10px;">${forn.uf} | ICMS ${forn.icms}%</small></th>`;
+    }
+  });
+
+  htmlTabela += '</tr></thead><tbody>';
+
+  let numItem = 1;
+  let totaisPorFornecedor = {};
+  fornecedoresUnicos.forEach(fornId => totaisPorFornecedor[fornId] = { inicial: 0, difal: 0, final: 0 });
+
+  Object.entries(itensPorCodigo).forEach(([codigo, item]) => {
+    htmlTabela += `<tr style="border-bottom: 1px solid #e5e7eb;">
+      <td style="padding: 8px; border-right: 1px solid #d1d5db;">${numItem}</td>
+      <td style="padding: 8px; border-right: 1px solid #d1d5db;"><strong>${codigo}</strong></td>
+      <td style="padding: 8px; border-right: 1px solid #d1d5db;">${item.descricao}</td>
+      <td style="padding: 8px; text-align: center; border-right: 1px solid #d1d5db;">${item.unidade}</td>
+      <td style="padding: 8px; text-align: center; border-right: 1px solid #d1d5db;">${item.qtd}</td>`;
+
+    // Para cada fornecedor
+    const precosPorFornecedor = [];
+    fornecedoresUnicos.forEach(fornId => {
+      const forn = state.fornecedores.find(f => f.id === fornId);
+      const cotacoesFornItem = item.cotacoes.filter(c => c.fornId === fornId);
+
+      if (cotacoesFornItem.length > 0) {
+        const vunitInicial = cotacoesFornItem[0].vunit;
+        const vunitFinal = cotacoesFornItem[cotacoesFornItem.length - 1].vunit;
+        const difal = calcularDIFAL(forn.uf, vunitFinal);
+        const totalComDifal = (vunitFinal + difal) * item.qtd;
+        const totalSemDifal = vunitFinal * item.qtd;
+
+        precosPorFornecedor.push({
+          fornId,
+          vunitInicial,
+          vunitFinal,
+          difal,
+          totalSemDifal,
+          totalComDifal,
+          forn
+        });
+
+        totaisPorFornecedor[fornId].inicial += vunitInicial * item.qtd;
+        totaisPorFornecedor[fornId].final += totalSemDifal;
+        totaisPorFornecedor[fornId].difal += difal * item.qtd;
+      }
+    });
+
+    // Encontrar menor preço
+    const menorTotal = Math.min(...precosPorFornecedor.map(p => p.totalComDifal));
+
+    fornecedoresUnicos.forEach(fornId => {
+      const preco = precosPorFornecedor.find(p => p.fornId === fornId);
+
+      if (preco) {
+        const isMinor = preco.totalComDifal === menorTotal ? 'style="background: #dcfce7; font-weight: 600; color: #059669;"' : '';
+        htmlTabela += `<td ${isMinor} style="padding: 8px; border-right: 1px solid #d1d5db;">
+          <div style="font-size: 10px; margin-bottom: 3px;"><strong>Inicial:</strong> R$ ${(preco.vunitInicial * item.qtd).toFixed(2)}</div>
+          <div style="font-size: 10px; margin-bottom: 3px;"><strong>Final:</strong> R$ ${preco.totalSemDifal.toFixed(2)}</div>
+          <div style="font-size: 10px; margin-bottom: 3px;"><strong>DIFAL:</strong> R$ ${(preco.difal * item.qtd).toFixed(2)}</div>
+          <div style="font-size: 11px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 3px; margin-top: 3px;"><strong>TOTAL:</strong> R$ ${preco.totalComDifal.toFixed(2)}</div>
+        </td>`;
+      } else {
+        htmlTabela += `<td style="padding: 8px; border-right: 1px solid #d1d5db; text-align: center; color: #999;">-</td>`;
+      }
+    });
+
+    htmlTabela += '</tr>';
+    numItem++;
+  });
+
+  htmlTabela += '</tbody></table></div>';
+  document.getElementById('equal-tabelas').innerHTML = htmlTabela;
+
+  // Limpar abas
+  document.getElementById('equal-tabs').innerHTML = '';
+
+  // Resumo comparativo
+  let htmlResumoTotais = '<table style="width: 100%; border-collapse: collapse;"><thead style="background: #f3f4f6; border-bottom: 2px solid #1e40af;"><tr>';
+  htmlResumoTotais += '<th style="padding: 12px; text-align: left;">Fornecedor</th>';
+  htmlResumoTotais += '<th style="padding: 12px; text-align: right;">Valor Inicial</th>';
+  htmlResumoTotais += '<th style="padding: 12px; text-align: right;">Valor Final</th>';
+  htmlResumoTotais += '<th style="padding: 12px; text-align: right;">DIFAL Total</th>';
+  htmlResumoTotais += '<th style="padding: 12px; text-align: right; background: #1e40af; color: white;">TOTAL COM DIFAL</th>';
+  htmlResumoTotais += '<th style="padding: 12px; text-align: right; background: #10b981; color: white;">GANHO/ECONOMIA</th>';
+  htmlResumoTotais += '</tr></thead><tbody>';
+
+  let maiorTotal = Math.max(...Object.values(totaisPorFornecedor).map(t => t.final + t.difal));
+
+  Object.entries(totaisPorFornecedor).forEach(([fornId, dados]) => {
     const forn = state.fornecedores.find(f => f.id === fornId);
     if (!forn) return;
 
-    const isActive = idx === 0 ? 'active' : '';
-    htmlTabs += `<button class="btn ${isActive}" style="padding: 0.5rem 1rem; border: 2px solid #d1d5db; cursor: pointer; ${isActive ? 'background: #1e40af; color: white; border-color: #1e40af;' : ''}" onclick="mostrarTabFornecedor(${fornId})">${forn.nome} (${forn.uf})</button>`;
+    const totalComDifal = dados.final + dados.difal;
+    const ganho = maiorTotal - totalComDifal;
+    const isMelhor = totalComDifal === Math.min(...Object.values(totaisPorFornecedor).map(t => t.final + t.difal));
 
-    const cotacoesForn = cotacoes.filter(c => c.fornId === fornId);
-    const analisesForn = state.analises.filter(a => {
-      const cot = state.cotacoes.find(c => c.id === a.cotacaoId);
-      return cot && cot.fornId === fornId;
-    });
-
-    let subtotalForn = 0;
-    let htmlTabela = `<div id="tab-fornecedor-${fornId}" style="display: ${idx === 0 ? 'block' : 'none'}; margin-top: 20px;">
-      <div style="background: #f3f4f6; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
-          <div><strong>ICMS:</strong> ${forn.icms}% | <strong>IPI:</strong> ${forn.ipi}</div>
-          <div><strong>PIS/COFINS:</strong> ${forn.pis}</div>
-          <div><strong>Entrega:</strong> ${cotacoesForn[0]?.entrega || '-'}</div>
-          <div><strong>Pagamento:</strong> ${cotacoesForn[0]?.pagamento || '-'}</div>
-          <div><strong>Frete:</strong> ${cotacoesForn[0]?.frete || '-'}</div>
-          <div><strong>Garantia:</strong> ${cotacoesForn[0]?.garantia || '-'}</div>
-          <div><strong>Vigência:</strong> ${cotacoesForn[0]?.vigencia || '-'}</div>
-        </div>
-      </div>
-
-      <table style="width: 100%; border-collapse: collapse; background: white; font-size: 12px;">
-        <thead style="background: #dbeafe; border-bottom: 2px solid #1e40af;">
-          <tr>
-            <th style="padding: 8px; border-right: 1px solid #e5e7eb;">Nº</th>
-            <th style="padding: 8px; border-right: 1px solid #e5e7eb;">Código</th>
-            <th style="padding: 8px; border-right: 1px solid #e5e7eb;">Descrição</th>
-            <th style="padding: 8px; text-align: center; border-right: 1px solid #e5e7eb;">UND</th>
-            <th style="padding: 8px; text-align: center; border-right: 1px solid #e5e7eb;">QTD</th>
-            <th style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">V.UNI</th>
-            <th style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">% DESC</th>
-            <th style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">DESC R$</th>
-            <th style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">V.UNI DESC</th>
-            <th style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">DIFAL</th>
-            <th style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">V.TOTAL</th>
-            <th style="padding: 8px; text-align: center; border-right: 1px solid #e5e7eb;">APROV TEC</th>
-            <th style="padding: 8px; text-align: center;">DECISÃO</th>
-          </tr>
-        </thead>
-        <tbody>`;
-
-    let numItem = 1;
-    Object.entries(itensPorCodigo).forEach(([codigo, item]) => {
-      const cotacao = item.cotacoes.find(c => c.fornId === fornId);
-      if (!cotacao) return;
-
-      const vunit = cotacao.vunit;
-      const desconto = 0; // Será preenchido pelo usuário se necessário
-      const percentDesc = desconto > 0 ? ((desconto / vunit) * 100).toFixed(1) : '0';
-      const vunitDesc = vunit - desconto;
-      const difal = calcularDIFAL(forn.uf, vunitDesc);
-      const vtotal = (vunitDesc + difal) * item.qtd;
-
-      subtotalForn += (vunitDesc * item.qtd);
-
-      const analise = analisesForn.find(a => {
-        const cot = state.cotacoes.find(c => c.id === a.cotacaoId);
-        return cot && cot.codigo === codigo;
-      });
-
-      let aprovacaoTecnica = '-';
-      let badgeClass = '';
-      if (analise) {
-        aprovacaoTecnica = analise.status === 'Aprovado' ? '✓ Aprovado' : analise.status === 'Reprovado' ? '✕ Reprovado' : '❓ Info';
-        badgeClass = analise.status === 'Aprovado' ? 'style="background: #d1fae5; color: #059669; padding: 3px 6px; border-radius: 3px; font-weight: 600; font-size: 11px;"' :
-                     analise.status === 'Reprovado' ? 'style="background: #fee2e2; color: #991b1b; padding: 3px 6px; border-radius: 3px; font-weight: 600; font-size: 11px;"' :
-                     'style="background: #fef3c7; color: #92400e; padding: 3px 6px; border-radius: 3px; font-weight: 600; font-size: 11px;"';
-      }
-
-      htmlTabela += `<tr style="border-bottom: 1px solid #e5e7eb;">
-        <td style="padding: 8px; border-right: 1px solid #e5e7eb;">${numItem}</td>
-        <td style="padding: 8px; border-right: 1px solid #e5e7eb;"><strong>${codigo}</strong></td>
-        <td style="padding: 8px; border-right: 1px solid #e5e7eb;">${item.descricao}</td>
-        <td style="padding: 8px; text-align: center; border-right: 1px solid #e5e7eb;">${item.unidade}</td>
-        <td style="padding: 8px; text-align: center; border-right: 1px solid #e5e7eb;">${item.qtd}</td>
-        <td style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">R$ ${vunit.toFixed(2)}</td>
-        <td style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">${percentDesc}%</td>
-        <td style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">R$ ${desconto.toFixed(2)}</td>
-        <td style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">R$ ${vunitDesc.toFixed(2)}</td>
-        <td style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;">R$ ${(difal).toFixed(2)}</td>
-        <td style="padding: 8px; text-align: right; border-right: 1px solid #e5e7eb;"><strong>R$ ${vtotal.toFixed(2)}</strong></td>
-        <td style="padding: 8px; text-align: center; border-right: 1px solid #e5e7eb;"><span ${badgeClass}>${aprovacaoTecnica}</span></td>
-        <td style="padding: 8px; text-align: center;"><input type="checkbox" class="decisao-checkbox" data-codigo="${codigo}"></td>
-      </tr>`;
-
-      numItem++;
-    });
-
-    const difal = cotacoesForn.reduce((sum, c) => sum + (calcularDIFAL(forn.uf, c.vunit) * c.qtd), 0);
-    const totalComDifal = subtotalForn + difal;
-
-    htmlTabela += `</tbody>
-      <tfoot style="background: #f3f4f6; font-weight: 600;">
-        <tr>
-          <td colspan="5" style="padding: 10px; border-right: 1px solid #e5e7eb; text-align: right;"><strong>SUBTOTAL:</strong></td>
-          <td colspan="5" style="padding: 10px; text-align: right;"><strong>R$ ${subtotalForn.toFixed(2)}</strong></td>
-          <td style="padding: 10px; text-align: right;"><strong>R$ ${difal.toFixed(2)}</strong></td>
-          <td colspan="2" style="padding: 10px; text-align: right; background: #1e40af; color: white;"><strong>R$ ${totalComDifal.toFixed(2)}</strong></td>
-        </tr>
-      </tfoot>
-    </table>
-    </div>`;
-
-    htmlTabelas += htmlTabela;
-    totaisFornecedores[fornId] = { forn, subtotal: subtotalForn, difal, total: subtotalForn + difal };
-    totalGeral += subtotalForn + difal;
-  });
-
-  document.getElementById('equal-tabs').innerHTML = htmlTabs;
-  document.getElementById('equal-tabelas').innerHTML = htmlTabelas;
-
-  let htmlResumoTotais = '<table style="width: 100%; border-collapse: collapse;"><thead style="background: #f3f4f6;"><tr><th style="padding: 10px; text-align: left; border-bottom: 2px solid #1e40af;">Fornecedor</th><th style="padding: 10px; text-align: right; border-bottom: 2px solid #1e40af;">Subtotal</th><th style="padding: 10px; text-align: right; border-bottom: 2px solid #1e40af;">DIFAL</th><th style="padding: 10px; text-align: right; border-bottom: 2px solid #1e40af;">TOTAL</th></tr></thead><tbody>';
-
-  Object.entries(totaisFornecedores).forEach(([fornId, dados]) => {
-    const isMelhor = dados.total === Math.min(...Object.values(totaisFornecedores).map(d => d.total)) ? 'style="background: #dcfce7; font-weight: 600;"' : '';
-    htmlResumoTotais += `<tr ${isMelhor}>
-      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>${dados.forn.nome}</strong></td>
-      <td style="padding: 10px; text-align: right; border-bottom: 1px solid #e5e7eb;">R$ ${dados.subtotal.toFixed(2)}</td>
-      <td style="padding: 10px; text-align: right; border-bottom: 1px solid #e5e7eb;">R$ ${dados.difal.toFixed(2)}</td>
-      <td style="padding: 10px; text-align: right; border-bottom: 1px solid #e5e7eb;"><strong>R$ ${dados.total.toFixed(2)}</strong></td>
+    htmlResumoTotais += `<tr style="${isMelhor ? 'background: #dcfce7; font-weight: 600;' : ''} border-bottom: 1px solid #e5e7eb;">
+      <td style="padding: 12px;"><strong>${forn.nome}</strong></td>
+      <td style="padding: 12px; text-align: right;">R$ ${dados.inicial.toFixed(2)}</td>
+      <td style="padding: 12px; text-align: right;">R$ ${dados.final.toFixed(2)}</td>
+      <td style="padding: 12px; text-align: right;">R$ ${dados.difal.toFixed(2)}</td>
+      <td style="padding: 12px; text-align: right; background: ${isMelhor ? '#1e40af' : '#e5e7eb'}; color: ${isMelhor ? 'white' : 'inherit'};"><strong>R$ ${totalComDifal.toFixed(2)}</strong></td>
+      <td style="padding: 12px; text-align: right; background: #f0fdf4;"><span style="color: #059669; font-weight: 600;">R$ ${ganho.toFixed(2)}</span></td>
     </tr>`;
   });
 
   htmlResumoTotais += '</tbody></table>';
   document.getElementById('equal-resumo-totais').innerHTML = htmlResumoTotais;
 
-  const melhorFornecedor = Object.entries(totaisFornecedores).reduce((best, [_, dados]) =>
-    dados.total < best.total ? dados : best
-  );
+  // Recomendação final detalhada
+  const melhorFornecedor = Object.entries(totaisPorFornecedor).reduce((best, [fornId, dados]) => {
+    const forn = state.fornecedores.find(f => f.id === fornId);
+    const totalComDifal = dados.final + dados.difal;
+    return {
+      total: totalComDifal,
+      forn,
+      fornId,
+      inicial: dados.inicial,
+      final: dados.final,
+      difal: dados.difal
+    };
+  }, { total: Infinity });
 
-  const economia = totalGeral - melhorFornecedor.total;
+  const piorTotal = Math.max(...Object.entries(totaisPorFornecedor).map(([_, d]) => d.final + d.difal));
+  const economiaAbsoluta = piorTotal - melhorFornecedor.total;
+  const economiaPercentual = ((economiaAbsoluta / piorTotal) * 100).toFixed(1);
+  const reducaoPreco = ((melhorFornecedor.inicial - melhorFornecedor.final) / melhorFornecedor.inicial * 100).toFixed(1);
 
-  let htmlRecomendacao = `<div class="alert alert-success">
-    <strong>✓ RECOMENDAÇÃO FINAL:</strong> <strong style="font-size: 16px; color: #059669;">${melhorFornecedor.forn.nome}</strong><br><br>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 10px;">
-      <div><strong>Valor Total Recomendado:</strong> R$ ${melhorFornecedor.total.toFixed(2)}</div>
-      <div><strong>Economia Potencial:</strong> R$ ${economia.toFixed(2)} (${((economia / totalGeral) * 100).toFixed(1)}%)</div>
+  let htmlRecomendacao = `<div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 20px; border-radius: 8px;">
+    <div style="font-size: 24px; font-weight: 700; margin-bottom: 15px;">✓ RECOMENDAÇÃO FINAL</div>
+
+    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+      <div style="font-size: 20px; font-weight: 700; margin-bottom: 10px;">${melhorFornecedor.forn.nome}</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <div>
+          <div style="opacity: 0.9; font-size: 12px; margin-bottom: 3px;">VALOR TOTAL</div>
+          <div style="font-size: 18px; font-weight: 700;">R$ ${melhorFornecedor.total.toFixed(2)}</div>
+        </div>
+        <div>
+          <div style="opacity: 0.9; font-size: 12px; margin-bottom: 3px;">REDUÇÃO DE PREÇO</div>
+          <div style="font-size: 18px; font-weight: 700;">${reducaoPreco}% (R$ ${(melhorFornecedor.inicial - melhorFornecedor.final).toFixed(2)})</div>
+        </div>
+        <div>
+          <div style="opacity: 0.9; font-size: 12px; margin-bottom: 3px;">DIFERENCIAL ICMS (DIFAL)</div>
+          <div style="font-size: 18px; font-weight: 700;">R$ ${melhorFornecedor.difal.toFixed(2)}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="border-top: 2px solid rgba(255,255,255,0.2); padding-top: 15px;">
+      <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">💰 ECONOMIA POTENCIAL</div>
+      <div style="font-size: 28px; font-weight: 700; color: #fbbf24; margin-bottom: 5px;">R$ ${economiaAbsoluta.toFixed(2)}</div>
+      <div style="opacity: 0.9; font-size: 13px;">Isso representa <strong>${economiaPercentual}%</strong> de economia em relação ao fornecedor mais caro</div>
     </div>
   </div>`;
 
   document.getElementById('equal-recomendacao').innerHTML = htmlRecomendacao;
-}
-
-function mostrarTabFornecedor(fornId) {
-  const fornecedoresUnicos = [...new Set(state.cotacoes.map(c => c.fornId))].filter(f => f);
-  fornecedoresUnicos.forEach(fId => {
-    const tab = document.getElementById(`tab-fornecedor-${fId}`);
-    if (tab) tab.style.display = fId === fornId ? 'block' : 'none';
-  });
-
-  document.querySelectorAll('#equal-tabs button').forEach(btn => {
-    btn.style.background = '';
-    btn.style.color = '';
-    btn.style.borderColor = '#d1d5db';
-  });
-
-  event.target.style.background = '#1e40af';
-  event.target.style.color = 'white';
-  event.target.style.borderColor = '#1e40af';
 }
 
 function exportarEqualizacao() {
