@@ -1,0 +1,124 @@
+EXEMPLO 1: Formato com Abas (recomendado - copiar direto do Excel)
+═══════════════════════════════════════════════════════════════
+
+Cole isto no campo de importação:
+
+CBN-001	Cabo de Cobre 10mm²	UND	100	50.00	ABC Inc
+TRF-001	Transformador 100kVA	UND	5	1500.00	XYZ Ltd
+DSJ-001	Disjuntor Bipolar 40A	UND	50	200.00	ABC Inc
+CAP-001	Capacitor 100µF	UND	200	12.50	Electro Corp
+
+
+EXEMPLO 2: Formato com Quebra de Linha
+═══════════════════════════════════════════════════════════════
+
+Cole isto no campo de importação:
+
+CBN-001
+Cabo de Cobre 10mm²
+UND
+100
+50.00
+ABC Inc
+
+TRF-001
+Transformador 100kVA
+UND
+5
+1500.00
+XYZ Ltd
+
+DSJ-001
+Disjuntor Bipolar 40A
+UND
+50
+200.00
+ABC Inc
+
+
+EXEMPLO 3: Dados do Excel (Copiar e Colar)
+═══════════════════════════════════════════════════════════════
+
+Abra seu Excel com os dados:
+
+┌─────────┬────────────────────────┬────────┬────┬─────────┬──────────────┐
+│ Código  │ Descrição              │ Unidade│ Qtd│ V.Unit. │ Fabricante   │
+├─────────┼────────────────────────┼────────┼────┼─────────┼──────────────┤
+│ CBN-001 │ Cabo de Cobre 10mm²    │ UND    │100 │ 50.00   │ ABC Inc      │
+│ TRF-001 │ Transformador 100kVA   │ UND    │  5 │1500.00  │ XYZ Ltd      │
+│ DSJ-001 │ Disjuntor Bipolar 40A  │ UND    │ 50 │ 200.00  │ ABC Inc      │
+└─────────┴────────────────────────┴────────┴────┴─────────┴──────────────┘
+
+Selecione do "Código" até o "Fabricante" (sem os nomes das colunas)
+Copie: Ctrl+C
+Cole no app: Ctrl+V
+Clique em "Importar do Excel"
+
+✅ Resultado: 3 cotações importadas com sucesso!
+
+
+EXEMPLO 4: Dados Simples (sem fabricante)
+═══════════════════════════════════════════════════════════════
+
+CBN-001	Cabo de Cobre	UND	100	50.00
+TRF-001	Transformador	UND	5	1500.00
+DSJ-001	Disjuntor	UND	50	200.00
+
+✅ Resultado: 3 cotações importadas (fabricante vazio)
+
+
+DICAS IMPORTANTES:
+═══════════════════════════════════════════════════════════════
+
+1. ✅ Use . (ponto) para decimais: 50.00, 1500.50
+   ❌ Não use , (vírgula): 50,00, 1500,50
+
+2. ✅ Não inclua símbolos: 50, 1500
+   ❌ Não use R$ ou símbolos: R$ 50,00
+
+3. ✅ Quantidade e Valor devem ser > 0
+   ❌ Não deixe vazio ou 0
+
+4. ✅ Código e Descrição são obrigatórios
+   ❌ Sem campos vazios nesses dois
+
+5. ✅ Copie direto do Excel usando Ctrl+C
+   ❌ Não copie com formatação especial
+
+
+EXEMPLO 5: Dados Mistos (alguns com erro)
+═══════════════════════════════════════════════════════════════
+
+CBN-001	Cabo de Cobre	UND	100	50.00	ABC Inc      ← ✅ IMPORTADO
+TRF-001	Transformador	UND	0	1500.00	XYZ Ltd      ← ❌ Qtd = 0
+DSJ-001	Disjuntor	UND	50	200.00	             ← ✅ IMPORTADO (sem fabricante)
+CAP-001	 	UND	100	50.00	Electro       ← ❌ Descrição vazia
+
+Resultado: 2 importadas, 2 com aviso
+
+
+FLUXO COMPLETO:
+═══════════════════════════════════════════════════════════════
+
+1. Prepare seus dados no Excel:
+   - Coluna A: Código (CBN-001, TRF-001, ...)
+   - Coluna B: Descrição (Cabo de Cobre, Transformador, ...)
+   - Coluna C: Unidade (UND, KG, M, ...)
+   - Coluna D: Quantidade (100, 5, 50, ...)
+   - Coluna E: Valor Unitário (50.00, 1500.00, ...)
+   - Coluna F: Fabricante (ABC Inc, XYZ Ltd, ...)
+
+2. Selecione SOMENTE os dados (sem cabeçalho)
+
+3. Copie: Ctrl+C
+
+4. No App Sistema de Compras:
+   - Clique em "💰 Cotações"
+   - Selecione uma Requisição
+   - Selecione o Fornecedor
+   - Cole: Ctrl+V no campo "Cole os dados aqui"
+   - Clique "📥 Importar do Excel"
+
+5. ✅ Pronto! As cotações aparecerão na tabela abaixo
+
+═══════════════════════════════════════════════════════════════
