@@ -528,10 +528,19 @@ table tr:hover {
         <div id="cotacao-container" style="display:none;">
           <div class="card">
             <div class="card-header">
-              <div class="card-title">📋 Tabela de Cotações - Cole do Excel</div>
+              <div class="card-title">📋 Cole os Dados do Excel Aqui</div>
             </div>
-            <!-- Textarea invisível para capturar paste -->
-            <textarea id="paste-helper" style="position: absolute; left: -9999px; width: 1px; height: 1px;"></textarea>
+            <textarea id="textarea-cotacoes" placeholder="Cole toda a tabela do Excel aqui e clique em 'Processar Dados'" style="width: 100%; min-height: 150px; padding: 10px; font-family: monospace; font-size: 12px; border: 1px solid #d1d5db; border-radius: 6px;"></textarea>
+            <div style="margin-top: 10px; display: flex; gap: 10px;">
+              <button class="btn btn-primary" onclick="processarDadosColados()">▶ Processar Dados</button>
+              <button class="btn btn-secondary" onclick="limparTextarea()">Limpar</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📋 Tabela de Cotações</div>
+            </div>
             <div style="overflow-x: auto;">
               <table id="tabela-cotacoes-input" style="border: 2px solid #3b82f6; background: white;">
                 <thead style="background: #dbeafe; border-bottom: 2px solid #3b82f6;">
@@ -996,48 +1005,59 @@ function atualizarCidades() {
 }
 
 // ═════════════════════════════════════════════════════════════════
-// PROCESSAR PASTE NA TABELA
+// PROCESSAR DADOS DO TEXTAREA
 // ═════════════════════════════════════════════════════════════════
 
-function processarPaste(clipboardData, linhaInicio, colunaInicio, tbody) {
-  const linhas = clipboardData.split('\n').filter(l => l.trim());
+function processarDadosColados() {
+  const texto = document.getElementById('textarea-cotacoes').value.trim();
 
-  if (linhas.length === 0) return;
+  if (!texto) {
+    alert('Cole os dados do Excel no textarea primeiro');
+    return;
+  }
 
-  const colunasNomes = ['fornecedor', 'entrega', 'pagamento', 'frete', 'garantia', 'vigencia', 'numero', 'codigo', 'descricao', 'unidade', 'qtd', 'vunit', 'vtotal', 'vequalizado', 'fabricante'];
+  const linhas = texto.split('\n').filter(l => l.trim());
 
-  // Processar cada linha do clipboard
+  if (linhas.length === 0) {
+    alert('Nenhuma linha encontrada');
+    return;
+  }
+
+  const tbody = document.getElementById('corpo-cotacoes');
+
+  // Limpar e gerar nova tabela com número de linhas necessárias
+  gerarLinhasTabela(linhas.length + 5);
+
+  // Processar cada linha
   linhas.forEach((linhaTexto, idxLinha) => {
-    const linhaAtual = linhaInicio + idxLinha;
+    const row = tbody.rows[idxLinha];
+    if (!row) return;
 
-    // Expandir tabela se necessário
-    while (linhaAtual >= tbody.rows.length) {
-      gerarLinhasTabela(tbody.rows.length + 5);
-    }
+    // Dividir por tab (Excel separa colunas com tab)
+    const colunas = linhaTexto.split('\t');
 
-    const row = tbody.rows[linhaAtual];
-    const valores = linhaTexto.split('\t');
-
-    // Distribuir valores nas colunas
-    valores.forEach((valor, idxCol) => {
-      const colunaAtual = colunaInicio + idxCol;
-
-      if (colunaAtual < row.children.length) {
-        const td = row.children[colunaAtual];
+    // Preencher cada coluna
+    colunas.forEach((valor, idxCol) => {
+      if (idxCol < row.children.length) {
+        const td = row.children[idxCol];
         const input = td.querySelector('input');
 
         if (input && !input.readOnly) {
           input.value = valor.trim();
-
-          // Recalcular totais se foi alterado qtd ou vunit
-          const colunaInput = colunasNomes[colunaAtual];
-          if (colunaInput === 'qtd' || colunaInput === 'vunit') {
-            atualizarValoresTotais(linhaAtual);
-          }
         }
       }
     });
+
+    // Recalcular totais dessa linha
+    atualizarValoresTotais(idxLinha);
   });
+
+  alert(`✅ ${linhas.length} linha(s) processada(s)!`);
+  document.getElementById('textarea-cotacoes').value = '';
+}
+
+function limparTextarea() {
+  document.getElementById('textarea-cotacoes').value = '';
 }
 
 // ═════════════════════════════════════════════════════════════════
@@ -1098,43 +1118,6 @@ function gerarLinhasTabela(numLinhas) {
         input.addEventListener('change', () => atualizarValoresTotais(i));
       }
 
-      // Handler para paste inteligente
-      input.addEventListener('paste', (e) => {
-        e.preventDefault();
-        const clipboardData = e.clipboardData.getData('text');
-        const linhas = clipboardData.split('\n').filter(l => l.trim());
-
-        if (linhas.length === 0) return;
-
-        // Processar cada linha copiada
-        linhas.forEach((linhaTexto, idxLinha) => {
-          const linhaAtual = i + idxLinha;
-
-          // Expandir tabela se necessário
-          while (linhaAtual >= tbody.rows.length) {
-            gerarLinhasTabela(tbody.rows.length + 5);
-          }
-
-          const row = tbody.rows[linhaAtual];
-          const colunas = linhaTexto.split('\t');
-
-          // Preenchier as colunas
-          colunas.forEach((valor, idxCol) => {
-            const colAtual = idx + idxCol;
-            if (colAtual < row.children.length) {
-              const inputAtual = row.children[colAtual].querySelector('input');
-              if (inputAtual && !inputAtual.readOnly) {
-                inputAtual.value = valor.trim();
-
-                // Recalcular se foi qtd ou vunit
-                if (col === 'qtd' || col === 'vunit') {
-                  setTimeout(() => atualizarValoresTotais(linhaAtual), 100);
-                }
-              }
-            }
-          });
-        });
-      });
 
       td.appendChild(input);
       tr.appendChild(td);
