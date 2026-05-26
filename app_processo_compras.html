@@ -1098,18 +1098,42 @@ function gerarLinhasTabela(numLinhas) {
         input.addEventListener('change', () => atualizarValoresTotais(i));
       }
 
-      // Quando input recebe focus, armazena a posição para paste
-      input.addEventListener('focus', () => {
-        input.dataset.linhaFoco = i;
-        const colunasLista = ['fornecedor', 'entrega', 'pagamento', 'frete', 'garantia', 'vigencia', 'numero', 'codigo', 'descricao', 'unidade', 'qtd', 'vunit', 'vtotal', 'vequalizado', 'fabricante'];
-        input.dataset.colunaFoco = colunasLista.indexOf(col);
-      });
-
       // Handler para paste inteligente
       input.addEventListener('paste', (e) => {
         e.preventDefault();
         const clipboardData = e.clipboardData.getData('text');
-        processarPaste(clipboardData, i, col, tbody);
+        const linhas = clipboardData.split('\n').filter(l => l.trim());
+
+        if (linhas.length === 0) return;
+
+        // Processar cada linha copiada
+        linhas.forEach((linhaTexto, idxLinha) => {
+          const linhaAtual = i + idxLinha;
+
+          // Expandir tabela se necessário
+          while (linhaAtual >= tbody.rows.length) {
+            gerarLinhasTabela(tbody.rows.length + 5);
+          }
+
+          const row = tbody.rows[linhaAtual];
+          const colunas = linhaTexto.split('\t');
+
+          // Preenchier as colunas
+          colunas.forEach((valor, idxCol) => {
+            const colAtual = idx + idxCol;
+            if (colAtual < row.children.length) {
+              const inputAtual = row.children[colAtual].querySelector('input');
+              if (inputAtual && !inputAtual.readOnly) {
+                inputAtual.value = valor.trim();
+
+                // Recalcular se foi qtd ou vunit
+                if (col === 'qtd' || col === 'vunit') {
+                  setTimeout(() => atualizarValoresTotais(linhaAtual), 100);
+                }
+              }
+            }
+          });
+        });
       });
 
       td.appendChild(input);
