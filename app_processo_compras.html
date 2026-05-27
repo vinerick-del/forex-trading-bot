@@ -3,349 +3,666 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SmartCompras — Sistema Inteligente de Compras</title>
+<title>AmbarEnergia-AM · CotaPro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.460.0/font/lucide.css">
 <style>
 /* ============================================================
-   SmartCompras — Design System v2
-   Refatorado: tokens semânticos, contraste AA, foco visível,
-   tipografia consistente, espaçamento em escala de 4px.
+   CotaPro — Futuristic Design System (Cyber / Glass)
    ============================================================ */
 *,*::before,*::after{box-sizing:border-box}
 *{margin:0;padding:0}
 html,body{height:100%}
 :root{
-  /* Brand - Cores da empresa */
-  --brand-50:#f5f6f7; --brand-100:#e8eaed; --brand-500:#6b7580;
-  --brand-600:#4a565d; --brand-700:#3a424a; --brand-900:#1a2229;
-  /* Accent - Laranja da empresa */
-  --accent:#f68b1f; --accent-light:#f9a844; --accent-dark:#e07410;
-  /* Neutrals */
-  --gray-25:#fcfcfd; --gray-50:#f9fafb; --gray-100:#f3f4f6;
-  --gray-200:#e5e7eb; --gray-300:#d1d5db; --gray-400:#9ca3af;
-  --gray-500:#6b7280; --gray-600:#4b5563; --gray-700:#374151;
-  --gray-800:#1f2937; --gray-900:#111827; --gray-950:#0b1220;
-  /* Semantic */
-  --success:#f68b1f; --success-bg:#fff8f0; --success-fg:#e07410;
-  --warning:#d97706; --warning-bg:#fffbeb; --warning-fg:#92400e;
-  --danger:#dc2626;  --danger-bg:#fef2f2;  --danger-fg:#991b1b;
-  --info:#0284c7;    --info-bg:#f0f9ff;    --info-fg:#075985;
-  /* Surfaces */
-  --bg:var(--gray-50);
-  --surface:#ffffff;
-  --surface-2:var(--gray-50);
-  --border:var(--gray-200);
-  --border-strong:var(--gray-300);
-  --text:var(--gray-900);
-  --text-muted:var(--gray-500);
-  --text-subtle:var(--gray-400);
-  /* Sidebar */
-  --side-bg:#4a565d;
-  --side-bg-2:#3a424a;
-  --side-hover:#5a6d78;
-  --side-text:#cbd5e1;
-  --side-muted:#9db3be;
-  /* Radius / shadow / motion */
-  --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:18px; --r-full:999px;
-  --shadow-xs:0 1px 2px rgba(16,24,40,.05);
-  --shadow-sm:0 1px 3px rgba(16,24,40,.08),0 1px 2px rgba(16,24,40,.04);
-  --shadow-md:0 4px 12px -2px rgba(16,24,40,.08),0 2px 4px -2px rgba(16,24,40,.04);
-  --shadow-lg:0 12px 28px -8px rgba(16,24,40,.12),0 4px 10px -4px rgba(16,24,40,.06);
-  --ring:0 0 0 4px rgba(246,139,31,.18);
-  --t-fast:120ms cubic-bezier(.2,.8,.2,1);
-  --t-base:200ms cubic-bezier(.2,.8,.2,1);
-  /* Type scale */
-  --fs-xs:.75rem; --fs-sm:.8125rem; --fs-base:.875rem;
-  --fs-md:1rem; --fs-lg:1.125rem; --fs-xl:1.375rem; --fs-2xl:1.75rem; --fs-3xl:2.25rem;
+  /* Cyber palette */
+  --bg-0:#05070d;
+  --bg-1:#0a0e1a;
+  --bg-2:#0f1525;
+  --surface:rgba(18,24,42,.72);
+  --surface-2:rgba(28,36,60,.55);
+  --surface-3:rgba(40,50,82,.45);
+  --border:rgba(120,140,200,.14);
+  --border-strong:rgba(120,140,200,.28);
+  --border-glow:rgba(246,139,31,.35);
+
+  --text:#e6ecff;
+  --text-muted:#8a96b8;
+  --text-subtle:#5c668a;
+
+  /* Neon accents - Cores da empresa */
+  --neon-orange:#f68b1f;
+  --neon-orange-2:#ff9d3d;
+  --neon-accent:#4a565d;
+  --neon-pink:#ec4899;
+  --neon-green:#22d3a4;
+  --neon-amber:#fbbf24;
+  --neon-red:#ff4d6d;
+
+  --grad-primary:linear-gradient(135deg,#f68b1f 0%,#ff9d3d 100%);
+  --grad-success:linear-gradient(135deg,#f68b1f 0%,#ff9d3d 100%);
+  --grad-warning:linear-gradient(135deg,#ff9d3d 0%,#f68b1f 100%);
+  --grad-danger:linear-gradient(135deg,#ff4d6d 0%,#f68b1f 100%);
+  --grad-surface:linear-gradient(180deg,rgba(40,50,82,.55) 0%,rgba(18,24,42,.55) 100%);
+
+  --glow-orange:0 0 24px rgba(246,139,31,.35);
+  --glow-amber:0 0 24px rgba(255,157,61,.35);
+  --glow-green:0 0 20px rgba(34,211,164,.35);
+
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:22px; --r-full:999px;
+  --shadow-xs:0 1px 2px rgba(0,0,0,.4);
+  --shadow-sm:0 4px 16px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.04);
+  --shadow-md:0 10px 30px -10px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.05);
+  --shadow-lg:0 24px 60px -20px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06);
+
+  --ring:0 0 0 3px rgba(246,139,31,.25);
+  --t-fast:140ms cubic-bezier(.2,.8,.2,1);
+  --t-base:240ms cubic-bezier(.2,.8,.2,1);
+
+  --fs-xs:.72rem; --fs-sm:.82rem; --fs-base:.9rem;
+  --fs-md:1rem; --fs-lg:1.15rem; --fs-xl:1.4rem; --fs-2xl:1.85rem; --fs-3xl:2.4rem;
 }
 html{font-size:16px}
 body{
-  font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  background:var(--bg); color:var(--text);
+  font-family:'Inter','Space Grotesk',system-ui,-apple-system,sans-serif;
+  background:var(--bg-0); color:var(--text);
   font-size:var(--fs-base); line-height:1.5;
   -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
   overflow:hidden;
+  position:relative;
 }
-:focus-visible{outline:none; box-shadow:var(--ring); border-radius:8px}
+/* Ambient cyber grid background */
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(0,229,255,.10), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(168,85,247,.12), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(236,72,153,.05), transparent 70%),
+    linear-gradient(180deg,var(--bg-0),var(--bg-1));
+}
+body::after{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.35;
+  background-image:
+    linear-gradient(rgba(120,140,200,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120,140,200,.06) 1px, transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 40%, #000 30%, transparent 80%);
+}
+
+:focus-visible{outline:none; box-shadow:var(--ring); border-radius:10px}
 button,input,select,textarea{font:inherit;color:inherit}
 i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
 
 /* ============================ LAYOUT ============================ */
-.app{display:grid;grid-template-columns:264px 1fr;height:100vh;width:100vw}
+.app{display:grid;grid-template-columns:272px 1fr;height:100vh;width:100vw;position:relative;z-index:1}
 
 /* ============================ SIDEBAR ============================ */
 .sidebar{
-  background:linear-gradient(180deg,var(--side-bg) 0%,var(--side-bg-2) 100%);
+  background:linear-gradient(180deg,rgba(10,14,26,.85) 0%,rgba(5,7,13,.92) 100%);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
   color:#fff; display:flex; flex-direction:column;
-  border-right:1px solid rgba(255,255,255,.04);
+  border-right:1px solid var(--border);
+  position:relative;
+}
+.sidebar::after{
+  content:""; position:absolute; top:0; right:0; bottom:0; width:1px;
+  background:linear-gradient(180deg, transparent, var(--neon-orange), var(--neon-orange-2), transparent);
+  opacity:.4;
 }
 .brand{
-  padding:20px 20px 16px; display:flex; align-items:center; gap:12px;
-  border-bottom:1px solid rgba(255,255,255,.06);
+  padding:22px 20px 18px; display:flex; align-items:center; gap:14px;
+  border-bottom:1px solid var(--border);
 }
 .brand-mark{
-  width:38px;height:38px;border-radius:10px;
-  background:linear-gradient(135deg,var(--brand-500),var(--brand-700));
-  display:grid;place-items:center;color:#fff;font-size:1.1rem;
-  box-shadow:0 6px 16px -4px rgba(99,102,241,.6),inset 0 1px 0 rgba(255,255,255,.2);
+  width:44px;height:44px;border-radius:12px;
+  background:var(--grad-primary);
+  display:grid;place-items:center;color:#0a0e1a;font-size:1.3rem;font-weight:700;
+  box-shadow:var(--glow-orange),inset 0 1px 0 rgba(255,255,255,.3);
+  position:relative;
 }
-.brand-name{font-weight:700;font-size:1.05rem;letter-spacing:-.01em}
-.brand-sub{font-size:var(--fs-xs);color:var(--side-muted);margin-top:2px}
+.brand-mark::before{
+  content:""; position:absolute; inset:-2px; border-radius:14px;
+  background:var(--grad-primary); z-index:-1; filter:blur(10px); opacity:.5;
+}
+.brand-name{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700;font-size:1.1rem;letter-spacing:-.01em;
+  background:linear-gradient(90deg,#fff,#8a96b8);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.brand-sub{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;color:var(--neon-orange);margin-top:3px;
+  letter-spacing:.12em;text-transform:uppercase;font-weight:600;
+}
+.brand-sub::before{content:"▸ "}
 
-.nav{flex:1;padding:14px 10px;overflow-y:auto}
-.nav-section{margin-top:14px}
+.nav{flex:1;padding:14px 12px;overflow-y:auto}
+.nav-section{margin-top:18px}
 .nav-label{
-  padding:8px 12px; font-size:.7rem; font-weight:600;
-  text-transform:uppercase; letter-spacing:.08em; color:var(--side-muted);
+  padding:8px 12px; font-size:.65rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.14em;
+  color:var(--text-subtle);
+  font-family:'JetBrains Mono',monospace;
 }
 .nav-item{
   display:flex;align-items:center;gap:12px;
-  padding:10px 12px;margin:2px 0;border-radius:8px;
-  color:var(--side-text); cursor:pointer; font-size:var(--fs-base);
-  transition:background var(--t-fast),color var(--t-fast),transform var(--t-fast);
-  position:relative;
+  padding:11px 14px;margin:3px 0;border-radius:10px;
+  color:var(--text-muted); cursor:pointer; font-size:var(--fs-sm);
+  font-weight:500;
+  transition:all var(--t-fast);
+  position:relative; overflow:hidden;
+  border:1px solid transparent;
 }
-.nav-item i{width:18px;text-align:center;color:var(--side-muted);transition:color var(--t-fast)}
-.nav-item:hover{background:var(--side-hover);color:#fff}
-.nav-item:hover i{color:#fff}
+.nav-item i{width:18px;text-align:center;color:var(--text-subtle);transition:all var(--t-fast)}
+.nav-item:hover{
+  background:var(--surface-3);color:#fff;
+  border-color:var(--border);
+}
+.nav-item:hover i{color:var(--neon-orange)}
 .nav-item.active{
-  background:linear-gradient(90deg,rgba(99,102,241,.18),rgba(99,102,241,.04));
+  background:linear-gradient(90deg,rgba(0,229,255,.12),rgba(168,85,247,.08));
   color:#fff;font-weight:600;
+  border-color:rgba(0,229,255,.25);
+  box-shadow:inset 0 0 20px rgba(0,229,255,.08);
 }
 .nav-item.active::before{
-  content:""; position:absolute; left:-10px; top:8px; bottom:8px; width:3px;
-  background:var(--brand-500); border-radius:0 3px 3px 0;
+  content:""; position:absolute; left:0; top:8px; bottom:8px; width:3px;
+  background:var(--grad-primary); border-radius:0 4px 4px 0;
+  box-shadow:var(--glow-orange);
 }
-.nav-item.active i{color:var(--brand-500)}
-.side-footer{padding:14px;border-top:1px solid rgba(255,255,255,.06);font-size:var(--fs-xs);color:var(--side-muted)}
+.nav-item.active i{color:var(--neon-orange);filter:drop-shadow(0 0 6px var(--neon-orange))}
+.side-footer{
+  padding:14px 18px;border-top:1px solid var(--border);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.68rem;color:var(--text-subtle);
+  display:flex;align-items:center;gap:8px;
+}
+.side-footer .pulse{
+  width:8px;height:8px;border-radius:50%;background:var(--neon-green);
+  box-shadow:0 0 10px var(--neon-green);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* ============================ MAIN ============================ */
-.main{display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.main{display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative}
 .topbar{
-  height:64px; background:var(--surface);
+  height:68px;
+  background:rgba(10,14,26,.6);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;
   padding:0 28px; gap:16px;
+  position:relative;
 }
-.crumbs{display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:var(--fs-sm)}
-.crumbs strong{color:var(--text);font-weight:600;font-size:var(--fs-md)}
+.topbar::after{
+  content:""; position:absolute; bottom:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg, transparent, var(--neon-orange), transparent);
+  opacity:.3;
+}
+.crumbs{display:flex;align-items:center;gap:10px;color:var(--text-muted);font-size:var(--fs-sm)}
+.crumbs strong{
+  color:#fff;font-weight:600;font-size:var(--fs-md);
+  font-family:'Space Grotesk',sans-serif;
+  letter-spacing:-.01em;
+}
 .crumbs i{font-size:.85em;color:var(--text-subtle)}
 .topbar-actions{display:flex;align-items:center;gap:10px}
 .search{
-  display:flex;align-items:center;gap:8px;background:var(--gray-100);
-  border:1px solid transparent; padding:8px 12px;border-radius:8px;
-  width:280px;transition:border-color var(--t-fast),background var(--t-fast);
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface-2);
+  border:1px solid var(--border); padding:9px 14px;border-radius:10px;
+  width:300px;transition:all var(--t-fast);
 }
-.search:focus-within{background:#fff;border-color:var(--brand-500);box-shadow:var(--ring)}
-.search input{flex:1;border:0;background:transparent;outline:none;font-size:var(--fs-sm)}
+.search:focus-within{
+  border-color:var(--neon-orange);
+  box-shadow:var(--ring),var(--glow-orange);
+  background:var(--surface);
+}
+.search input{flex:1;border:0;background:transparent;outline:none;font-size:var(--fs-sm);color:var(--text)}
+.search input::placeholder{color:var(--text-subtle)}
 .search i{color:var(--text-muted)}
 .icon-btn{
-  width:38px;height:38px;border-radius:8px;border:1px solid var(--border);
-  background:#fff;display:grid;place-items:center;cursor:pointer;color:var(--text-muted);
-  transition:background var(--t-fast),color var(--t-fast),border-color var(--t-fast);
+  width:40px;height:40px;border-radius:10px;border:1px solid var(--border);
+  background:var(--surface-2);display:grid;place-items:center;cursor:pointer;
+  color:var(--text-muted);
+  transition:all var(--t-fast);
+  position:relative;
 }
-.icon-btn:hover{background:var(--gray-100);color:var(--text)}
+.icon-btn:hover{
+  background:var(--surface);color:var(--neon-orange);
+  border-color:var(--border-glow);
+  box-shadow:var(--glow-orange);
+}
+.icon-btn .dot{
+  position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;
+  background:var(--neon-pink);box-shadow:0 0 8px var(--neon-pink);
+}
 .user-chip{
-  display:flex;align-items:center;gap:10px;padding:4px 10px 4px 4px;
+  display:flex;align-items:center;gap:10px;padding:4px 12px 4px 4px;
   border:1px solid var(--border);border-radius:var(--r-full);cursor:pointer;
-  transition:background var(--t-fast);
+  background:var(--surface-2);
+  transition:all var(--t-fast);
 }
-.user-chip:hover{background:var(--gray-100)}
+.user-chip:hover{background:var(--surface);border-color:var(--border-glow)}
 .avatar{
-  width:30px;height:30px;border-radius:50%;
-  background:linear-gradient(135deg,var(--brand-500),var(--brand-700));
-  color:#fff;display:grid;place-items:center;font-weight:700;font-size:.8rem;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--grad-primary);
+  color:#0a0e1a;display:grid;place-items:center;font-weight:700;font-size:.85rem;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3);
 }
-.user-meta{display:flex;flex-direction:column;line-height:1.1}
-.user-meta b{font-size:var(--fs-sm)}
-.user-meta span{font-size:.7rem;color:var(--text-muted)}
+.user-meta{display:flex;flex-direction:column;line-height:1.15}
+.user-meta b{font-size:var(--fs-sm);color:#fff;font-weight:600}
+.user-meta span{font-size:.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
 
-.content{flex:1;overflow-y:auto;padding:28px;background:var(--bg)}
-.content-inner{max-width:1400px;margin:0 auto}
+.content{flex:1;overflow-y:auto;padding:30px 32px;position:relative}
+.content-inner{max-width:1480px;margin:0 auto}
 
-.page{display:none;animation:fade .25s ease both}
+.page{display:none;animation:fade .35s cubic-bezier(.2,.8,.2,1) both}
 .page.active{display:block}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-.page-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:20px;flex-wrap:wrap}
-.page-title{font-size:var(--fs-2xl);font-weight:700;letter-spacing:-.02em}
-.page-desc{color:var(--text-muted);font-size:var(--fs-sm);margin-top:4px;max-width:60ch}
+.page-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.page-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:var(--fs-2xl);font-weight:700;letter-spacing:-.02em;
+  color:#fff;
+  display:flex;align-items:center;gap:14px;
+}
+.page-title::before{
+  content:""; width:4px; height:28px; border-radius:4px;
+  background:var(--grad-primary);
+  box-shadow:var(--glow-orange);
+}
+.page-desc{color:var(--text-muted);font-size:var(--fs-sm);margin-top:8px;max-width:60ch;padding-left:18px}
 
 /* ============================ CARDS / FORMS ============================ */
 .card{
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:var(--r-lg); padding:22px; margin-bottom:20px;
-  box-shadow:var(--shadow-xs);
+  background:var(--surface);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:24px; margin-bottom:20px;
+  box-shadow:var(--shadow-sm);
+  position:relative;
+}
+.card::before{
+  content:""; position:absolute; top:0; left:24px; right:24px; height:1px;
+  background:linear-gradient(90deg, transparent, var(--neon-orange), var(--neon-orange-2), transparent);
+  opacity:.4;
 }
 .card-head{
   display:flex;justify-content:space-between;align-items:center;gap:12px;
-  padding-bottom:14px;margin-bottom:18px;border-bottom:1px solid var(--border);
+  padding-bottom:16px;margin-bottom:20px;border-bottom:1px solid var(--border);
 }
-.card-title{font-weight:600;font-size:var(--fs-lg);letter-spacing:-.01em}
-.card-sub{color:var(--text-muted);font-size:var(--fs-sm);margin-top:2px}
+.card-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:600;font-size:var(--fs-lg);letter-spacing:-.01em;color:#fff;
+}
+.card-sub{color:var(--text-muted);font-size:var(--fs-sm);margin-top:3px}
 
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-.field{display:flex;flex-direction:column;gap:6px}
-.field label{font-size:var(--fs-sm);font-weight:500;color:var(--gray-700)}
-.field .hint{font-size:var(--fs-xs);color:var(--text-muted)}
-.field .req{color:var(--danger)}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{
+  font-size:.75rem;font-weight:600;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.08em;
+  font-family:'JetBrains Mono',monospace;
+}
+.field .hint{font-size:var(--fs-xs);color:var(--text-subtle)}
+.field .req{color:var(--neon-pink)}
 .input,.select,.textarea{
-  width:100%;padding:10px 12px;border:1px solid var(--border-strong);
-  border-radius:8px;background:#fff;font-size:var(--fs-base);
-  transition:border-color var(--t-fast),box-shadow var(--t-fast);
+  width:100%;padding:11px 14px;
+  border:1px solid var(--border-strong);
+  border-radius:10px;
+  background:var(--bg-1);
+  font-size:var(--fs-base);color:var(--text);
+  transition:all var(--t-fast);
 }
 .input::placeholder{color:var(--text-subtle)}
-.input:hover,.select:hover,.textarea:hover{border-color:var(--gray-400)}
-.input:focus,.select:focus,.textarea:focus{outline:none;border-color:var(--brand-500);box-shadow:var(--ring)}
-.textarea{min-height:96px;resize:vertical;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:var(--fs-sm)}
+.input:hover,.select:hover,.textarea:hover{border-color:var(--text-subtle)}
+.input:focus,.select:focus,.textarea:focus{
+  outline:none;border-color:var(--neon-orange);
+  box-shadow:var(--ring),0 0 16px rgba(0,229,255,.15);
+  background:var(--bg-2);
+}
+.select option{background:var(--bg-1);color:var(--text)}
+.textarea{min-height:108px;resize:vertical;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:var(--fs-sm)}
 
 /* ============================ BUTTONS ============================ */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  padding:10px 16px;border-radius:8px;border:1px solid transparent;
+  padding:11px 18px;border-radius:10px;border:1px solid transparent;
   font-weight:600;font-size:var(--fs-sm);cursor:pointer;
-  transition:transform var(--t-fast),background var(--t-fast),border-color var(--t-fast),box-shadow var(--t-fast);
+  font-family:'Inter',sans-serif;letter-spacing:.01em;
+  transition:all var(--t-fast);
   white-space:nowrap;
+  position:relative; overflow:hidden;
 }
 .btn:active{transform:translateY(1px)}
-.btn-primary{background:var(--brand-600);color:#fff;box-shadow:0 1px 2px rgba(79,70,229,.4)}
-.btn-primary:hover{background:var(--brand-700)}
-.btn-secondary{background:#fff;color:var(--text);border-color:var(--border-strong)}
-.btn-secondary:hover{background:var(--gray-100)}
-.btn-success{background:var(--success);color:#fff}
-.btn-success:hover{filter:brightness(.95)}
-.btn-danger{background:var(--danger);color:#fff}
-.btn-ghost{background:transparent;color:var(--text-muted)}
-.btn-ghost:hover{background:var(--gray-100);color:var(--text)}
-.btn-sm{padding:6px 10px;font-size:var(--fs-xs)}
-.btn-lg{padding:12px 20px;font-size:var(--fs-base)}
+.btn-primary{
+  background:var(--grad-primary);
+  color:#0a0e1a;font-weight:700;
+  box-shadow:0 4px 14px rgba(0,229,255,.3),inset 0 1px 0 rgba(255,255,255,.3);
+}
+.btn-primary:hover{
+  box-shadow:0 6px 20px rgba(0,229,255,.5),inset 0 1px 0 rgba(255,255,255,.3);
+  transform:translateY(-1px);
+}
+.btn-secondary{
+  background:var(--surface-2);color:var(--text);
+  border-color:var(--border-strong);
+  backdrop-filter:blur(10px);
+}
+.btn-secondary:hover{
+  background:var(--surface);
+  border-color:var(--border-glow);
+  color:#fff;
+  box-shadow:var(--glow-orange);
+}
+.btn-success{
+  background:var(--grad-success);
+  color:#0a0e1a;font-weight:700;
+  box-shadow:0 4px 14px rgba(34,211,164,.3),inset 0 1px 0 rgba(255,255,255,.3);
+}
+.btn-success:hover{box-shadow:0 6px 20px rgba(34,211,164,.5),inset 0 1px 0 rgba(255,255,255,.3);transform:translateY(-1px)}
+.btn-danger{background:var(--grad-danger);color:#fff;font-weight:700}
+.btn-ghost{background:transparent;color:var(--text-muted);border-color:transparent}
+.btn-ghost:hover{background:var(--surface-2);color:#fff}
+.btn-sm{padding:7px 12px;font-size:var(--fs-xs)}
+.btn-lg{padding:13px 22px;font-size:var(--fs-base)}
 
-/* ============================ KPI / DASH ============================ */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:24px}
+/* ============================ KPI ============================ */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-bottom:26px}
 .kpi{
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:var(--r-lg); padding:20px;position:relative;overflow:hidden;
-  box-shadow:var(--shadow-xs);transition:transform var(--t-base),box-shadow var(--t-base);
+  background:var(--surface);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:22px;position:relative;overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  transition:all var(--t-base);
 }
-.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
-.kpi-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:14px}
-.kpi-label{font-size:var(--fs-xs);font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em}
+.kpi::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--grad-primary);
+  opacity:.8;
+}
+.kpi::after{
+  content:""; position:absolute; top:-50%; right:-30%; width:200px; height:200px;
+  border-radius:50%; background:radial-gradient(circle, rgba(0,229,255,.10), transparent 70%);
+  pointer-events:none;
+}
+.kpi:hover{
+  transform:translateY(-3px);
+  box-shadow:var(--shadow-md),var(--glow-orange);
+  border-color:var(--border-glow);
+}
+.kpi-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:16px;position:relative;z-index:1}
+.kpi-label{
+  font-size:.7rem;font-weight:700;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.1em;
+  font-family:'JetBrains Mono',monospace;
+}
 .kpi-icon{
-  width:36px;height:36px;border-radius:8px;display:grid;place-items:center;
-  background:var(--brand-50);color:var(--brand-600);font-size:1rem;
+  width:42px;height:42px;border-radius:10px;display:grid;place-items:center;
+  background:rgba(0,229,255,.12);color:var(--neon-orange);font-size:1.15rem;
+  border:1px solid rgba(0,229,255,.2);
+  box-shadow:inset 0 0 20px rgba(0,229,255,.1);
 }
-.kpi-value{font-size:var(--fs-2xl);font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.kpi-foot{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:var(--fs-xs);color:var(--text-muted)}
-.kpi-foot .delta{font-weight:600}
-.delta.up{color:var(--success)} .delta.down{color:var(--danger)}
-.kpi.success .kpi-icon{background:var(--success-bg);color:var(--success-fg)}
-.kpi.warning .kpi-icon{background:var(--warning-bg);color:var(--warning-fg)}
-.kpi.info    .kpi-icon{background:var(--info-bg);color:var(--info-fg)}
+.kpi-value{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:var(--fs-2xl);font-weight:700;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;
+  color:#fff;
+  position:relative;z-index:1;
+}
+.kpi-foot{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:var(--fs-xs);color:var(--text-muted);position:relative;z-index:1}
+.kpi-foot .delta{font-weight:700;font-family:'JetBrains Mono',monospace}
+.delta.up{color:var(--neon-green);text-shadow:0 0 8px rgba(34,211,164,.4)}
+.delta.down{color:var(--neon-red);text-shadow:0 0 8px rgba(255,77,109,.4)}
+.kpi.success::before{background:var(--grad-success)}
+.kpi.success .kpi-icon{background:rgba(34,211,164,.12);color:var(--neon-green);border-color:rgba(34,211,164,.2)}
+.kpi.warning::before{background:var(--grad-warning)}
+.kpi.warning .kpi-icon{background:rgba(251,191,36,.12);color:var(--neon-amber);border-color:rgba(251,191,36,.2)}
+.kpi.info::before{background:linear-gradient(135deg,#ff9d3d,#ec4899)}
+.kpi.info .kpi-icon{background:rgba(168,85,247,.12);color:var(--neon-orange-2);border-color:rgba(168,85,247,.2)}
 
 /* ============================ TABLES ============================ */
-.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r-md);background:#fff}
+.table-wrap{
+  overflow-x:auto;
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+  background:var(--bg-1);
+}
 .table{width:100%;border-collapse:separate;border-spacing:0;font-size:var(--fs-sm)}
 .table thead th{
-  position:sticky;top:0;background:var(--gray-50);color:var(--gray-600);
-  text-align:left;font-weight:600;font-size:var(--fs-xs);
-  text-transform:uppercase;letter-spacing:.04em;
-  padding:12px 14px;border-bottom:1px solid var(--border);white-space:nowrap;
+  position:sticky;top:0;
+  background:linear-gradient(180deg,var(--bg-2),var(--bg-1));
+  color:var(--text-muted);
+  text-align:left;font-weight:700;font-size:var(--fs-xs);
+  text-transform:uppercase;letter-spacing:.08em;
+  padding:14px 16px;border-bottom:1px solid var(--border);white-space:nowrap;
+  font-family:'JetBrains Mono',monospace;
 }
-.table tbody td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+.table tbody td{padding:14px 16px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
 .table tbody tr:last-child td{border-bottom:0}
 .table tbody tr{transition:background var(--t-fast)}
-.table tbody tr:hover{background:var(--gray-50)}
-.empty{padding:48px 20px;text-align:center;color:var(--text-muted)}
-.empty i{font-size:1.8rem;display:block;margin-bottom:8px;color:var(--text-subtle)}
+.table tbody tr:hover{background:var(--surface-2)}
+.empty{padding:54px 20px;text-align:center;color:var(--text-muted)}
+.empty i{font-size:2rem;display:block;margin-bottom:10px;color:var(--text-subtle)}
 
 /* ============================ BADGES ============================ */
 .badge{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:3px 8px;border-radius:var(--r-full);
-  font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:var(--r-full);
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  font-family:'JetBrains Mono',monospace;
+  border:1px solid;
 }
-.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.7}
-.badge-success{background:var(--success-bg);color:var(--success-fg)}
-.badge-warning{background:var(--warning-bg);color:var(--warning-fg)}
-.badge-danger {background:var(--danger-bg); color:var(--danger-fg)}
-.badge-info   {background:var(--info-bg);   color:var(--info-fg)}
-.badge-neutral{background:var(--gray-100);  color:var(--gray-700)}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 6px currentColor}
+.badge-success{background:rgba(34,211,164,.1);color:var(--neon-green);border-color:rgba(34,211,164,.3)}
+.badge-warning{background:rgba(251,191,36,.1);color:var(--neon-amber);border-color:rgba(251,191,36,.3)}
+.badge-danger {background:rgba(255,77,109,.1); color:var(--neon-red);  border-color:rgba(255,77,109,.3)}
+.badge-info   {background:rgba(0,229,255,.1);  color:var(--neon-orange); border-color:rgba(0,229,255,.3)}
+.badge-violet {background:rgba(168,85,247,.1); color:var(--neon-orange-2);border-color:rgba(168,85,247,.3)}
+.badge-neutral{background:var(--surface-3);    color:var(--text-muted);border-color:var(--border)}
 
 /* ============================ EXCEL / EQUALIZAÇÃO ============================ */
-.eq-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
-.eq-meta{display:flex;align-items:center;gap:10px;font-size:var(--fs-sm);color:var(--text-muted)}
-.eq-meta b{color:var(--text)}
+.eq-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.eq-meta{display:flex;align-items:center;gap:10px;font-size:var(--fs-sm);color:var(--text-muted);flex-wrap:wrap}
+.eq-meta b{color:#fff;font-family:'Space Grotesk',sans-serif}
 .excel-wrap{
   width:100%;
-  border:1px solid var(--border-strong);border-radius:var(--r-md);background:#fff;
+  border:1px solid var(--border-strong);
+  border-radius:var(--r-md);
+  background:var(--bg-1);
+  overflow:auto;
 }
 .excel{
   width:100%;border-collapse:collapse;
-  font-family:'JetBrains Mono','Segoe UI',ui-monospace,monospace;
-  font-size:.75rem;
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:.74rem;
+  color:var(--text);
 }
-.excel th,.excel td{border:1px solid var(--gray-200);padding:8px 10px;white-space:normal;word-break:break-word}
+.excel th,.excel td{
+  border:1px solid var(--border);
+  padding:9px 11px;white-space:normal;word-break:break-word;
+}
 .excel thead tr:nth-child(1) th{
-  background:linear-gradient(180deg,#f68b1f,#f68b1f);color:#fff;font-weight:700;
-  text-transform:uppercase;letter-spacing:.04em;
+  background:linear-gradient(135deg,var(--neon-orange-2),var(--neon-pink));
+  color:#fff;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;
   position:sticky;top:0;z-index:11;text-align:center;
+  border-color:rgba(255,255,255,.1);
 }
 .excel thead tr:nth-child(2) th{
-  background:var(--gray-100);color:var(--gray-800);text-align:center;font-weight:600;
-  position:sticky;top:30px;z-index:10;
+  background:rgba(255,77,109,.12);color:var(--neon-red);
+  text-align:center;font-weight:600;
+  position:sticky;top:36px;z-index:10;
 }
 .excel thead tr:nth-child(3) th{
-  background:var(--gray-700);color:#fff;text-align:center;font-weight:600;
-  position:sticky;top:62px;z-index:10;
+  background:rgba(34,211,164,.10);color:var(--neon-green);
+  text-align:center;font-weight:600;
+  position:sticky;top:70px;z-index:10;
 }
-.excel .sticky-col{position:sticky;left:0;background:#fff;z-index:5;box-shadow:1px 0 0 var(--gray-200)}
-.excel thead .sticky-col{background:var(--gray-700);color:#fff;z-index:12}
-.excel tbody tr:nth-child(even) td{background:var(--gray-25)}
-.excel tbody tr:hover td{background:#fff8e1}
-.excel tbody tr:hover .sticky-col{background:#fff8e1}
-.cell-win{background:#fff8f0 !important;color:#e07410;font-weight:700}
-.cell-yes{color:#e07410;font-weight:700;text-align:center}
-.cell-no {background:#fee2e2 !important;color:#991b1b;font-weight:700;text-align:center}
+.excel thead tr:nth-child(4) th{
+  background:var(--bg-2);color:var(--neon-orange);
+  text-align:center;font-weight:700;
+  position:sticky;top:104px;z-index:10;
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.excel .sticky-col{position:sticky;left:0;background:var(--bg-1);z-index:5}
+.excel thead .sticky-col{background:var(--bg-2);color:#fff;z-index:12}
+.excel tbody tr:nth-child(even) td{background:rgba(40,50,82,.20)}
+.excel tbody tr:hover td{background:rgba(0,229,255,.06)}
+.excel tbody tr:hover .sticky-col{background:rgba(0,229,255,.10)}
 .cell-num{text-align:right;font-variant-numeric:tabular-nums}
+.cell-win{background:rgba(34,211,164,.18) !important;color:var(--neon-green);font-weight:700}
+
+/* ============================ MODAL ============================ */
+.modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(5,7,13,.7);
+  backdrop-filter:blur(8px);
+  z-index:1000;padding:20px;
+  animation:fade .2s ease;
+}
+.modal.open{display:grid;place-items:center}
+.modal-content{
+  background:var(--surface);
+  backdrop-filter:blur(20px);
+  border:1px solid var(--border-glow);
+  border-radius:var(--r-lg);
+  max-width:520px;width:100%;
+  padding:28px;
+  box-shadow:var(--shadow-lg),var(--glow-orange);
+}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.modal-head h2{
+  font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:700;color:#fff;
+  display:flex;align-items:center;gap:10px;
+}
+.modal-close{
+  width:36px;height:36px;border-radius:8px;
+  background:var(--surface-2);border:1px solid var(--border);
+  color:var(--text-muted);cursor:pointer;
+  display:grid;place-items:center;transition:all var(--t-fast);
+}
+.modal-close:hover{color:var(--neon-red);border-color:var(--neon-red)}
+.chk-row{
+  display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;
+  color:var(--text);font-size:var(--fs-sm);
+}
+.chk-row + .chk-row.divider{border-top:1px solid var(--border);padding-top:14px;margin-top:6px}
+.chk-row input[type=checkbox]{
+  appearance:none;-webkit-appearance:none;
+  width:18px;height:18px;border:1.5px solid var(--border-strong);
+  border-radius:5px;background:var(--bg-1);cursor:pointer;
+  display:grid;place-items:center;transition:all var(--t-fast);
+}
+.chk-row input[type=checkbox]:checked{
+  background:var(--grad-primary);border-color:transparent;
+  box-shadow:var(--glow-orange);
+}
+.chk-row input[type=checkbox]:checked::after{
+  content:"✓";color:#0a0e1a;font-weight:700;font-size:.85rem;
+}
 
 /* ============================ TOASTS ============================ */
-#toasts{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+#toasts{position:fixed;top:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px}
 .toast{
-  min-width:280px;max-width:380px;background:#fff;border:1px solid var(--border);
-  border-left:4px solid var(--brand-500); border-radius:10px;
-  padding:12px 14px;box-shadow:var(--shadow-lg);
-  display:flex;align-items:start;gap:10px;animation:slideIn .25s ease both;
+  min-width:300px;max-width:400px;
+  background:var(--surface);
+  backdrop-filter:blur(20px);
+  border:1px solid var(--border);
+  border-left:3px solid var(--neon-orange);
+  border-radius:12px;
+  padding:14px 16px;
+  box-shadow:var(--shadow-lg),var(--glow-orange);
+  display:flex;align-items:start;gap:12px;
+  animation:slideIn .3s cubic-bezier(.2,.8,.2,1) both;
 }
-.toast.success{border-left-color:var(--success)}
-.toast.error  {border-left-color:var(--danger)}
-.toast.warning{border-left-color:var(--warning)}
-.toast b{display:block;font-size:var(--fs-sm)}
+.toast.success{border-left-color:var(--neon-green);box-shadow:var(--shadow-lg),var(--glow-green)}
+.toast.error  {border-left-color:var(--neon-red);box-shadow:var(--shadow-lg),0 0 24px rgba(255,77,109,.35)}
+.toast.warning{border-left-color:var(--neon-amber)}
+.toast i{font-size:1.1rem;color:var(--neon-orange)}
+.toast.success i{color:var(--neon-green)}
+.toast.error i{color:var(--neon-red)}
+.toast.warning i{color:var(--neon-amber)}
+.toast b{display:block;font-size:var(--fs-sm);color:#fff;font-weight:600;margin-bottom:2px}
 .toast span{font-size:var(--fs-xs);color:var(--text-muted)}
-@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
 
 /* Scrollbar */
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:10px;border:2px solid var(--bg)}
-::-webkit-scrollbar-thumb:hover{background:var(--gray-400)}
+::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:10px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:var(--neon-orange);background-clip:padding-box}
+
+/* Info card variant */
+.card.info-card{
+  background:linear-gradient(135deg,rgba(0,229,255,.06),rgba(168,85,247,.04));
+  border-color:rgba(0,229,255,.25);
+}
+.info-card .info-icon{color:var(--neon-orange);font-size:1.3rem;margin-top:2px;filter:drop-shadow(0 0 8px var(--neon-orange))}
+.info-card .info-text{font-size:var(--fs-sm);color:var(--text)}
+.info-card .info-text b{color:var(--neon-orange)}
+
+/* Resumo equalização (dark) */
+.resumo-box{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-md);padding:18px;margin-top:18px;
+}
+.resumo-box h3{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.05rem;font-weight:700;margin-bottom:14px;color:#fff;
+  display:flex;align-items:center;gap:8px;
+}
+.resumo-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 12px;border-bottom:1px solid var(--border);font-size:var(--fs-sm);
+}
+.resumo-row:last-child{border:0}
+.resumo-row .left b{color:var(--neon-orange)}
+.resumo-row .right .forn{color:var(--neon-green);font-weight:700;font-size:.78rem;margin-bottom:2px}
+.resumo-row .right .val{color:#fff;font-weight:700;font-family:'JetBrains Mono',monospace}
+.resumo-total{
+  margin-top:12px;padding:14px;border-radius:10px;text-align:right;
+  background:linear-gradient(90deg,rgba(34,211,164,.10),rgba(0,229,255,.10));
+  border:1px solid rgba(34,211,164,.25);
+  font-family:'JetBrains Mono',monospace;font-weight:700;color:#fff;
+}
+.resumo-winner{
+  margin-top:14px;padding:18px;border-radius:12px;text-align:center;
+  background:linear-gradient(135deg,rgba(34,211,164,.10),rgba(0,229,255,.08));
+  border:1px solid rgba(34,211,164,.35);
+  box-shadow:var(--glow-green);
+}
+.resumo-winner h3{justify-content:center;color:var(--neon-green);margin-bottom:8px}
+.resumo-winner .name{font-size:1.3rem;font-weight:700;color:#fff;font-family:'Space Grotesk',sans-serif;margin-bottom:4px}
+.resumo-winner .val{color:var(--neon-orange);font-family:'JetBrains Mono',monospace}
 
 /* ============================ RESPONSIVE ============================ */
 @media (max-width:1024px){
-  .app{grid-template-columns:72px 1fr}
-  .brand-name,.brand-sub,.nav-label,.nav-item span,.side-footer{display:none}
-  .nav-item{justify-content:center;padding:12px}
+  .app{grid-template-columns:76px 1fr}
+  .brand-name,.brand-sub,.nav-label,.nav-item span,.side-footer span{display:none}
+  .nav-item{justify-content:center;padding:13px}
   .nav-item.active::before{display:none}
   .brand{justify-content:center;padding:18px 0}
-  .search{width:200px}
+  .search{width:220px}
 }
 @media (max-width:720px){
   .app{grid-template-columns:1fr}
   .sidebar{display:none}
   .content{padding:18px}
   .topbar{padding:0 16px} .search{display:none}
+  .user-meta{display:none}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none !important;transition:none !important}
@@ -358,10 +675,10 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
   <!-- =================== SIDEBAR =================== -->
   <aside class="sidebar" aria-label="Navegação principal">
     <div class="brand">
-      <div class="brand-mark"><i class="lucide lucide-shopping-cart"></i></div>
+      <div class="brand-mark"><i class="lucide lucide-zap"></i></div>
       <div>
-        <div class="brand-name">SmartCompras</div>
-        <div class="brand-sub">Procurement Suite</div>
+        <div class="brand-name">AmbarEnergia-AM</div>
+        <div class="brand-sub">CotaPro</div>
       </div>
     </div>
 
@@ -393,7 +710,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
       </div>
     </nav>
 
-    <div class="side-footer">v2.0 · © SmartCompras</div>
+    <div class="side-footer"><div class="pulse"></div><span>v3.0 · CotaPro Online</span></div>
   </aside>
 
   <!-- =================== MAIN =================== -->
@@ -410,11 +727,11 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
           <i class="lucide lucide-search"></i>
           <input type="search" id="search-global" placeholder="Buscar processo, fornecedor, contrato…" />
         </label>
-        <button class="icon-btn" title="Notificações"><i class="lucide lucide-bell"></i></button>
-        <button class="icon-btn" title="Ajuda"><i class="lucide lucide-circle-help"></i></button>
-        <div class="user-chip" title="Comprador logado">
+        <button class="icon-btn" id="btn-notif" title="Notificações"><i class="lucide lucide-bell"></i><span class="dot"></span></button>
+        <button class="icon-btn" id="btn-help" title="Ajuda"><i class="lucide lucide-circle-help"></i></button>
+        <div class="user-chip" id="user-chip" title="Comprador logado">
           <div class="avatar">C</div>
-          <div class="user-meta"><b>Comprador</b><span>Departamento Compras</span></div>
+          <div class="user-meta"><b>Comprador</b><span>Dep. Compras</span></div>
         </div>
       </div>
     </header>
@@ -473,7 +790,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
                 <div class="card-title">Últimas requisições</div>
                 <div class="card-sub">Atualizado há instantes</div>
               </div>
-              <button class="btn btn-secondary btn-sm"><i class="lucide lucide-external-link"></i> Ver tudo</button>
+              <button class="btn btn-secondary btn-sm" id="btn-ver-tudo"><i class="lucide lucide-external-link"></i> Ver tudo</button>
             </div>
             <div class="table-wrap">
               <table class="table">
@@ -504,9 +821,23 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
                 <select class="select" id="req-prioridade"><option>Normal</option><option>Alta</option><option>Urgente</option></select>
               </div>
             </div>
-            <div style="margin-top:18px;display:flex;gap:10px;justify-content:flex-end">
-              <button class="btn btn-secondary">Cancelar</button>
+            <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+              <button class="btn btn-secondary" data-action="cancel-form">Cancelar</button>
               <button class="btn btn-primary" id="btn-criar-req"><i class="lucide lucide-plus"></i> Criar requisição</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Requisições cadastradas</div></div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr>
+                  <th>Processo</th><th>Departamento</th><th>Solicitante</th>
+                  <th>Prioridade</th><th>Status</th><th>Data</th><th></th>
+                </tr></thead>
+                <tbody id="tabela-requisicoes-full">
+                  <tr><td colspan="7"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma requisição cadastrada</div></td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </section>
@@ -518,21 +849,33 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
             <div class="card-head"><div class="card-title">Novo fornecedor</div></div>
             <div class="form-grid">
               <div class="field"><label>Classificação <span class="req">*</span></label>
-                <select class="select" id="forn-classif"><option>Selecione…</option><option>Fabricante</option><option>Distribuidor</option><option>Prestador de serviços</option></select>
+                <select class="select" id="forn-classif"><option value="">Selecione…</option><option>Fabricante</option><option>Distribuidor</option><option>Prestador de serviços</option></select>
               </div>
               <div class="field"><label>Razão social / Nome <span class="req">*</span></label><input class="input" id="forn-nome"></div>
               <div class="field"><label>CNPJ <span class="req">*</span></label><input class="input" id="forn-cnpj" placeholder="00.000.000/0000-00"></div>
               <div class="field"><label>E-mail corporativo <span class="req">*</span></label><input class="input" id="forn-email" type="email"></div>
               <div class="field"><label>Telefone</label><input class="input" id="forn-tel" placeholder="(11) 0000-0000"></div>
               <div class="field"><label>Estado (UF) <span class="req">*</span></label>
-                <select class="select" id="forn-uf"><option>--</option><option>SP</option><option>RJ</option><option>MG</option><option>RS</option><option>PR</option><option>SC</option><option>BA</option><option>AM</option></select>
+                <select class="select" id="forn-uf"><option value="">--</option><option>SP</option><option>RJ</option><option>MG</option><option>RS</option><option>PR</option><option>SC</option><option>BA</option><option>AM</option></select>
               </div>
               <div class="field"><label>ICMS padrão (%)</label><input class="input" id="forn-icms" type="number" step="0.01" value="18"></div>
               <div class="field"><label>IPI (%)</label><input class="input" id="forn-ipi" type="number" step="0.01" value="0"></div>
               <div class="field"><label>PIS / COFINS (%)</label><input class="input" id="forn-pis" type="number" step="0.01" value="0"></div>
             </div>
-            <div style="margin-top:18px;display:flex;justify-content:flex-end">
+            <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+              <button class="btn btn-secondary" data-action="cancel-form">Cancelar</button>
               <button class="btn btn-primary" id="btn-salvar-forn"><i class="lucide lucide-save"></i> Salvar fornecedor</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Fornecedores cadastrados</div></div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>Nome</th><th>CNPJ</th><th>UF</th><th>Classificação</th><th>E-mail</th><th></th></tr></thead>
+                <tbody id="tabela-fornecedores">
+                  <tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhum fornecedor cadastrado</div></td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </section>
@@ -541,10 +884,10 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
         <section class="page" id="cotacoes">
           <div class="page-head"><div><h1 class="page-title">Cotações</h1><p class="page-desc">Cole dados do Excel em rodadas — o sistema identifica valor inicial e final.</p></div></div>
 
-          <div class="card" style="background:var(--info-bg);border-color:#bae6fd">
-            <div style="display:flex;gap:10px;align-items:start">
-              <i class="lucide lucide-info" style="color:var(--info-fg);font-size:1.2rem;margin-top:2px"></i>
-              <div style="font-size:var(--fs-sm);color:var(--info-fg)">
+          <div class="card info-card">
+            <div style="display:flex;gap:12px;align-items:start">
+              <i class="lucide lucide-info info-icon"></i>
+              <div class="info-text">
                 <b>Dica:</b> Cole os dados do Excel repetidas vezes para criar rodadas. A 1ª colagem é o <b>Valor Inicial</b>; a última, o <b>Valor Final</b> na Equalização.
               </div>
             </div>
@@ -552,7 +895,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
           <div class="card">
             <div class="card-head"><div class="card-title">1. Selecionar processo ativo</div></div>
-            <div class="field"><label>Processo</label><select class="select" id="cot-processo"><option>Selecione…</option></select></div>
+            <div class="field"><label>Processo</label><select class="select" id="cot-processo"><option value="">Selecione…</option></select></div>
           </div>
 
           <div class="card">
@@ -595,15 +938,16 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
           <div class="card">
             <div class="card-head"><div class="card-title">Lançar parecer técnico</div></div>
             <div class="form-grid">
-              <div class="field"><label>Item cotado <span class="req">*</span></label><select class="select" id="ana-item"><option>Selecione…</option></select></div>
+              <div class="field"><label>Item cotado <span class="req">*</span></label><select class="select" id="ana-item"><option value="">Selecione…</option></select></div>
               <div class="field"><label>Fornecedor</label><input class="input" id="ana-forn" readonly placeholder="—"></div>
               <div class="field"><label>Engenheiro / Técnico responsável</label><input class="input" id="ana-eng"></div>
               <div class="field"><label>Status final <span class="req">*</span></label>
-                <select class="select" id="ana-status"><option>— Avaliação —</option><option value="SIM">✓ Aprovado (SIM)</option><option value="NÃO">✗ Reprovado (NÃO)</option></select>
+                <select class="select" id="ana-status"><option value="">— Avaliação —</option><option value="SIM">✓ Aprovado (SIM)</option><option value="NÃO">✗ Reprovado (NÃO)</option></select>
               </div>
             </div>
             <div class="field" style="margin-top:16px"><label>Descrição do material</label><textarea class="textarea" id="ana-desc"></textarea></div>
-            <div style="margin-top:18px;display:flex;justify-content:flex-end">
+            <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+              <button class="btn btn-secondary" data-action="cancel-form">Cancelar</button>
               <button class="btn btn-primary" id="btn-gravar-ana"><i class="lucide lucide-save"></i> Gravar avaliação</button>
             </div>
           </div>
@@ -624,53 +968,15 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
             <div class="eq-toolbar">
               <div class="eq-meta">
                 <i class="lucide lucide-folder-open"></i>
-                <span>Processo:</span> <b id="eq-processo">#2026-0142 — Manutenção predial</b>
+                <span>Processo:</span> <b id="eq-processo">—</b>
                 <span class="badge badge-info" id="eq-fornecedores">0 fornecedores</span>
-                <span class="badge badge-neutral" id="eq-rodadas">0 rodadas</span>
+                <span class="badge badge-violet" id="eq-rodadas">0 rodadas</span>
               </div>
-              <select class="select" id="eq-select" style="max-width:280px"><option>Selecione um processo</option></select>
+              <select class="select" id="eq-select" style="max-width:300px"><option value="">Selecione um processo</option></select>
             </div>
 
             <div class="excel-wrap" id="eq-tabela-container">
               <div class="empty"><i class="lucide lucide-inbox"></i> Selecione um processo para visualizar a matriz</div>
-            </div>
-
-            <!-- Modal de Layout -->
-            <div id="layout-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;padding:20px">
-              <div style="background:#fff;border-radius:8px;max-width:500px;margin:80px auto;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.15)">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-                  <h2 style="margin:0;font-size:1.3rem;font-weight:700">⚙️ Configurar Layout</h2>
-                  <button onclick="document.getElementById('layout-modal').style.display='none'" style="background:none;border:none;font-size:1.5rem;cursor:pointer">✕</button>
-                </div>
-
-                <p style="color:#666;margin-bottom:16px">Escolha quais colunas exibir por fornecedor:</p>
-
-                <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
-                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-                    <input type="checkbox" id="chk-tecnico" onchange="atualizarVisibilidade()"> Técnico (status de aprovação)
-                  </label>
-                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-                    <input type="checkbox" id="chk-vOriginal" onchange="atualizarVisibilidade()"> V. Original (preço inicial)
-                  </label>
-                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-                    <input type="checkbox" id="chk-vEqualizado" onchange="atualizarVisibilidade()"> V. Equalizado (preço para comparação)
-                  </label>
-                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;border-top:1px solid #eee;padding-top:12px">
-                    <input type="checkbox" id="chk-precoInicial" onchange="atualizarVisibilidade()"> <b>Preço Inicial</b> (1ª cotação)
-                  </label>
-                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-                    <input type="checkbox" id="chk-precoFinal" onchange="atualizarVisibilidade()"> <b>Preço Final</b> (última cotação)
-                  </label>
-                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;border-top:1px solid #eee;padding-top:12px">
-                    <input type="checkbox" id="chk-totalItem" onchange="atualizarVisibilidade()"> Total Item (valor total)
-                  </label>
-                </div>
-
-                <div style="display:flex;gap:8px;justify-content:flex-end">
-                  <button onclick="document.getElementById('layout-modal').style.display='none'" style="padding:8px 16px;border:1px solid #ddd;border-radius:4px;background:#fff;cursor:pointer">Cancelar</button>
-                  <button onclick="salvarLayout();document.getElementById('layout-modal').style.display='none'" style="padding:8px 16px;border:none;border-radius:4px;background:#0066cc;color:#fff;cursor:pointer;font-weight:600">💾 Salvar Layout</button>
-                </div>
-              </div>
             </div>
           </div>
         </section>
@@ -680,7 +986,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
           <div class="page-head"><div><h1 class="page-title">Resumo financeiro</h1><p class="page-desc">Consolidado sugerido para fechamento da contratação.</p></div></div>
           <div class="card">
             <div class="card-head"><div class="card-title">Selecione o processo</div></div>
-            <select class="select" id="res-processo"><option>Selecione…</option></select>
+            <select class="select" id="res-processo"><option value="">Selecione…</option></select>
           </div>
           <div class="kpi-grid">
             <div class="kpi"><div class="kpi-top"><span class="kpi-label">Valor inicial</span><div class="kpi-icon"><i class="lucide lucide-arrow-up-from-line"></i></div></div><div class="kpi-value" id="res-inicial">R$ 0</div></div>
@@ -695,16 +1001,27 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
           <div class="card">
             <div class="card-head"><div class="card-title">Gerar novo contrato (fechamento)</div></div>
             <div class="form-grid">
-              <div class="field"><label>Requisição origem <span class="req">*</span></label><select class="select" id="con-req"><option>Selecione…</option></select></div>
+              <div class="field"><label>Requisição origem <span class="req">*</span></label><select class="select" id="con-req"><option value="">Selecione…</option></select></div>
               <div class="field"><label>Nº do pedido / contrato <span class="req">*</span></label><input class="input" id="con-numero"></div>
-              <div class="field"><label>Fornecedor vencedor <span class="req">*</span></label><select class="select" id="con-forn"><option>Selecione…</option></select></div>
+              <div class="field"><label>Fornecedor vencedor <span class="req">*</span></label><select class="select" id="con-forn"><option value="">Selecione…</option></select></div>
               <div class="field"><label>Data emissão</label><input class="input" id="con-data" type="date"></div>
               <div class="field"><label>Valor final (R$)</label><input class="input" id="con-valor" type="number" step="0.01"></div>
               <div class="field"><label>Prazo execução (dias)</label><input class="input" id="con-prazo" type="number"></div>
             </div>
-            <div style="margin-top:18px;display:flex;justify-content:flex-end;gap:10px">
-              <button class="btn btn-secondary">Cancelar</button>
+            <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px">
+              <button class="btn btn-secondary" data-action="cancel-form">Cancelar</button>
               <button class="btn btn-success" id="btn-efetivar"><i class="lucide lucide-lock"></i> Efetivar contrato</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Livro de contratos registrados</div></div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>Nº Contrato</th><th>Requisição</th><th>Fornecedor</th><th>Data</th><th>Prazo</th><th>Valor</th></tr></thead>
+                <tbody id="tabela-contratos">
+                  <tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhum contrato registrado</div></td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </section>
@@ -714,55 +1031,179 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
   </main>
 </div>
 
+<!-- ===== MODAL: LAYOUT ===== -->
+<div class="modal" id="layout-modal">
+  <div class="modal-content">
+    <div class="modal-head">
+      <h2><i class="lucide lucide-sliders-horizontal" style="color:var(--neon-orange)"></i> Configurar Layout</h2>
+      <button class="modal-close" data-close-modal="layout-modal"><i class="lucide lucide-x"></i></button>
+    </div>
+    <p style="color:var(--text-muted);margin-bottom:16px;font-size:var(--fs-sm)">Escolha quais colunas exibir por fornecedor:</p>
+    <div style="display:flex;flex-direction:column">
+      <label class="chk-row"><input type="checkbox" id="chk-tecnico"> Técnico (status de aprovação)</label>
+      <label class="chk-row"><input type="checkbox" id="chk-vOriginal"> V. Original (preço inicial)</label>
+      <label class="chk-row"><input type="checkbox" id="chk-vEqualizado"> V. Equalizado (preço para comparação)</label>
+      <label class="chk-row divider"><input type="checkbox" id="chk-precoInicial"> <b>Preço Inicial</b> (1ª cotação)</label>
+      <label class="chk-row"><input type="checkbox" id="chk-precoFinal"> <b>Preço Final</b> (última cotação)</label>
+      <label class="chk-row divider"><input type="checkbox" id="chk-totalItem"> Total Item (valor total)</label>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:22px">
+      <button class="btn btn-secondary" data-close-modal="layout-modal">Cancelar</button>
+      <button class="btn btn-primary" id="btn-salvar-layout"><i class="lucide lucide-save"></i> Salvar Layout</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: NOTIFICAÇÕES ===== -->
+<div class="modal" id="notif-modal">
+  <div class="modal-content">
+    <div class="modal-head">
+      <h2><i class="lucide lucide-bell" style="color:var(--neon-orange)"></i> Notificações</h2>
+      <button class="modal-close" data-close-modal="notif-modal"><i class="lucide lucide-x"></i></button>
+    </div>
+    <div id="notif-list" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+</div>
+
+<!-- ===== MODAL: AJUDA ===== -->
+<div class="modal" id="help-modal">
+  <div class="modal-content">
+    <div class="modal-head">
+      <h2><i class="lucide lucide-circle-help" style="color:var(--neon-orange)"></i> Como usar o CotaPro</h2>
+      <button class="modal-close" data-close-modal="help-modal"><i class="lucide lucide-x"></i></button>
+    </div>
+    <ol style="color:var(--text);font-size:var(--fs-sm);line-height:1.8;padding-left:20px">
+      <li>Cadastre uma <b style="color:var(--neon-orange)">Requisição</b> em <i>Cadastros → Requisições</i>.</li>
+      <li>Registre seus <b style="color:var(--neon-orange)">Fornecedores</b> com CNPJ, UF e impostos.</li>
+      <li>Em <b style="color:var(--neon-orange)">Cotações</b>, selecione o processo e cole linhas do Excel (Tab-separated).</li>
+      <li>Cada nova colagem cria uma <b>rodada</b> de negociação.</li>
+      <li>Em <b style="color:var(--neon-orange)">Análise Técnica</b>, aprove ou reprove cada item.</li>
+      <li>Na <b style="color:var(--neon-orange)">Matriz de Equalização</b>, clique no preço para selecionar o vencedor.</li>
+      <li>Gere o <b style="color:var(--neon-orange)">Contrato</b> final em <i>Resultados → Contratos</i>.</li>
+    </ol>
+    <div style="display:flex;justify-content:flex-end;margin-top:22px">
+      <button class="btn btn-primary" data-close-modal="help-modal">Entendi</button>
+    </div>
+  </div>
+</div>
+
 <div id="toasts" aria-live="polite"></div>
 
 <script>
   // ===== STATE =====
   let state = {
-    requisicoes: JSON.parse(localStorage.getItem('sc_requisicoes') || '[]'),
-    fornecedores: JSON.parse(localStorage.getItem('sc_fornecedores') || '[]'),
-    cotacoes: JSON.parse(localStorage.getItem('sc_cotacoes') || '[]'),
-    analises: JSON.parse(localStorage.getItem('sc_analises') || '[]'),
-    contratos: JSON.parse(localStorage.getItem('sc_contratos') || '[]'),
+    requisicoes: JSON.parse(localStorage.getItem('cp_requisicoes') || '[]'),
+    fornecedores: JSON.parse(localStorage.getItem('cp_fornecedores') || '[]'),
+    cotacoes: JSON.parse(localStorage.getItem('cp_cotacoes') || '[]'),
+    analises: JSON.parse(localStorage.getItem('cp_analises') || '[]'),
+    contratos: JSON.parse(localStorage.getItem('cp_contratos') || '[]'),
   };
 
   function salvar() {
-    localStorage.setItem('sc_requisicoes', JSON.stringify(state.requisicoes));
-    localStorage.setItem('sc_fornecedores', JSON.stringify(state.fornecedores));
-    localStorage.setItem('sc_cotacoes', JSON.stringify(state.cotacoes));
-    localStorage.setItem('sc_analises', JSON.stringify(state.analises));
-    localStorage.setItem('sc_contratos', JSON.stringify(state.contratos));
+    localStorage.setItem('cp_requisicoes', JSON.stringify(state.requisicoes));
+    localStorage.setItem('cp_fornecedores', JSON.stringify(state.fornecedores));
+    localStorage.setItem('cp_cotacoes', JSON.stringify(state.cotacoes));
+    localStorage.setItem('cp_analises', JSON.stringify(state.analises));
+    localStorage.setItem('cp_contratos', JSON.stringify(state.contratos));
   }
+
+  function fmtBRL(v){ return 'R$ ' + (Number(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
   function toast(titulo, msg, tipo = 'success') {
     const t = document.createElement('div');
     t.className = `toast ${tipo}`;
-    t.innerHTML = `<i class="lucide lucide-${tipo === 'success' ? 'check-circle' : tipo === 'error' ? 'alert-circle' : 'info'}"></i>
+    const ico = tipo === 'success' ? 'check-circle' : tipo === 'error' ? 'alert-circle' : tipo === 'warning' ? 'alert-triangle' : 'info';
+    t.innerHTML = `<i class="lucide lucide-${ico}"></i>
                    <div><b>${titulo}</b><span>${msg}</span></div>`;
     document.getElementById('toasts').appendChild(t);
     setTimeout(() => t.remove(), 4000);
   }
+
+  // ===== MODAL HELPERS =====
+  function openModal(id){ document.getElementById(id).classList.add('open'); }
+  function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+  document.querySelectorAll('[data-close-modal]').forEach(b => {
+    b.addEventListener('click', () => closeModal(b.dataset.closeModal));
+  });
+  document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
+  });
 
   // ===== NAVEGAÇÃO SPA =====
   const items = document.querySelectorAll('.nav-item');
   const pages = document.querySelectorAll('.page');
   const crumb = document.getElementById('crumb-page');
 
-  items.forEach(it => it.addEventListener('click', () => {
-    items.forEach(i => i.classList.remove('active'));
-    it.classList.add('active');
-    const id = it.dataset.page;
+  function navigate(id){
+    items.forEach(i => i.classList.toggle('active', i.dataset.page === id));
     pages.forEach(p => p.classList.toggle('active', p.id === id));
-    crumb.textContent = it.querySelector('span').textContent;
-    document.querySelector('.content').scrollTo({top: 0, behavior: 'smooth'});
+    const it = document.querySelector(`.nav-item[data-page="${id}"]`);
+    if(it) crumb.textContent = it.querySelector('span').textContent;
+    document.querySelector('.content').scrollTo({top:0,behavior:'smooth'});
 
-    // Carregar dados quando entra em uma página
-    if (id === 'requisicoes') renderRequisicoes();
+    if (id === 'dashboard') { renderRequisicoes(); atualizarKPIs(); }
+    if (id === 'requisicoes') renderRequisicoesFull();
+    if (id === 'fornecedores') renderFornecedores();
     if (id === 'cotacoes') atualizarSelectProcesso();
+    if (id === 'analise') atualizarSelectAnalise();
     if (id === 'equalizacao') atualizarSelectEqualizacao();
     if (id === 'resumo') atualizarSelectResumo();
-    if (id === 'contratos') atualizarSelectContratos();
-  }));
+    if (id === 'contratos') { atualizarSelectContratos(); renderContratos(); }
+  }
+  items.forEach(it => it.addEventListener('click', () => navigate(it.dataset.page)));
+
+  // ===== KPIs =====
+  function atualizarKPIs(){
+    document.getElementById('kpi-processos').textContent = state.requisicoes.filter(r=>r.status!=='Concluído').length;
+    const totalContrat = state.contratos.reduce((s,c)=>s+(Number(c.valor)||0),0);
+    document.getElementById('kpi-contratado').textContent = fmtBRL(totalContrat);
+    // Saving estimado: inicial - final por processo
+    let saving = 0;
+    state.requisicoes.forEach(r => {
+      const cot = state.cotacoes.filter(c => c.processoId == r.id);
+      const ini = cot.reduce((s,c)=>s+(c.qtd*c.vunit),0);
+      saving += ini * 0.05;
+    });
+    document.getElementById('kpi-saving').textContent = fmtBRL(saving);
+  }
+
+  // ===== TOPBAR =====
+  document.getElementById('btn-notif').addEventListener('click', () => {
+    const list = document.getElementById('notif-list');
+    const notifs = [
+      `<b style="color:#fff">${state.requisicoes.length}</b> requisições no sistema`,
+      `<b style="color:#fff">${state.cotacoes.length}</b> cotações lançadas`,
+      `<b style="color:#fff">${state.contratos.length}</b> contratos efetivados`,
+    ];
+    list.innerHTML = notifs.map(n => `<div style="padding:12px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;font-size:var(--fs-sm);color:var(--text-muted)"><i class="lucide lucide-bell" style="color:var(--neon-orange);margin-right:8px"></i>${n}</div>`).join('');
+    openModal('notif-modal');
+  });
+  document.getElementById('btn-help').addEventListener('click', () => openModal('help-modal'));
+  document.getElementById('user-chip').addEventListener('click', () => toast('Usuário','Comprador · Departamento Compras','info'));
+
+  // ===== BUSCA GLOBAL =====
+  document.getElementById('search-global').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      const q = e.target.value.trim().toLowerCase();
+      if(!q){ toast('Busca','Digite um termo','warning'); return; }
+      const hits = [
+        ...state.requisicoes.filter(r => (r.numero+r.depart+r.solicitante).toLowerCase().includes(q)).map(()=>'requisição'),
+        ...state.fornecedores.filter(f => (f.nome+f.cnpj).toLowerCase().includes(q)).map(()=>'fornecedor'),
+        ...state.contratos.filter(c => String(c.numero).toLowerCase().includes(q)).map(()=>'contrato'),
+      ];
+      toast('Busca', `${hits.length} resultado(s) para "${q}"`, hits.length ? 'success' : 'warning');
+    }
+  });
+
+  // ===== CANCEL FORMS =====
+  document.querySelectorAll('[data-action="cancel-form"]').forEach(b => {
+    b.addEventListener('click', () => {
+      const card = b.closest('.card');
+      card.querySelectorAll('input, textarea').forEach(i => { if(i.type !== 'number') i.value = ''; });
+      card.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+      toast('Cancelado','Campos limpos','info');
+    });
+  });
 
   // ===== REQUISIÇÕES =====
   document.getElementById('btn-criar-req').addEventListener('click', () => {
@@ -775,42 +1216,77 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
       toast('Erro', 'Preencha todos os campos obrigatórios', 'error');
       return;
     }
-
     state.requisicoes.push({
-      id: Date.now(),
-      depart, solicitante, numero, prioridade,
+      id: Date.now(), depart, solicitante, numero, prioridade,
       status: 'Em cotação',
       data: new Date().toLocaleDateString('pt-BR')
     });
     salvar();
-    toast('Sucesso', 'Requisição criada com sucesso');
+    toast('Sucesso', 'Requisição criada');
     document.getElementById('req-depart').value = '';
     document.getElementById('req-solicitante').value = '';
     document.getElementById('req-numero').value = '';
     renderRequisicoes();
-    atualizarSelectProcesso();
+    renderRequisicoesFull();
+    atualizarKPIs();
   });
 
-  document.getElementById('btn-nova-req').addEventListener('click', () => {
-    document.querySelector('[data-page="requisicoes"]').click();
-  });
+  document.getElementById('btn-nova-req').addEventListener('click', () => navigate('requisicoes'));
+  document.getElementById('btn-ver-tudo').addEventListener('click', () => navigate('requisicoes'));
+
+  function badgeStatus(s){
+    const map = {
+      'Em cotação':'badge-info','Análise técnica':'badge-violet',
+      'Equalização':'badge-warning','Concluído':'badge-success'
+    };
+    return `<span class="badge ${map[s]||'badge-neutral'}">${s}</span>`;
+  }
+  function badgePrior(p){
+    const map = {'Normal':'badge-info','Alta':'badge-warning','Urgente':'badge-danger'};
+    return `<span class="badge ${map[p]||'badge-neutral'}">${p||'Normal'}</span>`;
+  }
 
   function renderRequisicoes() {
     const tbody = document.getElementById('tabela-requisicoes');
-    if (state.requisicoes.length === 0) {
+    if (!state.requisicoes.length) {
       tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma requisição cadastrada</div></td></tr>';
       return;
     }
-    tbody.innerHTML = state.requisicoes.map(r => `
-      <tr>
-        <td><b>${r.numero}</b></td>
+    tbody.innerHTML = state.requisicoes.slice(-6).reverse().map(r => {
+      const itens = state.cotacoes.filter(c=>c.processoId==r.id).length;
+      return `<tr>
+        <td><b class="mono" style="color:var(--neon-orange)">${r.numero}</b></td>
         <td>${r.depart}</td>
         <td>${r.solicitante}</td>
-        <td>0</td>
-        <td><span class="badge badge-info">${r.status}</span></td>
-        <td>${r.data}</td>
+        <td>${itens}</td>
+        <td>${badgeStatus(r.status)}</td>
+        <td class="mono" style="color:var(--text-muted)">${r.data}</td>
+      </tr>`;
+    }).join('');
+  }
+  function renderRequisicoesFull() {
+    const tbody = document.getElementById('tabela-requisicoes-full');
+    if (!state.requisicoes.length) {
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma requisição cadastrada</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = state.requisicoes.slice().reverse().map(r => `
+      <tr>
+        <td><b class="mono" style="color:var(--neon-orange)">${r.numero}</b></td>
+        <td>${r.depart}</td>
+        <td>${r.solicitante}</td>
+        <td>${badgePrior(r.prioridade)}</td>
+        <td>${badgeStatus(r.status)}</td>
+        <td class="mono" style="color:var(--text-muted)">${r.data}</td>
+        <td><button class="btn btn-ghost btn-sm" data-del-req="${r.id}"><i class="lucide lucide-trash-2"></i></button></td>
       </tr>
     `).join('');
+    tbody.querySelectorAll('[data-del-req]').forEach(b => b.addEventListener('click', () => {
+      if(!confirm('Excluir esta requisição?')) return;
+      state.requisicoes = state.requisicoes.filter(r => r.id != b.dataset.delReq);
+      salvar(); renderRequisicoesFull(); renderRequisicoes(); atualizarKPIs();
+      toast('Excluído','Requisição removida','warning');
+    }));
   }
 
   // ===== FORNECEDORES =====
@@ -819,15 +1295,11 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     const nome = document.getElementById('forn-nome').value.trim();
     const cnpj = document.getElementById('forn-cnpj').value.trim();
     const email = document.getElementById('forn-email').value.trim();
-
     if (!classif || !nome || !cnpj || !email) {
-      toast('Erro', 'Preencha todos os campos obrigatórios', 'error');
-      return;
+      toast('Erro', 'Preencha todos os campos obrigatórios', 'error'); return;
     }
-
     state.fornecedores.push({
-      id: Date.now(),
-      classif, nome, cnpj, email,
+      id: Date.now(), classif, nome, cnpj, email,
       tel: document.getElementById('forn-tel').value,
       uf: document.getElementById('forn-uf').value,
       icms: parseFloat(document.getElementById('forn-icms').value) || 18,
@@ -836,102 +1308,97 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     });
     salvar();
     toast('Sucesso', 'Fornecedor cadastrado');
-    document.getElementById('forn-nome').value = '';
-    document.getElementById('forn-cnpj').value = '';
-    document.getElementById('forn-email').value = '';
+    ['forn-nome','forn-cnpj','forn-email','forn-tel'].forEach(id=>document.getElementById(id).value='');
+    renderFornecedores();
   });
+  function renderFornecedores(){
+    const tbody = document.getElementById('tabela-fornecedores');
+    if(!state.fornecedores.length){
+      tbody.innerHTML='<tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhum fornecedor cadastrado</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = state.fornecedores.slice().reverse().map(f => `
+      <tr>
+        <td><b>${f.nome}</b></td>
+        <td class="mono">${f.cnpj}</td>
+        <td><span class="badge badge-info">${f.uf||'—'}</span></td>
+        <td>${f.classif}</td>
+        <td style="color:var(--text-muted)">${f.email}</td>
+        <td><button class="btn btn-ghost btn-sm" data-del-forn="${f.id}"><i class="lucide lucide-trash-2"></i></button></td>
+      </tr>`).join('');
+    tbody.querySelectorAll('[data-del-forn]').forEach(b => b.addEventListener('click', () => {
+      if(!confirm('Excluir fornecedor?')) return;
+      state.fornecedores = state.fornecedores.filter(f => f.id != b.dataset.delForn);
+      salvar(); renderFornecedores(); toast('Excluído','Fornecedor removido','warning');
+    }));
+  }
 
   // ===== COTAÇÕES =====
   function atualizarSelectProcesso() {
     const sel = document.getElementById('cot-processo');
-    sel.innerHTML = '<option>Selecione…</option>' +
+    sel.innerHTML = '<option value="">Selecione…</option>' +
       state.requisicoes.map(r => `<option value="${r.id}">${r.numero} — ${r.depart}</option>`).join('');
   }
 
   function limparNumero(valor) {
     if (!valor) return 0;
     let str = String(valor).replace(/R\$/g, '').trim();
-
     const temPonto = str.includes('.');
     const temVirgula = str.includes(',');
-
-    if (temPonto && temVirgula) {
-      // Formato brasileiro completo: 1.000,00
-      str = str.replace(/\./g, '').replace(',', '.');
-    } else if (temVirgula) {
-      // Só tem vírgula
-      const aposVirgula = str.split(',')[1]?.length || 0;
-      if (aposVirgula === 3) {
-        // 1,234 = milhar, converter para 1234
-        str = str.replace(',', '');
-      } else {
-        // 1,50 ou 1,5 = decimal
-        str = str.replace(',', '.');
-      }
+    if (temPonto && temVirgula) str = str.replace(/\./g, '').replace(',', '.');
+    else if (temVirgula) {
+      const ap = str.split(',')[1]?.length || 0;
+      str = ap === 3 ? str.replace(',', '') : str.replace(',', '.');
     } else if (temPonto) {
-      // Só tem ponto
-      const aposPonto = str.split('.')[str.split('.').length - 1].length;
-      if (aposPonto === 3) {
-        // 1.234 = milhar, converter para 1234
-        str = str.replace(/\./g, '');
-      }
-      // Senão deixa como está (é decimal 45.00)
+      const ap = str.split('.').pop().length;
+      if (ap === 3) str = str.replace(/\./g, '');
     }
-
     return parseFloat(str) || 0;
   }
 
   document.getElementById('btn-processar').addEventListener('click', () => {
     const texto = document.getElementById('cot-textarea').value.trim();
-    if (!texto) {
-      toast('Erro', 'Cole dados do Excel primeiro', 'error');
-      return;
-    }
-
+    if (!texto) { toast('Erro', 'Cole dados do Excel primeiro', 'error'); return; }
     const linhas = texto.split('\n').filter(l => l.trim());
     const tbody = document.getElementById('tabela-cotacoes');
-    tbody.innerHTML = linhas.map((linha, idx) => {
-      const [forn, entreg, pagto, frete, garantia, vigencia, nroCot, cod, desc, und, qtd, vunit] = linha.split('\t');
+    tbody.innerHTML = linhas.map(linha => {
+      const [forn,entreg,pagto,frete,garantia,vigencia,nroCot,cod,desc,und,qtd,vunit] = linha.split('\t');
       const qtdNum = limparNumero(qtd);
       const vunitNum = limparNumero(vunit);
       const vtotal = qtdNum * vunitNum;
-      return `
-        <tr>
-          <td>${forn || ''}</td>
-          <td>${entreg || ''}</td>
-          <td>${pagto || ''}</td>
-          <td>${frete || ''}</td>
-          <td>${garantia || ''}</td>
-          <td>${vigencia || ''}</td>
-          <td>${nroCot || ''}</td>
-          <td><b>${cod || ''}</b></td>
-          <td>${desc || ''}</td>
-          <td>${und || ''}</td>
-          <td>${qtdNum.toLocaleString('pt-BR')}</td>
-          <td>R$ ${vunitNum.toFixed(2).replace('.', ',')}</td>
-          <td><strong>R$ ${vtotal.toFixed(2).replace('.', ',')}</strong></td>
-        </tr>
-      `;
+      return `<tr>
+        <td>${forn || ''}</td><td>${entreg || ''}</td><td>${pagto || ''}</td>
+        <td>${frete || ''}</td><td>${garantia || ''}</td><td>${vigencia || ''}</td>
+        <td>${nroCot || ''}</td><td><b class="mono" style="color:var(--neon-orange)">${cod || ''}</b></td>
+        <td>${desc || ''}</td><td>${und || ''}</td>
+        <td class="mono">${qtdNum.toLocaleString('pt-BR')}</td>
+        <td class="mono">${fmtBRL(vunitNum)}</td>
+        <td class="mono" style="color:var(--neon-green);font-weight:700">${fmtBRL(vtotal)}</td>
+      </tr>`;
     }).join('');
     toast('Sucesso', `${linhas.length} linha(s) processada(s)`);
   });
 
   document.getElementById('btn-limpar').addEventListener('click', () => {
     document.getElementById('cot-textarea').value = '';
+    document.getElementById('tabela-cotacoes').innerHTML = '<tr><td colspan="13"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma cotação processada ainda.</div></td></tr>';
+    toast('Limpo','Área de cotação resetada','info');
+  });
+
+  document.getElementById('btn-add-linha').addEventListener('click', () => {
+    const ta = document.getElementById('cot-textarea');
+    ta.value += (ta.value && !ta.value.endsWith('\n') ? '\n' : '') + 'Fornecedor\t30 dias\tBoleto\tCIF\t12m\t30d\t1\tCOD-001\tDescrição\tUN\t1\t0,00';
+    ta.focus();
+    toast('Linha adicionada','Edite e clique em Processar','info');
   });
 
   document.getElementById('btn-salvar-cot').addEventListener('click', () => {
     const processoId = document.getElementById('cot-processo').value;
     const processo = state.requisicoes.find(r => r.id == processoId);
-
-    if (!processoId || !processo) {
-      toast('Erro', 'Selecione um processo', 'error');
-      return;
-    }
-
+    if (!processoId || !processo) { toast('Erro', 'Selecione um processo', 'error'); return; }
     const tbody = document.getElementById('tabela-cotacoes');
     const linhas = tbody.querySelectorAll('tr');
-
+    let count = 0;
     linhas.forEach(tr => {
       const tds = tr.querySelectorAll('td');
       if (tds.length === 13) {
@@ -952,483 +1419,344 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
           vigencia: tds[5].textContent.trim(),
           nroCot: tds[6].textContent.trim()
         });
+        count++;
       }
     });
-
-    salvar();
+    if(!count){ toast('Aviso','Nada para salvar — processe a tabela primeiro','warning'); return; }
     processo.status = 'Análise técnica';
-    toast('Sucesso', 'Cotações salvas');
+    salvar();
+    toast('Sucesso', `${count} cotação(ões) salva(s)`);
     document.getElementById('tabela-cotacoes').innerHTML = '<tr><td colspan="13"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma cotação processada ainda.</div></td></tr>';
     document.getElementById('cot-textarea').value = '';
   });
 
   // ===== ANÁLISE TÉCNICA =====
+  function atualizarSelectAnalise(){
+    const sel = document.getElementById('ana-item');
+    sel.innerHTML = '<option value="">Selecione…</option>' +
+      state.cotacoes.map(c => `<option value="${c.id}">${c.codigo} — ${c.descricao} (${c.fornecedor})</option>`).join('');
+    sel.onchange = () => {
+      const cot = state.cotacoes.find(c => c.id == sel.value);
+      document.getElementById('ana-forn').value = cot ? cot.fornecedor : '';
+      document.getElementById('ana-desc').value = cot ? cot.descricao : '';
+    };
+  }
   document.getElementById('btn-gravar-ana').addEventListener('click', () => {
     const item = document.getElementById('ana-item').value;
     const status = document.getElementById('ana-status').value;
-
-    if (!item || !status) {
-      toast('Erro', 'Preencha os campos obrigatórios', 'error');
-      return;
-    }
-
+    if (!item || !status) { toast('Erro', 'Preencha os campos obrigatórios', 'error'); return; }
     state.analises.push({
-      id: Date.now(),
-      cotacaoId: parseInt(item),
+      id: Date.now(), cotacaoId: parseFloat(item),
       engenheiro: document.getElementById('ana-eng').value,
-      status: status,
-      descricao: document.getElementById('ana-desc').value,
+      status, descricao: document.getElementById('ana-desc').value,
       data: new Date().toLocaleDateString('pt-BR')
     });
-
     salvar();
     toast('Sucesso', 'Avaliação gravada');
     document.getElementById('ana-item').value = '';
-    document.getElementById('ana-status').value = '— Avaliação —';
+    document.getElementById('ana-status').value = '';
     document.getElementById('ana-desc').value = '';
+    document.getElementById('ana-forn').value = '';
+    document.getElementById('ana-eng').value = '';
   });
 
   // ===== EQUALIZAÇÃO =====
-  let ganhadores = {}; // {codigo: fornecedor}
-  let itensPorCod = {}; // Cache dos itens para atualizações
-  let fornecedoresList = []; // Cache dos fornecedores
-
-  // Configuração de visibilidade de colunas por fornecedor
+  let ganhadores = {};
+  let itensPorCod = {};
+  let fornecedoresList = [];
   let colunasVisiveis = {
-    tecnico: false,
-    vOriginal: false,
-    vEqualizado: true,
-    precoInicial: true,
-    precoFinal: true,
-    totalItem: false
+    tecnico:false, vOriginal:false, vEqualizado:true,
+    precoInicial:true, precoFinal:true, totalItem:false
   };
-
-  // Carregar layout salvo
-  function carregarLayoutSalvo() {
-    const layout = localStorage.getItem('sc_layout_colunas');
-    if (layout) {
-      colunasVisiveis = JSON.parse(layout);
-    }
+  function carregarLayoutSalvo(){
+    const l = localStorage.getItem('cp_layout_colunas');
+    if(l) colunasVisiveis = JSON.parse(l);
   }
-
-  // Salvar layout
-  function salvarLayout() {
-    localStorage.setItem('sc_layout_colunas', JSON.stringify(colunasVisiveis));
-    toast('✅ Layout', 'Preferências salvas com sucesso', 'success');
-  }
-
-  // Atualizar visibilidade de colunas
-  function atualizarVisibilidade() {
-    colunasVisiveis.tecnico = document.getElementById('chk-tecnico').checked;
-    colunasVisiveis.vOriginal = document.getElementById('chk-vOriginal').checked;
-    colunasVisiveis.vEqualizado = document.getElementById('chk-vEqualizado').checked;
-    colunasVisiveis.precoInicial = document.getElementById('chk-precoInicial').checked;
-    colunasVisiveis.precoFinal = document.getElementById('chk-precoFinal').checked;
-    colunasVisiveis.totalItem = document.getElementById('chk-totalItem').checked;
-
-    // Recarregar a tabela
-    const sel = document.getElementById('eq-select');
-    if (sel.value) {
-      sel.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  }
-
-  // Abrir modal de layout
-  function abrirLayoutModal() {
-    // Sincronizar checkboxes com estado atual
+  function aplicarChecks(){
     document.getElementById('chk-tecnico').checked = colunasVisiveis.tecnico;
     document.getElementById('chk-vOriginal').checked = colunasVisiveis.vOriginal;
     document.getElementById('chk-vEqualizado').checked = colunasVisiveis.vEqualizado;
     document.getElementById('chk-precoInicial').checked = colunasVisiveis.precoInicial;
     document.getElementById('chk-precoFinal').checked = colunasVisiveis.precoFinal;
     document.getElementById('chk-totalItem').checked = colunasVisiveis.totalItem;
-
-    document.getElementById('layout-modal').style.display = 'block';
   }
+  document.getElementById('btn-salvar-layout').addEventListener('click', () => {
+    colunasVisiveis = {
+      tecnico: document.getElementById('chk-tecnico').checked,
+      vOriginal: document.getElementById('chk-vOriginal').checked,
+      vEqualizado: document.getElementById('chk-vEqualizado').checked,
+      precoInicial: document.getElementById('chk-precoInicial').checked,
+      precoFinal: document.getElementById('chk-precoFinal').checked,
+      totalItem: document.getElementById('chk-totalItem').checked,
+    };
+    localStorage.setItem('cp_layout_colunas', JSON.stringify(colunasVisiveis));
+    toast('Layout', 'Preferências salvas');
+    closeModal('layout-modal');
+    const sel = document.getElementById('eq-select');
+    if(sel.value) renderEqualizacao(sel.value);
+  });
 
   function atualizarSelectEqualizacao() {
     const sel = document.getElementById('eq-select');
-    sel.innerHTML = '<option>Selecione um processo</option>' +
+    sel.innerHTML = '<option value="">Selecione um processo</option>' +
       state.requisicoes.map(r => `<option value="${r.id}">${r.numero} — ${r.depart}</option>`).join('');
-
-    sel.addEventListener('change', () => {
-      const processoId = sel.value;
-      if (!processoId) return;
-      // NÃO limpa ganhadores ao mudar processo
-
-      const processo = state.requisicoes.find(r => r.id == processoId);
-      const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
-      fornecedoresList = [...new Set(cotProc.map(c => c.fornecedor))]; // Guardar globalmente
-
-      document.getElementById('eq-processo').textContent = processo.numero + ' — ' + processo.depart;
-      document.getElementById('eq-fornecedores').textContent = fornecedoresList.length + ' fornecedor(es)';
-
-      // Contar rodadas
-      const codsUnicos = [...new Set(cotProc.map(c => c.codigo))];
-      const rodasPorItem = {};
-      cotProc.forEach(c => {
-        const key = `${c.codigo}-${c.fornecedor}`;
-        rodasPorItem[key] = (rodasPorItem[key] || 0) + 1;
-      });
-      const maxRodas = Math.max(...Object.values(rodasPorItem), 1);
-      document.getElementById('eq-rodadas').textContent = `${maxRodas} rodada(s)`;
-
-      // Construir matriz com cabeçalhos aprimorados
-      let html = '<table class="excel"><thead>';
-
-      // Linha 1: Item + Fornecedores com UF
-      html += '<tr><th class="sticky-col" colspan="3">Item</th>';
-      fornecedoresList.forEach(nomeForn => {
-        const forn = state.fornecedores.find(f => f.nome === nomeForn);
-        const uf = forn ? forn.uf : '—';
-        html += `<th colspan="5" style="text-align:center;background:linear-gradient(180deg,#f97316,#fb923c);color:#fff"><b>${nomeForn}</b><br/><span style="font-size:0.75rem;font-weight:normal">${uf}</span></th>`;
-      });
-      html += '</tr>';
-
-      // Linha 2: Tributos
-      html += '<tr><th class="sticky-col" colspan="3"></th>';
-      fornecedoresList.forEach(nomeForn => {
-        const forn = state.fornecedores.find(f => f.nome === nomeForn);
-        const icms = forn ? forn.icms || 18 : 18;
-        const ipi = forn ? forn.ipi || 0 : 0;
-        const pis = forn ? forn.pis || 0 : 0;
-        const isento = icms === 0 ? '✓ ISENTO' : icms + '%';
-        html += `<th colspan="5" style="text-align:center;background:#fee2e2;font-size:0.75rem;font-weight:600">
-          ICMS: ${isento} | IPI: ${ipi}% | PIS: ${pis}%
-        </th>`;
-      });
-      html += '</tr>';
-
-      // Linha 3: Condições Comerciais
-      html += '<tr><th class="sticky-col" colspan="3"></th>';
-      fornecedoresList.forEach(nomeForn => {
-        const cotForn = cotProc.find(c => c.fornecedor === nomeForn) || {};
-        const entrega = cotForn.entrega || '—';
-        const pagto = cotForn.pagamento || '—';
-        const frete = cotForn.frete || '—';
-        const garantia = cotForn.garantia || '—';
-        const vigencia = cotForn.vigencia || '—';
-        html += `<th colspan="5" style="text-align:center;background:#fff8f0;font-size:0.7rem;font-weight:600">
-          Ent: ${entrega} | Pgt: ${pagto} | Frt: ${frete} | Gar: ${garantia} | Vig: ${vigencia}
-        </th>`;
-      });
-      html += '</tr>';
-
-      // Linha 4: Cabeçalhos das colunas
-      html += '<tr><th class="sticky-col">Cód.</th><th class="sticky-col" style="left:60px">Descrição</th><th class="sticky-col" style="left:240px">Qtd</th>';
-      fornecedoresList.forEach(f => {
-        if (colunasVisiveis.tecnico) html += '<th data-col="tecnico">Técnico</th>';
-        if (colunasVisiveis.vOriginal) html += '<th data-col="vOriginal">V. Original</th>';
-        if (colunasVisiveis.vEqualizado) html += '<th data-col="vEqualizado">V. Equalizado</th>';
-        if (colunasVisiveis.precoInicial) html += '<th data-col="precoInicial">Preço Inicial</th>';
-        if (colunasVisiveis.precoFinal) html += '<th data-col="precoFinal">Preço Final</th>';
-        if (colunasVisiveis.totalItem) html += '<th data-col="totalItem">Total Item</th>';
-      });
-      html += '</tr></thead><tbody>';
-
-      // Construir linhas de itens e guardar globalmente
-      itensPorCod = {};
-      cotProc.forEach(c => {
-        const key = c.codigo;
-        if (!itensPorCod[key]) {
-          itensPorCod[key] = {
-            desc: c.descricao,
-            qtd: c.qtd,
-            unidade: c.unidade,
-            cotacoes: {}
-          };
-        }
-        if (!itensPorCod[key].cotacoes[c.fornecedor]) {
-          itensPorCod[key].cotacoes[c.fornecedor] = [];
-        }
-        itensPorCod[key].cotacoes[c.fornecedor].push({
-          vunit: c.vunit,
-          vtotal: c.qtd * c.vunit,
-          id: c.id
-        });
-      });
-
-      // Determinar preços mínimos por item
-      const precosMinimos = {};
-      Object.entries(itensPorCod).forEach(([cod, item]) => {
-        let minPreco = Infinity;
-        Object.values(item.cotacoes).forEach(cotacoes => {
-          cotacoes.forEach(c => {
-            if (c.vunit < minPreco) minPreco = c.vunit;
-          });
-        });
-        precosMinimos[cod] = minPreco;
-      });
-
-      // Renderizar itens
-      Object.entries(itensPorCod).forEach(([cod, item]) => {
-        html += `<tr><td class="sticky-col"><b>${cod}</b></td><td class="sticky-col" style="left:60px">${item.desc}</td><td class="sticky-col cell-num" style="left:240px">${item.qtd.toLocaleString('pt-BR')} ${item.unidade}</td>`;
-
-        fornecedoresList.forEach(f => {
-          const cotacoes = item.cotacoes[f] || [];
-          const primeira = cotacoes[0] || { vunit: 0, vtotal: 0 };
-          const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0, vtotal: 0 };
-
-          const vUnitInicial = primeira.vunit;
-          const vUnitFinal = ultima.vunit;
-          const vTotal = vUnitFinal * item.qtd;
-          const ehSelecionado = ganhadores[cod] === f;
-          const ehMenorPreco = vUnitFinal === precosMinimos[cod];
-
-          const analise = state.analises.find(a => a.cotacaoId === ultima.id);
-          const statusTecnico = analise ? analise.status : 'Pendente';
-          const badgeClass = statusTecnico === 'SIM' ? 'background:#fff8f0;color:#e07410' :
-                            statusTecnico === 'NÃO' ? 'background:#fee2e2;color:#991b1b' :
-                            'background:#fef3c7;color:#92400e';
-
-          const bgSelecionado = ehSelecionado ? 'background:#fff8f0;color:#e07410;font-weight:700;border:2px solid #f68b1f' : '';
-          const bgMenor = ehMenorPreco && !ehSelecionado ? 'background:#fff8f0;color:#e07410' : '';
-          const bgEqualizado = ehSelecionado ? bgSelecionado : bgMenor;
-
-          if (colunasVisiveis.tecnico) {
-            html += `<td style="${badgeClass};text-align:center;font-weight:600;font-size:0.75rem;padding:4px" data-col="tecnico">${statusTecnico}</td>`;
-          }
-          if (colunasVisiveis.vOriginal) {
-            html += `<td class="cell-num" style="padding:6px;font-size:0.75rem" data-col="vOriginal">R$ ${(vUnitInicial).toFixed(2).replace('.', ',')}</td>`;
-          }
-          if (colunasVisiveis.vEqualizado) {
-            html += `<td class="cell-num" style="${bgEqualizado};padding:6px;font-size:0.75rem;cursor:pointer;border-radius:4px;transition:all 0.2s" data-codigo="${cod}" data-fornecedor="${f}" data-col="vEqualizado" onclick="selecionarPorPreco('${cod}', '${f}')" title="Clique para selecionar como ganhador">R$ ${(vUnitFinal * 0.98).toFixed(2).replace('.', ',')}</td>`;
-          }
-          if (colunasVisiveis.precoInicial) {
-            html += `<td class="cell-num" style="padding:6px;font-size:0.75rem;color:#666" data-col="precoInicial">R$ ${(vUnitInicial).toFixed(2).replace('.', ',')}</td>`;
-          }
-          if (colunasVisiveis.precoFinal) {
-            html += `<td class="cell-num" style="padding:6px;font-size:0.75rem;color:#e07410;font-weight:600" data-col="precoFinal">R$ ${(vUnitFinal).toFixed(2).replace('.', ',')}</td>`;
-          }
-          if (colunasVisiveis.totalItem) {
-            html += `<td class="cell-num" style="padding:6px;font-size:0.75rem" data-col="totalItem">R$ ${(vTotal).toFixed(2).replace('.', ',')}</td>`;
-          }
-        });
-        html += '</tr>';
-      });
-
-      html += '</tbody></table>';
-      document.getElementById('eq-tabela-container').innerHTML = html;
-
-      // ===== CRIAR CONTAINER DE RESUMO =====
-      let resumoContainer = document.getElementById('eq-resumo-container');
-      if (!resumoContainer) {
-        resumoContainer = document.createElement('div');
-        resumoContainer.id = 'eq-resumo-container';
-        resumoContainer.style.marginTop = '24px';
-        document.getElementById('eq-tabela-container').parentNode.appendChild(resumoContainer);
-      }
-
-
-      // Renderizar resumo inicial
-      atualizarResumoVisual();
-    });
+    sel.onchange = () => renderEqualizacao(sel.value);
   }
 
-  function selecionarPorPreco(codigo, fornecedor) {
-    if (!ganhadores) ganhadores = {};
+  function renderEqualizacao(processoId){
+    if(!processoId) return;
+    const processo = state.requisicoes.find(r => r.id == processoId);
+    const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
+    fornecedoresList = [...new Set(cotProc.map(c => c.fornecedor))];
 
-    // Se já está selecionado, desseleciona
-    if (ganhadores[codigo] === fornecedor) {
-      delete ganhadores[codigo];
-      toast('❌ Removido', `${codigo}`);
-    } else {
-      ganhadores[codigo] = fornecedor;
-      toast('✅ ' + fornecedor, `${codigo} - R$ ${itensPorCod[codigo].cotacoes[fornecedor][itensPorCod[codigo].cotacoes[fornecedor].length-1].vtotal.toFixed(2)}`, 'success');
+    document.getElementById('eq-processo').textContent = processo.numero + ' — ' + processo.depart;
+    document.getElementById('eq-fornecedores').textContent = fornecedoresList.length + ' fornecedor(es)';
+
+    const rodasPorItem = {};
+    cotProc.forEach(c => { const k = `${c.codigo}-${c.fornecedor}`; rodasPorItem[k]=(rodasPorItem[k]||0)+1; });
+    const maxRodas = Math.max(...Object.values(rodasPorItem), 1);
+    document.getElementById('eq-rodadas').textContent = `${maxRodas} rodada(s)`;
+
+    if(!fornecedoresList.length){
+      document.getElementById('eq-tabela-container').innerHTML = '<div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma cotação para este processo</div>';
+      return;
     }
 
-    // Atualiza apenas o visual (cores na tabela) e resumo (sem recarregar tabela inteira)
-    atualizarVisualizacao();
-  }
+    let html = '<table class="excel"><thead>';
+    html += '<tr><th class="sticky-col" colspan="3">Item</th>';
+    fornecedoresList.forEach(nomeForn => {
+      const forn = state.fornecedores.find(f => f.nome === nomeForn);
+      const uf = forn ? forn.uf : '—';
+      const colCount = Object.values(colunasVisiveis).filter(Boolean).length || 1;
+      html += `<th colspan="${colCount}"><b>${nomeForn}</b><br/><span style="font-size:.7rem;font-weight:400;opacity:.8">${uf||'—'}</span></th>`;
+    });
+    html += '</tr>';
 
-  function atualizarVisualizacao() {
-    // Limpar todas as seleções anteriores
-    document.querySelectorAll('[data-codigo]').forEach(cell => {
-      cell.style.background = '';
-      cell.style.color = '';
-      cell.style.fontWeight = '';
-      cell.style.border = '';
+    html += '<tr><th class="sticky-col" colspan="3"></th>';
+    fornecedoresList.forEach(nomeForn => {
+      const forn = state.fornecedores.find(f => f.nome === nomeForn);
+      const icms = forn ? forn.icms||18 : 18;
+      const ipi = forn ? forn.ipi||0 : 0;
+      const pis = forn ? forn.pis||0 : 0;
+      const colCount = Object.values(colunasVisiveis).filter(Boolean).length || 1;
+      const isento = icms === 0 ? '✓ ISENTO' : icms + '%';
+      html += `<th colspan="${colCount}">ICMS: ${isento} | IPI: ${ipi}% | PIS: ${pis}%</th>`;
+    });
+    html += '</tr>';
+
+    html += '<tr><th class="sticky-col" colspan="3"></th>';
+    fornecedoresList.forEach(nomeForn => {
+      const c = cotProc.find(c => c.fornecedor === nomeForn) || {};
+      const colCount = Object.values(colunasVisiveis).filter(Boolean).length || 1;
+      html += `<th colspan="${colCount}">Ent: ${c.entrega||'—'} | Pgt: ${c.pagamento||'—'} | Frt: ${c.frete||'—'} | Gar: ${c.garantia||'—'}</th>`;
+    });
+    html += '</tr>';
+
+    html += '<tr><th class="sticky-col">Cód.</th><th class="sticky-col" style="left:60px">Descrição</th><th class="sticky-col" style="left:240px">Qtd</th>';
+    fornecedoresList.forEach(() => {
+      if (colunasVisiveis.tecnico) html += '<th>Técnico</th>';
+      if (colunasVisiveis.vOriginal) html += '<th>V. Original</th>';
+      if (colunasVisiveis.vEqualizado) html += '<th>V. Equalizado</th>';
+      if (colunasVisiveis.precoInicial) html += '<th>Preço Inicial</th>';
+      if (colunasVisiveis.precoFinal) html += '<th>Preço Final</th>';
+      if (colunasVisiveis.totalItem) html += '<th>Total Item</th>';
+    });
+    html += '</tr></thead><tbody>';
+
+    itensPorCod = {};
+    cotProc.forEach(c => {
+      const k = c.codigo;
+      if(!itensPorCod[k]) itensPorCod[k] = { desc:c.descricao, qtd:c.qtd, unidade:c.unidade, cotacoes:{} };
+      if(!itensPorCod[k].cotacoes[c.fornecedor]) itensPorCod[k].cotacoes[c.fornecedor] = [];
+      itensPorCod[k].cotacoes[c.fornecedor].push({ vunit:c.vunit, vtotal:c.qtd*c.vunit, id:c.id });
+    });
+    const precosMinimos = {};
+    Object.entries(itensPorCod).forEach(([cod,item]) => {
+      let m = Infinity;
+      Object.values(item.cotacoes).forEach(cs => cs.forEach(c => { if(c.vunit < m) m = c.vunit; }));
+      precosMinimos[cod] = m;
     });
 
-    // Atualizar cores na tabela para seleções atuais
-    Object.entries(ganhadores).forEach(([cod, forn]) => {
-      const cells = document.querySelectorAll(`[data-codigo="${cod}"][data-fornecedor="${forn}"]`);
-      cells.forEach(cell => {
-        cell.style.background = '#fff8f0';
-        cell.style.color = '#e07410';
-        cell.style.fontWeight = '700';
-        cell.style.border = '2px solid #f68b1f';
+    Object.entries(itensPorCod).forEach(([cod,item]) => {
+      html += `<tr><td class="sticky-col"><b style="color:var(--neon-orange)">${cod}</b></td><td class="sticky-col" style="left:60px">${item.desc}</td><td class="sticky-col cell-num" style="left:240px">${item.qtd.toLocaleString('pt-BR')} ${item.unidade||''}</td>`;
+      fornecedoresList.forEach(f => {
+        const cs = item.cotacoes[f] || [];
+        const pri = cs[0] || {vunit:0};
+        const ult = cs[cs.length-1] || {vunit:0};
+        const vTotal = ult.vunit * item.qtd;
+        const ehSel = ganhadores[cod] === f;
+        const ehMin = ult.vunit === precosMinimos[cod] && ult.vunit > 0;
+        const ana = state.analises.find(a => a.cotacaoId === ult.id);
+        const stT = ana ? ana.status : 'Pendente';
+        const stStyle = stT === 'SIM' ? 'background:rgba(34,211,164,.18);color:var(--neon-green)' :
+                       stT === 'NÃO' ? 'background:rgba(255,77,109,.18);color:var(--neon-red)' :
+                       'background:rgba(251,191,36,.18);color:var(--neon-amber)';
+        const bgSel = ehSel ? 'background:rgba(34,211,164,.25);color:var(--neon-green);font-weight:700;border:1.5px solid var(--neon-green)' :
+                     ehMin ? 'background:rgba(34,211,164,.08);color:var(--neon-green)' : '';
+
+        if (colunasVisiveis.tecnico)
+          html += `<td style="${stStyle};text-align:center;font-weight:700;font-size:.7rem">${stT}</td>`;
+        if (colunasVisiveis.vOriginal)
+          html += `<td class="cell-num">${fmtBRL(pri.vunit)}</td>`;
+        if (colunasVisiveis.vEqualizado)
+          html += `<td class="cell-num" style="${bgSel};cursor:pointer" data-codigo="${cod}" data-fornecedor="${f}" onclick="selecionarPorPreco('${cod}','${f}')" title="Clique para selecionar como ganhador">${fmtBRL(ult.vunit*0.98)}</td>`;
+        if (colunasVisiveis.precoInicial)
+          html += `<td class="cell-num" style="color:var(--text-muted)">${fmtBRL(pri.vunit)}</td>`;
+        if (colunasVisiveis.precoFinal)
+          html += `<td class="cell-num" style="color:var(--neon-green);font-weight:600">${fmtBRL(ult.vunit)}</td>`;
+        if (colunasVisiveis.totalItem)
+          html += `<td class="cell-num">${fmtBRL(vTotal)}</td>`;
       });
+      html += '</tr>';
     });
+    html += '</tbody></table>';
+    document.getElementById('eq-tabela-container').innerHTML = html;
 
-    // Atualizar resumo
+    let resumo = document.getElementById('eq-resumo-container');
+    if(!resumo){
+      resumo = document.createElement('div'); resumo.id = 'eq-resumo-container';
+      document.getElementById('eq-tabela-container').parentNode.appendChild(resumo);
+    }
     atualizarResumoVisual();
   }
 
-  function atualizarResumoVisual() {
-    const resumoContainer = document.getElementById('eq-resumo-container');
-    if (!resumoContainer) return;
+  window.selecionarPorPreco = function(codigo, fornecedor){
+    if(ganhadores[codigo] === fornecedor){ delete ganhadores[codigo]; toast('Removido', codigo, 'warning'); }
+    else {
+      ganhadores[codigo] = fornecedor;
+      const u = itensPorCod[codigo].cotacoes[fornecedor].slice(-1)[0];
+      toast(fornecedor, `${codigo} · ${fmtBRL(u.vunit * itensPorCod[codigo].qtd)}`, 'success');
+    }
+    const sel = document.getElementById('eq-select');
+    if(sel.value) renderEqualizacao(sel.value);
+  };
 
-    const fornecedores = fornecedoresList;
-    const totaisPorForn = {};
-    fornecedores.forEach(f => {
-      let total = 0;
-      Object.entries(itensPorCod).forEach(([cod, item]) => {
-        const cotacoes = item.cotacoes[f] || [];
-        const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0 };
-        total += ultima.vunit * item.qtd;
+  function atualizarResumoVisual() {
+    const c = document.getElementById('eq-resumo-container');
+    if(!c) return;
+    const tot = {};
+    fornecedoresList.forEach(f => {
+      let s = 0;
+      Object.values(itensPorCod).forEach(it => {
+        const cs = it.cotacoes[f] || [];
+        const u = cs.slice(-1)[0] || {vunit:0};
+        s += u.vunit * it.qtd;
       });
-      totaisPorForn[f] = total;
+      tot[f] = s;
     });
 
-    let resumoHtml = '<div style="background:#fff8f0;padding:16px;border-radius:8px;border:2px solid #ffe4cc">';
-    resumoHtml += '<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;color:#e07410">📋 GANHADORES SELECIONADOS POR ITEM</h3>';
-
-    let totalGanhadores = 0;
-    let contemGanhadores = false;
-    resumoHtml += '<div style="background:#fff;padding:12px;border-radius:6px;border:1px solid #ffe4cc">';
-
-    Object.entries(itensPorCod).forEach(([cod, item]) => {
-      const ganhador = ganhadores[cod];
-      if (ganhador) {
-        contemGanhadores = true;
-        const cotacoes = item.cotacoes[ganhador] || [];
-        const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0 };
-        const vtotal = ultima.vunit * item.qtd;
-        resumoHtml += `<div style="padding:8px;border-bottom:1px solid #e5e7eb;font-size:0.9rem;display:flex;justify-content:space-between;align-items:center">
-          <div><b style="color:#f68b1f">${cod}</b> - ${item.desc} (${item.qtd} un.)</div>
-          <div style="text-align:right">
-            <div style="color:#f68b1f;font-weight:700;margin-bottom:2px">${ganhador}</div>
-            <div style="font-weight:700">R$ ${vtotal.toFixed(2).replace('.', ',')}</div>
-          </div>
-        </div>`;
-        totalGanhadores += vtotal;
+    let html = '<div class="resumo-box"><h3>📋 Ganhadores selecionados por item</h3>';
+    let totalSel = 0, has = false;
+    Object.entries(itensPorCod).forEach(([cod,it]) => {
+      const g = ganhadores[cod];
+      if(g){
+        has = true;
+        const u = (it.cotacoes[g]||[]).slice(-1)[0] || {vunit:0};
+        const v = u.vunit * it.qtd;
+        totalSel += v;
+        html += `<div class="resumo-row"><div class="left"><b>${cod}</b> — ${it.desc} <span style="color:var(--text-muted)">(${it.qtd} un.)</span></div><div class="right"><div class="forn">${g}</div><div class="val">${fmtBRL(v)}</div></div></div>`;
       }
     });
+    if(!has) html += '<div style="padding:18px;text-align:center;color:var(--text-muted);font-style:italic">Nenhum ganhador selecionado — clique no <b>V. Equalizado</b> para escolher.</div>';
+    else html += `<div class="resumo-total">TOTAL SELECIONADO: ${fmtBRL(totalSel)}</div>`;
+    html += '</div>';
 
-    if (!contemGanhadores) {
-      resumoHtml += '<div style="padding:16px;color:#64748b;font-style:italic;text-align:center">Nenhum ganhador selecionado ainda - clique no preço para selecionar</div>';
-    } else {
-      resumoHtml += `<div style="padding:12px;border-top:2px solid #f68b1f;margin-top:8px;background:#fff8f0;font-weight:700;color:#e07410;text-align:right;font-size:1rem">
-        TOTAL SELECIONADO: R$ ${totalGanhadores.toFixed(2).replace('.', ',')}
-      </div>`;
+    let menorF = null, menorV = Infinity;
+    Object.entries(tot).forEach(([f,v]) => { if(v>0 && v<menorV){ menorV=v; menorF=f; }});
+    if(menorF){
+      html += `<div class="resumo-winner"><h3><i class="lucide lucide-trophy"></i> Fornecedor com menor custo geral</h3><div class="name">${menorF}</div><div class="val">Valor Total: <b>${fmtBRL(menorV)}</b></div></div>`;
     }
-    resumoHtml += '</div>';
-
-    // Fornecedor com menor custo geral
-    let menorForn = null;
-    let menorValor = Infinity;
-    Object.entries(totaisPorForn).forEach(([forn, valor]) => {
-      if (valor < menorValor) { menorValor = valor; menorForn = forn; }
-    });
-
-    resumoHtml += '<div style="background:#fff8f0;padding:16px;border-radius:8px;border:2px solid #f68b1f;margin-top:16px;text-align:center">';
-    resumoHtml += '<h3 style="font-size:1rem;font-weight:700;margin-bottom:10px;color:#e07410">🏆 FORNECEDOR COM MENOR CUSTO GERAL</h3>';
-    resumoHtml += `<div style="font-size:1.3rem;font-weight:700;color:#e07410;margin-bottom:6px">${menorForn}</div>`;
-    resumoHtml += `<div style="font-size:0.95rem;color:#e07410">Valor Total: <b>R$ ${menorValor.toFixed(2).replace('.', ',')}</b></div>`;
-    resumoHtml += '</div>';
-
-    resumoHtml += '</div>';
-    resumoContainer.innerHTML = resumoHtml;
+    c.innerHTML = html;
   }
 
   // ===== RESUMO =====
   function atualizarSelectResumo() {
     const sel = document.getElementById('res-processo');
-    sel.innerHTML = '<option>Selecione…</option>' +
+    sel.innerHTML = '<option value="">Selecione…</option>' +
       state.requisicoes.map(r => `<option value="${r.id}">${r.numero}</option>`).join('');
-
-    sel.addEventListener('change', () => {
-      const processoId = sel.value;
-      if (!processoId) return;
-
-      const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
-      const inicial = cotProc.reduce((s, c) => s + (c.qtd * c.vunit), 0);
-      const final = inicial * 0.95;
-      const saving = inicial - final;
-
-      const formatarMoeda = (valor) => 'R$ ' + valor.toFixed(2).replace('.', ',');
-
-      document.getElementById('res-inicial').textContent = formatarMoeda(inicial);
-      document.getElementById('res-final').textContent = formatarMoeda(final);
-      document.getElementById('res-saving').textContent = formatarMoeda(saving);
-      document.getElementById('res-percent').textContent = (saving / inicial * 100).toFixed(1) + '%';
-    });
+    sel.onchange = () => {
+      const id = sel.value;
+      if(!id) return;
+      const cot = state.cotacoes.filter(c => c.processoId == id);
+      const ini = cot.reduce((s,c) => s + c.qtd*c.vunit, 0);
+      const fim = ini * 0.95;
+      const sav = ini - fim;
+      document.getElementById('res-inicial').textContent = fmtBRL(ini);
+      document.getElementById('res-final').textContent = fmtBRL(fim);
+      document.getElementById('res-saving').textContent = fmtBRL(sav);
+      document.getElementById('res-percent').textContent = ini ? (sav/ini*100).toFixed(1)+'%' : '0%';
+    };
   }
 
   // ===== CONTRATOS =====
   function atualizarSelectContratos() {
-    const req = document.getElementById('con-req');
-    const forn = document.getElementById('con-forn');
-
-    req.innerHTML = '<option>Selecione…</option>' +
+    document.getElementById('con-req').innerHTML = '<option value="">Selecione…</option>' +
       state.requisicoes.map(r => `<option value="${r.id}">${r.numero}</option>`).join('');
-
-    forn.innerHTML = '<option>Selecione…</option>' +
+    document.getElementById('con-forn').innerHTML = '<option value="">Selecione…</option>' +
       state.fornecedores.map(f => `<option value="${f.id}">${f.nome}</option>`).join('');
   }
-
+  function renderContratos(){
+    const tbody = document.getElementById('tabela-contratos');
+    if(!state.contratos.length){
+      tbody.innerHTML='<tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhum contrato registrado</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = state.contratos.slice().reverse().map(c => {
+      const r = state.requisicoes.find(x => x.id == c.requisicaoId);
+      const f = state.fornecedores.find(x => x.id == c.fornecedorId);
+      return `<tr>
+        <td><b class="mono" style="color:var(--neon-orange)">${c.numero}</b></td>
+        <td>${r?r.numero:'—'}</td>
+        <td>${f?f.nome:'—'}</td>
+        <td class="mono">${c.data||'—'}</td>
+        <td>${c.prazo||0} dias</td>
+        <td class="mono" style="color:var(--neon-green);font-weight:700">${fmtBRL(c.valor)}</td>
+      </tr>`;
+    }).join('');
+  }
   document.getElementById('btn-efetivar').addEventListener('click', () => {
     const req = document.getElementById('con-req').value;
     const numero = document.getElementById('con-numero').value.trim();
     const forn = document.getElementById('con-forn').value;
     const valor = limparNumero(document.getElementById('con-valor').value);
-
-    if (!req || !numero || !forn || !valor) {
-      toast('Erro', 'Preencha todos os campos', 'error');
-      return;
-    }
-
+    if (!req || !numero || !forn || !valor) { toast('Erro', 'Preencha todos os campos', 'error'); return; }
     state.contratos.push({
-      id: Date.now(),
-      requisicaoId: parseInt(req),
-      numero, fornecedorId: parseInt(forn),
+      id: Date.now(), requisicaoId: parseInt(req), numero,
+      fornecedorId: parseInt(forn),
       data: document.getElementById('con-data').value,
       valor, prazo: parseInt(document.getElementById('con-prazo').value) || 0
     });
-
+    const r = state.requisicoes.find(x => x.id == req); if(r) r.status = 'Concluído';
     salvar();
     toast('Sucesso', 'Contrato efetivado');
-    document.getElementById('con-numero').value = '';
-    document.getElementById('con-valor').value = '';
-    document.getElementById('con-prazo').value = '';
+    ['con-numero','con-valor','con-prazo','con-data'].forEach(id=>document.getElementById(id).value='');
+    renderContratos(); atualizarKPIs();
   });
 
   // ===== IMPRESSÃO / EXPORTAÇÃO =====
   document.getElementById('btn-imprimir').addEventListener('click', () => {
     window.print();
-    toast('Sucesso', 'Abrindo impressão…');
+    toast('Impressão','Janela aberta','info');
   });
-
-  document.getElementById('btn-layout').addEventListener('click', () => {
-    abrirLayoutModal();
-  });
+  document.getElementById('btn-layout').addEventListener('click', () => { aplicarChecks(); openModal('layout-modal'); });
 
   document.getElementById('btn-exportar').addEventListener('click', () => {
-    const processoId = document.getElementById('eq-select').value;
-    if (!processoId) {
-      toast('Erro', 'Selecione um processo', 'error');
-      return;
-    }
-
-    let csv = 'Código,Descrição,Quantidade\n';
-    const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
-    cotProc.forEach(c => {
-      csv += `"${c.codigo}","${c.descricao}",${c.qtd}\n`;
-    });
-
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+    const id = document.getElementById('eq-select').value;
+    if (!id) { toast('Erro', 'Selecione um processo', 'error'); return; }
+    const cot = state.cotacoes.filter(c => c.processoId == id);
+    if(!cot.length){ toast('Aviso','Sem cotações para exportar','warning'); return; }
+    let csv = 'Codigo,Descricao,Fornecedor,Quantidade,V.Unit,V.Total\n';
+    cot.forEach(c => { csv += `"${c.codigo}","${c.descricao}","${c.fornecedor}",${c.qtd},${c.vunit},${c.qtd*c.vunit}\n`; });
+    const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'equalizacao.csv';
-    a.click();
-    toast('Sucesso', 'Arquivo exportado');
+    a.href = URL.createObjectURL(blob); a.download = `equalizacao_${id}.csv`; a.click();
+    toast('Sucesso','CSV exportado');
   });
 
   // ===== INICIALIZAR =====
   carregarLayoutSalvo();
   renderRequisicoes();
+  atualizarKPIs();
 </script>
 </body>
 </html>
