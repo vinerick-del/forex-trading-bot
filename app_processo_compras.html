@@ -1205,57 +1205,53 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
   }
 
   // ===== SISTEMA DE TEMAS =====
-  function mudarTema(tema) {
-    console.log('Mudando para tema:', tema);
+  window.aplicarTema = function(tema) {
     document.documentElement.setAttribute('data-theme', tema);
     localStorage.setItem('cp_tema', tema);
 
-    // Atualizar checkboxes
-    const radios = document.querySelectorAll('input[name="theme"]');
-    console.log('Radios encontrados:', radios.length);
-    radios.forEach(r => {
-      r.checked = r.value === tema;
+    // Marcar radio selecionado
+    document.querySelectorAll('input[name="theme"]').forEach(r => {
+      r.checked = (r.value === tema);
     });
+  };
 
-    // Fechar menu
-    const menu = document.getElementById('theme-menu');
-    if (menu) menu.style.display = 'none';
-  }
+  window.carregarTemaSalvo = function() {
+    const temaSalvo = localStorage.getItem('cp_tema') || 'dark';
+    document.documentElement.setAttribute('data-theme', temaSalvo);
 
-  function carregarTema() {
-    const tema = localStorage.getItem('cp_tema') || 'dark';
-    console.log('Carregando tema:', tema);
-    mudarTema(tema);
-  }
+    // Marcar o radio correto
+    const radioSelecionado = document.querySelector(`input[name="theme"][value="${temaSalvo}"]`);
+    if (radioSelecionado) {
+      radioSelecionado.checked = true;
+    }
+  };
 
-  // Inicializar temas quando DOM estiver pronto
-  function inicializarTemas() {
-    // Botão para abrir menu
-    const btnTheme = document.getElementById('btn-theme');
-    if (btnTheme) {
-      btnTheme.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const menu = document.getElementById('theme-menu');
-        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-      });
+  // Event delegation para cliques em inputs de tema
+  document.addEventListener('click', (e) => {
+    // Se clicou num input de tema
+    if (e.target.name === 'theme' && e.target.type === 'radio') {
+      const tema = e.target.value;
+      aplicarTema(tema);
+
+      // Fechar menu
+      const menu = document.getElementById('theme-menu');
+      if (menu) menu.style.display = 'none';
     }
 
-    // Radios para mudar tema
-    document.querySelectorAll('input[name="theme"]').forEach(radio => {
-      radio.addEventListener('change', (e) => {
-        console.log('Radio mudou para:', e.target.value);
-        mudarTema(e.target.value);
-      });
-    });
-
-    // Fechar menu ao clicar fora
-    document.addEventListener('click', (e) => {
+    // Se clicou no botão de tema
+    if (e.target.closest('#btn-theme')) {
       const menu = document.getElementById('theme-menu');
-      if (menu && !e.target.closest('#btn-theme') && !e.target.closest('#theme-menu')) {
-        menu.style.display = 'none';
+      if (menu) {
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
       }
-    });
-  }
+    }
+
+    // Se clicou fora do menu, fechar
+    if (!e.target.closest('#theme-menu') && !e.target.closest('#btn-theme')) {
+      const menu = document.getElementById('theme-menu');
+      if (menu) menu.style.display = 'none';
+    }
+  });
 
   // ===== REDIMENSIONAMENTO DE COLUNAS =====
   let colResizing = null;
@@ -1958,8 +1954,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
   });
 
   // ===== INICIALIZAR =====
-  carregarTema();
-  inicializarTemas();
+  carregarTemaSalvo();
   carregarLayoutSalvo();
   renderRequisicoes();
   atualizarKPIs();
