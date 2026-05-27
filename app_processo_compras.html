@@ -1086,9 +1086,12 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
         html += '</tr>';
       });
 
-      // Rodapé com resumo
-      html += '<tr style="background:#f3f4f6;font-weight:700;border-top:3px solid #333"><td class="sticky-col" colspan="3">TOTAL POR FORNECEDOR</td>';
+      html += '</tbody></table>';
 
+      // ===== SEÇÃO DE SELEÇÃO ABAIXO =====
+      let selecoesHtml = '<div style="margin-top:24px">';
+
+      // Cálculos para resumo
       const totaisPorForn = {};
       fornecedores.forEach(f => {
         let total = 0;
@@ -1098,53 +1101,122 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
           total += ultima.vunit * item.qtd;
         });
         totaisPorForn[f] = total;
-        html += `<td colspan="5" style="text-align:right;background:#fffbeb;border:1px solid #f59e0b">R$ ${total.toFixed(2).replace('.', ',')}</td>`;
       });
-      html += '</tr>';
 
-      // Encontrar fornecedor com menor custo
+      // Seção de seleção
+      selecoesHtml += '<div style="background:#f3f4f6;padding:16px;border-radius:8px;margin-bottom:16px;border:1px solid #d1d5db">';
+      selecoesHtml += '<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;color:#111827">📋 SELECIONAR GANHADORES POR ITEM</h3>';
+      selecoesHtml += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px">';
+
+      Object.entries(itensPorCod).forEach(([cod, item]) => {
+        selecoesHtml += `<div style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:12px;box-shadow:0 1px 2px rgba(0,0,0,0.05)">`;
+        selecoesHtml += `<div style="font-weight:600;margin-bottom:10px;color:#374151;font-size:0.95rem"><b>${cod}</b> - ${item.desc}</div>`;
+        selecoesHtml += `<div style="display:flex;flex-direction:column;gap:6px">`;
+
+        fornecedores.forEach(f => {
+          const cotacoes = item.cotacoes[f] || [];
+          const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0 };
+          const vUnit = ultima.vunit;
+          const vTotal = vUnit * item.qtd;
+          const ehSelecionado = ganhadores[cod] === f;
+          const bgBtn = ehSelecionado ?
+            'background:#059669;color:#fff;border:2px solid #047857;font-weight:700' :
+            'background:#fff;color:#374151;border:2px solid #d1d5db';
+
+          selecoesHtml += `
+            <button onclick="selecionarGanhador('${cod}', '${f}')" style="
+              ${bgBtn};
+              padding:8px 10px;
+              border-radius:4px;
+              cursor:pointer;
+              font-size:0.85rem;
+              text-align:left;
+              transition:all 0.2s;
+            " title="Clique para selecionar">
+              ${ehSelecionado ? '✓' : '○'} ${f} - R$ ${vTotal.toFixed(2).replace('.', ',')}
+            </button>
+          `;
+        });
+
+        selecoesHtml += `</div></div>`;
+      });
+
+      selecoesHtml += '</div></div>';
+
+      // ===== RESUMO FINAL =====
+      selecoesHtml += '<div style="background:#f0fdf4;padding:16px;border-radius:8px;border:2px solid #bbf7d0">';
+      selecoesHtml += '<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;color:#065f46">🏆 RESUMO DE GANHADORES</h3>';
+
+      // Ganhadores selecionados
+      selecoesHtml += '<div style="background:#fff;padding:12px;border-radius:6px;margin-bottom:12px;border-left:4px solid #059669">';
+      selecoesHtml += '<h4 style="font-size:0.95rem;font-weight:600;margin-bottom:10px;color:#374151">Ganhadores Selecionados por Item:</h4>';
+
+      let totalGanhadores = 0;
+      let contemGanhadores = false;
+      Object.entries(itensPorCod).forEach(([cod, item]) => {
+        const ganhador = ganhadores[cod];
+        if (ganhador) {
+          contemGanhadores = true;
+          const cotacoes = item.cotacoes[ganhador] || [];
+          const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0 };
+          const vtotal = ultima.vunit * item.qtd;
+          selecoesHtml += `<div style="padding:8px;border-bottom:1px solid #e5e7eb;font-size:0.9rem">
+            <b style="color:#059669">${cod}</b>: <span style="color:#059669;font-weight:700">${ganhador}</span>
+            <span style="float:right;font-weight:700">R$ ${vtotal.toFixed(2).replace('.', ',')}</span>
+          </div>`;
+          totalGanhadores += vtotal;
+        }
+      });
+
+      if (!contemGanhadores) {
+        selecoesHtml += '<div style="padding:10px;color:#64748b;font-style:italic;text-align:center">Nenhum ganhador selecionado ainda</div>';
+      } else {
+        selecoesHtml += `<div style="padding:10px;border-top:2px solid #059669;margin-top:8px;background:#ecfdf5;font-weight:700;color:#065f46;text-align:right">
+          TOTAL SELECIONADO: R$ ${totalGanhadores.toFixed(2).replace('.', ',')}
+        </div>`;
+      }
+
+      selecoesHtml += '</div>';
+
+      // Fornecedor com menor custo geral
       let menorForn = null;
       let menorValor = Infinity;
       Object.entries(totaisPorForn).forEach(([forn, valor]) => {
-        if (valor < menorValor) {
-          menorValor = valor;
-          menorForn = forn;
-        }
+        if (valor < menorValor) { menorValor = valor; menorForn = forn; }
       });
 
-      html += `<tr style="background:#dcfce7;font-weight:700;color:#065f46;border-top:2px solid #059669"><td class="sticky-col" colspan="3">🏆 GANHADOR GERAL</td>`;
-      fornecedores.forEach(f => {
-        const ehGanhador = f === menorForn;
-        html += `<td colspan="5" style="text-align:center;background:${ehGanhador ? '#dcfce7' : '#f3f4f6'};border:1px solid ${ehGanhador ? '#059669' : '#ddd'}">${ehGanhador ? '✓ ' + f : '—'}</td>`;
-      });
-      html += '</tr>';
+      selecoesHtml += '<div style="background:#dcfce7;padding:14px;border-radius:6px;border:2px solid #059669;text-align:center">';
+      selecoesHtml += '<h4 style="font-size:0.9rem;font-weight:600;margin-bottom:8px;color:#065f46">Fornecedor com Menor Custo Geral:</h4>';
+      selecoesHtml += `<div style="font-size:1.2rem;font-weight:700;color:#065f46">
+        🏆 ${menorForn}
+      </div>`;
+      selecoesHtml += `<div style="font-size:0.95rem;color:#065f46;margin-top:6px">
+        Valor Total: <b>R$ ${menorValor.toFixed(2).replace('.', ',')}</b>
+      </div>`;
+      selecoesHtml += '</div>';
 
-      html += '</tbody></table>';
-      document.getElementById('eq-tabela-container').innerHTML = html;
+      selecoesHtml += '</div>';
+      document.getElementById('eq-tabela-container').innerHTML = html + selecoesHtml;
     });
   }
 
-  function selecionarGanhador(codigo, fornecedor, event) {
-    const key = `${codigo}-${fornecedor}`;
+  function selecionarGanhador(codigo, fornecedor) {
+    if (!ganhadores) ganhadores = {};
 
-    // Toggle: se já está selecionado, desseleciona; se não está, seleciona
-    if (ganhadores[key]) {
-      delete ganhadores[key];
+    // Toggle
+    if (ganhadores[codigo] === fornecedor) {
+      delete ganhadores[codigo];
+      toast('Info', `Item ${codigo} deseleccionado`);
     } else {
-      // Remove outras seleções do mesmo item
-      Object.keys(ganhadores).forEach(k => {
-        if (k.startsWith(codigo + '-')) {
-          delete ganhadores[k];
-        }
-      });
-      ganhadores[key] = true;
+      ganhadores[codigo] = fornecedor;
+      toast('Sucesso', `${fornecedor} selecionado para ${codigo}`);
     }
 
-    // Recarrega a visualização
+    // Recarrega matriz
     const processoId = document.getElementById('eq-select').value;
-    document.getElementById('eq-select').dispatchEvent(new Event('change'));
-
-    toast('Sucesso', `Ganhador do item ${codigo} selecionado`);
+    if (processoId) {
+      document.getElementById('eq-select').dispatchEvent(new Event('change'));
+    }
   }
 
   // ===== RESUMO =====
