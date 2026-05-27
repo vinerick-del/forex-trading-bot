@@ -277,15 +277,15 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 .eq-meta{display:flex;align-items:center;gap:10px;font-size:var(--fs-sm);color:var(--text-muted)}
 .eq-meta b{color:var(--text)}
 .excel-wrap{
-  width:100%;overflow:auto;max-height:65vh;
+  width:100%;
   border:1px solid var(--border-strong);border-radius:var(--r-md);background:#fff;
 }
 .excel{
-  width:max-content;min-width:100%;border-collapse:collapse;
+  width:100%;border-collapse:collapse;
   font-family:'JetBrains Mono','Segoe UI',ui-monospace,monospace;
   font-size:.75rem;
 }
-.excel th,.excel td{border:1px solid var(--gray-200);padding:6px 10px;white-space:nowrap}
+.excel th,.excel td{border:1px solid var(--gray-200);padding:8px 10px;white-space:normal;word-break:break-word}
 .excel thead tr:nth-child(1) th{
   background:linear-gradient(180deg,#fb923c,#f97316);color:#fff;font-weight:700;
   text-transform:uppercase;letter-spacing:.04em;
@@ -1088,8 +1088,6 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
       });
 
       html += '</tbody></table>';
-
-      html += '</tbody></table>';
       document.getElementById('eq-tabela-container').innerHTML = html;
 
       // ===== CRIAR CONTAINER DE RESUMO =====
@@ -1171,16 +1169,18 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     // Se já está selecionado, desseleciona
     if (ganhadores[codigo] === fornecedor) {
       delete ganhadores[codigo];
-      toast('Info', `Seleção removida de ${codigo}`, 'info');
+      toast('Info', `Seleção removida de ${codigo}`);
     } else {
       ganhadores[codigo] = fornecedor;
-      toast('Sucesso', `✓ ${fornecedor} selecionado para ${codigo}`, 'success');
+      toast('✓ ' + fornecedor, `Selecionado para ${codigo}`, 'success');
     }
 
-    // Recarrega a visualização
+    // Recarrega apenas a tabela e resumo
     const processoId = document.getElementById('eq-select').value;
     if (processoId) {
-      document.getElementById('eq-select').dispatchEvent(new Event('change'));
+      setTimeout(() => {
+        document.getElementById('eq-select').dispatchEvent(new Event('change'));
+      }, 100);
     }
   }
 
