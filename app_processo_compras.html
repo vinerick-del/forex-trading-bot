@@ -993,7 +993,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
       // Linha 2: Tributos
       html += '<tr><th class="sticky-col" colspan="3"></th>';
-      fornecedores.forEach(nomeForn => {
+      fornecedoresList.forEach(nomeForn => {
         const forn = state.fornecedores.find(f => f.nome === nomeForn);
         const icms = forn ? forn.icms || 18 : 18;
         const ipi = forn ? forn.ipi || 0 : 0;
@@ -1007,7 +1007,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
       // Linha 3: Condições Comerciais
       html += '<tr><th class="sticky-col" colspan="3"></th>';
-      fornecedores.forEach(nomeForn => {
+      fornecedoresList.forEach(nomeForn => {
         const cotForn = cotProc.find(c => c.fornecedor === nomeForn) || {};
         const entrega = cotForn.entrega || '—';
         const pagto = cotForn.pagamento || '—';
