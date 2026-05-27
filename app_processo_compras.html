@@ -801,16 +801,16 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
           <button class="icon-btn" id="btn-theme" title="Mudar tema"><i class="lucide lucide-palette"></i></button>
           <div id="theme-menu" style="display:none;position:absolute;right:0;top:42px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);min-width:200px;z-index:1000;box-shadow:var(--shadow-lg)">
             <label style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border)">
-              <input type="radio" name="theme" value="dark" style="cursor:pointer"> 🌙 Modo Escuro
+              <input type="radio" name="theme" value="dark" onclick="mudarTemaClick('dark')" style="cursor:pointer"> 🌙 Modo Escuro
             </label>
             <label style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border)">
-              <input type="radio" name="theme" value="light" style="cursor:pointer"> ☀️ Modo Claro
+              <input type="radio" name="theme" value="light" onclick="mudarTemaClick('light')" style="cursor:pointer"> ☀️ Modo Claro
             </label>
             <label style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border)">
-              <input type="radio" name="theme" value="reading" style="cursor:pointer"> 📖 Modo Leitura
+              <input type="radio" name="theme" value="reading" onclick="mudarTemaClick('reading')" style="cursor:pointer"> 📖 Modo Leitura
             </label>
             <label style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer">
-              <input type="radio" name="theme" value="high-contrast" style="cursor:pointer"> ⚡ Alto Contraste
+              <input type="radio" name="theme" value="high-contrast" onclick="mudarTemaClick('high-contrast')" style="cursor:pointer"> ⚡ Alto Contraste
             </label>
           </div>
         </div>
@@ -1204,53 +1204,56 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     setTimeout(() => t.remove(), 4000);
   }
 
-  // ===== SISTEMA DE TEMAS =====
-  window.aplicarTema = function(tema) {
+  // ===== SISTEMA DE TEMAS - SIMPLES E FUNCIONA =====
+  function mudarTemaClick(tema) {
+    // 1. Aplicar tema
     document.documentElement.setAttribute('data-theme', tema);
+
+    // 2. Salvar no localStorage
     localStorage.setItem('cp_tema', tema);
 
-    // Marcar radio selecionado
+    // 3. Marcar radio
     document.querySelectorAll('input[name="theme"]').forEach(r => {
       r.checked = (r.value === tema);
     });
-  };
 
-  window.carregarTemaSalvo = function() {
-    const temaSalvo = localStorage.getItem('cp_tema') || 'dark';
-    document.documentElement.setAttribute('data-theme', temaSalvo);
+    // 4. Fechar menu
+    const menu = document.getElementById('theme-menu');
+    if (menu) menu.style.display = 'none';
+  }
 
-    // Marcar o radio correto
-    const radioSelecionado = document.querySelector(`input[name="theme"][value="${temaSalvo}"]`);
-    if (radioSelecionado) {
-      radioSelecionado.checked = true;
+  function carregarTemaSalvo() {
+    const tema = localStorage.getItem('cp_tema') || 'dark';
+
+    // Aplicar tema
+    document.documentElement.setAttribute('data-theme', tema);
+
+    // Marcar radio correto
+    const radio = document.querySelector(`input[name="theme"][value="${tema}"]`);
+    if (radio) radio.checked = true;
+  }
+
+  // Botão de tema - abrir/fechar menu
+  document.addEventListener('DOMContentLoaded', function() {
+    const btnTheme = document.getElementById('btn-theme');
+    if (btnTheme) {
+      btnTheme.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('theme-menu');
+        if (menu) {
+          menu.style.display = (menu.style.display === 'none' || !menu.style.display) ? 'block' : 'none';
+        }
+      });
     }
-  };
 
-  // Event delegation para cliques em inputs de tema
-  document.addEventListener('click', (e) => {
-    // Se clicou num input de tema
-    if (e.target.name === 'theme' && e.target.type === 'radio') {
-      const tema = e.target.value;
-      aplicarTema(tema);
-
-      // Fechar menu
+    // Fechar menu ao clicar fora
+    document.addEventListener('click', function(e) {
       const menu = document.getElementById('theme-menu');
-      if (menu) menu.style.display = 'none';
-    }
-
-    // Se clicou no botão de tema
-    if (e.target.closest('#btn-theme')) {
-      const menu = document.getElementById('theme-menu');
-      if (menu) {
-        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+      const btnTheme = document.getElementById('btn-theme');
+      if (menu && !menu.contains(e.target) && !btnTheme.contains(e.target)) {
+        menu.style.display = 'none';
       }
-    }
-
-    // Se clicou fora do menu, fechar
-    if (!e.target.closest('#theme-menu') && !e.target.closest('#btn-theme')) {
-      const menu = document.getElementById('theme-menu');
-      if (menu) menu.style.display = 'none';
-    }
+    });
   });
 
   // ===== REDIMENSIONAMENTO DE COLUNAS =====
@@ -1954,10 +1957,12 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
   });
 
   // ===== INICIALIZAR =====
-  carregarTemaSalvo();
-  carregarLayoutSalvo();
-  renderRequisicoes();
-  atualizarKPIs();
+  setTimeout(() => {
+    carregarTemaSalvo();
+    carregarLayoutSalvo();
+    renderRequisicoes();
+    atualizarKPIs();
+  }, 100);
 </script>
 </body>
 </html>
