@@ -63,6 +63,59 @@ html,body{height:100%}
   --fs-xs:.72rem; --fs-sm:.82rem; --fs-base:.9rem;
   --fs-md:1rem; --fs-lg:1.15rem; --fs-xl:1.4rem; --fs-2xl:1.85rem; --fs-3xl:2.4rem;
 }
+
+/* ===================== TEMA CLARO (Light) ===================== */
+[data-theme="light"]{
+  --bg-0:#ffffff;
+  --bg-1:#f8f9fa;
+  --bg-2:#f0f2f5;
+  --surface:rgba(255,255,255,.95);
+  --surface-2:rgba(240,242,245,.95);
+  --surface-3:rgba(230,235,242,.90);
+  --border:rgba(74,86,93,.10);
+  --border-strong:rgba(74,86,93,.18);
+  --border-glow:rgba(246,139,31,.25);
+  --text:#1a1a1a;
+  --text-muted:#666666;
+  --text-subtle:#999999;
+}
+
+/* ===================== TEMA LEITURA (Reading) ===================== */
+[data-theme="reading"]{
+  --bg-0:#fdf9f3;
+  --bg-1:#faf6ef;
+  --bg-2:#f5ede4;
+  --surface:rgba(255,250,245,.95);
+  --surface-2:rgba(250,246,239,.95);
+  --surface-3:rgba(245,237,228,.90);
+  --border:rgba(74,86,93,.08);
+  --border-strong:rgba(74,86,93,.14);
+  --border-glow:rgba(246,139,31,.20);
+  --text:#2c2416;
+  --text-muted:#5c5247;
+  --text-subtle:#8a7d6f;
+  --fs-base:.95rem;
+  --fs-md:1.05rem;
+  --fs-lg:1.25rem;
+}
+
+/* ===================== TEMA ALTO CONTRASTE (High Contrast) ===================== */
+[data-theme="high-contrast"]{
+  --bg-0:#000000;
+  --bg-1:#0d0d0d;
+  --bg-2:#1a1a1a;
+  --surface:rgba(30,30,30,.98);
+  --surface-2:rgba(45,45,45,.98);
+  --surface-3:rgba(60,60,60,.95);
+  --border:rgba(246,139,31,.40);
+  --border-strong:rgba(246,139,31,.60);
+  --border-glow:rgba(246,139,31,.50);
+  --text:#ffffff;
+  --text-muted:#e6e6e6;
+  --text-subtle:#cccccc;
+  --neon-orange:#ffaa00;
+  --neon-orange-2:#ffbb33;
+}
 html{font-size:16px}
 body{
   font-family:'Inter','Space Grotesk',system-ui,-apple-system,sans-serif;
@@ -442,11 +495,11 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 .table{width:100%;border-collapse:separate;border-spacing:0;font-size:var(--fs-sm)}
 .table thead th{
   position:sticky;top:0;
-  background:linear-gradient(180deg,var(--bg-2),var(--bg-1));
-  color:var(--text-muted);
+  background:linear-gradient(135deg,#4a565d 0%,#3a424a 100%);
+  color:#ffffff;
   text-align:left;font-weight:700;font-size:var(--fs-xs);
   text-transform:uppercase;letter-spacing:.08em;
-  padding:14px 16px;border-bottom:1px solid var(--border);white-space:nowrap;
+  padding:14px 16px;border-bottom:2px solid var(--neon-orange);white-space:nowrap;
   font-family:'JetBrains Mono',monospace;
 }
 .table tbody td{padding:14px 16px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
@@ -494,32 +547,47 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
   padding:9px 11px;white-space:normal;word-break:break-word;
 }
 .excel thead tr:nth-child(1) th{
-  background:linear-gradient(135deg,var(--neon-orange-2),var(--neon-pink));
-  color:#fff;font-weight:700;
+  background:linear-gradient(135deg,#4a565d 0%,#3a424a 100%);
+  color:#ffffff;font-weight:700;
   text-transform:uppercase;letter-spacing:.06em;
   position:sticky;top:0;z-index:11;text-align:center;
-  border-color:rgba(255,255,255,.1);
+  border-bottom:2px solid var(--neon-orange);
 }
 .excel thead tr:nth-child(2) th{
-  background:rgba(255,77,109,.12);color:var(--neon-red);
+  background:#4a565d;color:var(--neon-orange);
   text-align:center;font-weight:600;
   position:sticky;top:36px;z-index:10;
+  border-bottom:1px solid var(--border);
 }
 .excel thead tr:nth-child(3) th{
-  background:rgba(34,211,164,.10);color:var(--neon-green);
+  background:#4a565d;color:var(--neon-orange);
   text-align:center;font-weight:600;
   position:sticky;top:70px;z-index:10;
+  border-bottom:1px solid var(--border);
 }
 .excel thead tr:nth-child(4) th{
-  background:var(--bg-2);color:var(--neon-orange);
+  background:#4a565d;color:var(--neon-orange);
   text-align:center;font-weight:700;
   position:sticky;top:104px;z-index:10;
   text-transform:uppercase;letter-spacing:.05em;
+  border-bottom:1px solid var(--border);
 }
 .excel .sticky-col{position:sticky;left:0;background:var(--bg-1);z-index:5}
-.excel thead .sticky-col{background:var(--bg-2);color:#fff;z-index:12}
-.excel tbody tr:nth-child(even) td{background:rgba(40,50,82,.20)}
-.excel tbody tr:hover td{background:rgba(0,229,255,.06)}
+.excel thead .sticky-col{background:linear-gradient(135deg,#4a565d 0%,#3a424a 100%);color:#fff;z-index:12}
+.excel tbody tr:nth-child(even) td{background:rgba(74,86,93,.10)}
+.excel tbody tr:hover td{background:rgba(246,139,31,.08)}
+
+/* ============ Redimensionamento de Colunas ============ */
+.col-resizer{
+  position:absolute;right:0;top:0;width:6px;height:100%;
+  background:var(--neon-orange);cursor:col-resize;
+  opacity:0;transition:opacity var(--t-fast);
+  z-index:100;
+}
+.table th:hover .col-resizer{opacity:0.6}
+.table th .col-resizer:hover{opacity:1}
+.table-col{position:relative;overflow:hidden}
+.table{table-layout:auto}
 .excel tbody tr:hover .sticky-col{background:rgba(0,229,255,.10)}
 .cell-num{text-align:right;font-variant-numeric:tabular-nums}
 .cell-win{background:rgba(34,211,164,.18) !important;color:var(--neon-green);font-weight:700}
@@ -729,6 +797,23 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
         </label>
         <button class="icon-btn" id="btn-notif" title="Notificações"><i class="lucide lucide-bell"></i><span class="dot"></span></button>
         <button class="icon-btn" id="btn-help" title="Ajuda"><i class="lucide lucide-circle-help"></i></button>
+        <div style="position:relative">
+          <button class="icon-btn" id="btn-theme" title="Mudar tema"><i class="lucide lucide-palette"></i></button>
+          <div id="theme-menu" style="display:none;position:absolute;right:0;top:42px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);min-width:200px;z-index:1000;box-shadow:var(--shadow-lg)">
+            <label style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border)">
+              <input type="radio" name="theme" value="dark" style="cursor:pointer"> 🌙 Modo Escuro
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border)">
+              <input type="radio" name="theme" value="light" style="cursor:pointer"> ☀️ Modo Claro
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border)">
+              <input type="radio" name="theme" value="reading" style="cursor:pointer"> 📖 Modo Leitura
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer">
+              <input type="radio" name="theme" value="high-contrast" style="cursor:pointer"> ⚡ Alto Contraste
+            </label>
+          </div>
+        </div>
         <div class="user-chip" id="user-chip" title="Comprador logado">
           <div class="avatar">C</div>
           <div class="user-meta"><b>Comprador</b><span>Dep. Compras</span></div>
@@ -1118,6 +1203,102 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     document.getElementById('toasts').appendChild(t);
     setTimeout(() => t.remove(), 4000);
   }
+
+  // ===== SISTEMA DE TEMAS =====
+  function mudarTema(tema) {
+    document.documentElement.setAttribute('data-theme', tema);
+    localStorage.setItem('cp_tema', tema);
+    document.querySelectorAll('input[name="theme"]').forEach(r => r.checked = r.value === tema);
+    document.getElementById('theme-menu').style.display = 'none';
+  }
+
+  function carregarTema() {
+    const tema = localStorage.getItem('cp_tema') || 'dark';
+    mudarTema(tema);
+  }
+
+  // Menu de temas
+  document.getElementById('btn-theme').addEventListener('click', () => {
+    const menu = document.getElementById('theme-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  });
+
+  document.querySelectorAll('input[name="theme"]').forEach(radio => {
+    radio.addEventListener('change', (e) => mudarTema(e.target.value));
+  });
+
+  // Fechar menu ao clicar fora
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#btn-theme') && !e.target.closest('#theme-menu')) {
+      document.getElementById('theme-menu').style.display = 'none';
+    }
+  });
+
+  // ===== REDIMENSIONAMENTO DE COLUNAS =====
+  let colResizing = null;
+  let startX = 0;
+  let startWidth = 0;
+
+  function ativarResizeColuna(th, e) {
+    e.preventDefault();
+    colResizing = th;
+    startX = e.clientX;
+    startWidth = th.offsetWidth;
+
+    const move = (moveE) => {
+      const diff = moveE.clientX - startX;
+      colResizing.style.width = (startWidth + diff) + 'px';
+      localStorage.setItem('cp_col_widths', JSON.stringify(obterLargurasColunas()));
+    };
+
+    const stop = () => {
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', stop);
+      colResizing = null;
+    };
+
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', stop);
+  }
+
+  function salvarLargurasColunas() {
+    const widths = obterLargurasColunas();
+    localStorage.setItem('cp_col_widths', JSON.stringify(widths));
+  }
+
+  function obterLargurasColunas() {
+    const widths = {};
+    document.querySelectorAll('table th').forEach((th, i) => {
+      if (th.textContent.trim()) {
+        widths[th.textContent.trim()] = th.offsetWidth;
+      }
+    });
+    return widths;
+  }
+
+  function restaurarLargurasColunas() {
+    const widths = JSON.parse(localStorage.getItem('cp_col_widths') || '{}');
+    document.querySelectorAll('table th').forEach((th) => {
+      const title = th.textContent.trim();
+      if (widths[title]) {
+        th.style.width = widths[title] + 'px';
+      }
+    });
+  }
+
+  // Inicializar redimensionamento
+  setTimeout(() => {
+    document.querySelectorAll('table').forEach((table) => {
+      restaurarLargurasColunas();
+      table.querySelectorAll('th').forEach((th) => {
+        const resizer = document.createElement('div');
+        resizer.className = 'col-resizer';
+        resizer.addEventListener('mousedown', (e) => ativarResizeColuna(th, e));
+        th.style.position = 'relative';
+        th.appendChild(resizer);
+      });
+    });
+  }, 500);
 
   // ===== MODAL HELPERS =====
   function openModal(id){ document.getElementById(id).classList.add('open'); }
@@ -1754,6 +1935,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
   });
 
   // ===== INICIALIZAR =====
+  carregarTema();
   carregarLayoutSalvo();
   renderRequisicoes();
   atualizarKPIs();
