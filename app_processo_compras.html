@@ -949,6 +949,8 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
   // ===== EQUALIZAÇÃO =====
   let ganhadores = {}; // {codigo: fornecedor}
+  let itensPorCod = {}; // Cache dos itens para atualizações
+  let fornecedoresList = []; // Cache dos fornecedores
 
   function atualizarSelectEqualizacao() {
     const sel = document.getElementById('eq-select');
@@ -958,14 +960,14 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     sel.addEventListener('change', () => {
       const processoId = sel.value;
       if (!processoId) return;
-      ganhadores = {}; // Limpa seleções ao mudar processo
+      // NÃO limpa ganhadores ao mudar processo
 
       const processo = state.requisicoes.find(r => r.id == processoId);
       const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
-      const fornecedores = [...new Set(cotProc.map(c => c.fornecedor))];
+      fornecedoresList = [...new Set(cotProc.map(c => c.fornecedor))]; // Guardar globalmente
 
       document.getElementById('eq-processo').textContent = processo.numero + ' — ' + processo.depart;
-      document.getElementById('eq-fornecedores').textContent = fornecedores.length + ' fornecedor(es)';
+      document.getElementById('eq-fornecedores').textContent = fornecedoresList.length + ' fornecedor(es)';
 
       // Contar rodadas
       const codsUnicos = [...new Set(cotProc.map(c => c.codigo))];
@@ -982,7 +984,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
       // Linha 1: Item + Fornecedores com UF
       html += '<tr><th class="sticky-col" colspan="3">Item</th>';
-      fornecedores.forEach(nomeForn => {
+      fornecedoresList.forEach(nomeForn => {
         const forn = state.fornecedores.find(f => f.nome === nomeForn);
         const uf = forn ? forn.uf : '—';
         html += `<th colspan="5" style="text-align:center;background:linear-gradient(180deg,#f97316,#fb923c);color:#fff"><b>${nomeForn}</b><br/><span style="font-size:0.75rem;font-weight:normal">${uf}</span></th>`;
@@ -1020,11 +1022,11 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
       // Linha 4: Cabeçalhos das colunas
       html += '<tr><th class="sticky-col">Cód.</th><th class="sticky-col" style="left:60px">Descrição</th><th class="sticky-col" style="left:240px">Qtd</th>';
-      fornecedores.forEach(f => html += '<th>Técnico</th><th>V. Original</th><th>V. Equalizado</th><th>Total Item</th><th style="background:#f0f0f0">Selecionar</th>');
+      fornecedoresList.forEach(f => html += '<th>Técnico</th><th>V. Original</th><th>V. Equalizado</th><th>Total Item</th><th style="background:#f0f0f0">Selecionar</th>');
       html += '</tr></thead><tbody>';
 
-      // Construir linhas de itens
-      const itensPorCod = {};
+      // Construir linhas de itens e guardar globalmente
+      itensPorCod = {};
       cotProc.forEach(c => {
         const key = c.codigo;
         if (!itensPorCod[key]) {
@@ -1061,7 +1063,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
       Object.entries(itensPorCod).forEach(([cod, item]) => {
         html += `<tr><td class="sticky-col"><b>${cod}</b></td><td class="sticky-col" style="left:60px">${item.desc}</td><td class="sticky-col cell-num" style="left:240px">${item.qtd.toLocaleString('pt-BR')} ${item.unidade}</td>`;
 
-        fornecedores.forEach(f => {
+        fornecedoresList.forEach(f => {
           const cotacoes = item.cotacoes[f] || [];
           const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0, vtotal: 0 };
           const vUnit = ultima.vunit;
@@ -1099,67 +1101,9 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
         document.getElementById('eq-tabela-container').parentNode.appendChild(resumoContainer);
       }
 
-      // Cálculos para resumo
-      const totaisPorForn = {};
-      fornecedores.forEach(f => {
-        let total = 0;
-        Object.entries(itensPorCod).forEach(([cod, item]) => {
-          const cotacoes = item.cotacoes[f] || [];
-          const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0 };
-          total += ultima.vunit * item.qtd;
-        });
-        totaisPorForn[f] = total;
-      });
 
-      // Seção Ganhadores Selecionados
-      let resumoHtml = '<div style="background:#f0fdf4;padding:16px;border-radius:8px;border:2px solid #bbf7d0">';
-      resumoHtml += '<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;color:#065f46">📋 GANHADORES SELECIONADOS POR ITEM</h3>';
-
-      let totalGanhadores = 0;
-      let contemGanhadores = false;
-      resumoHtml += '<div style="background:#fff;padding:12px;border-radius:6px;border:1px solid #bbf7d0">';
-
-      Object.entries(itensPorCod).forEach(([cod, item]) => {
-        const ganhador = ganhadores[cod];
-        if (ganhador) {
-          contemGanhadores = true;
-          const cotacoes = item.cotacoes[ganhador] || [];
-          const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0 };
-          const vtotal = ultima.vunit * item.qtd;
-          resumoHtml += `<div style="padding:8px;border-bottom:1px solid #e5e7eb;font-size:0.9rem;display:flex;justify-content:space-between;align-items:center">
-            <div><b style="color:#059669">${cod}</b> - ${item.desc} (${item.qtd} un.)</div>
-            <div style="text-align:right">
-              <div style="color:#059669;font-weight:700;margin-bottom:2px">${ganhador}</div>
-              <div style="font-weight:700">R$ ${vtotal.toFixed(2).replace('.', ',')}</div>
-            </div>
-          </div>`;
-          totalGanhadores += vtotal;
-        }
-      });
-
-      if (!contemGanhadores) {
-        resumoHtml += '<div style="padding:16px;color:#64748b;font-style:italic;text-align:center">Nenhum ganhador selecionado ainda - use os checkboxes na coluna "Sel." da tabela</div>';
-      } else {
-        resumoHtml += `<div style="padding:12px;border-top:2px solid #059669;margin-top:8px;background:#ecfdf5;font-weight:700;color:#065f46;text-align:right;font-size:1rem">
-          TOTAL SELECIONADO: R$ ${totalGanhadores.toFixed(2).replace('.', ',')}
-        </div>`;
-      }
-      resumoHtml += '</div></div>';
-
-      // Fornecedor com menor custo geral
-      let menorForn = null;
-      let menorValor = Infinity;
-      Object.entries(totaisPorForn).forEach(([forn, valor]) => {
-        if (valor < menorValor) { menorValor = valor; menorForn = forn; }
-      });
-
-      resumoHtml += '<div style="background:#dcfce7;padding:16px;border-radius:8px;border:2px solid #059669;margin-top:16px;text-align:center">';
-      resumoHtml += '<h3 style="font-size:1rem;font-weight:700;margin-bottom:10px;color:#065f46">🏆 FORNECEDOR COM MENOR CUSTO GERAL</h3>';
-      resumoHtml += `<div style="font-size:1.3rem;font-weight:700;color:#065f46;margin-bottom:6px">${menorForn}</div>`;
-      resumoHtml += `<div style="font-size:0.95rem;color:#065f46">Valor Total: <b>R$ ${menorValor.toFixed(2).replace('.', ',')}</b></div>`;
-      resumoHtml += '</div>';
-
-      resumoContainer.innerHTML = resumoHtml;
+      // Renderizar resumo inicial
+      atualizarResumoVisual();
     });
   }
 
@@ -1169,40 +1113,37 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     // Se já está selecionado, desseleciona
     if (ganhadores[codigo] === fornecedor) {
       delete ganhadores[codigo];
-      toast('Info', `Seleção removida de ${codigo}`);
+      toast('❌ Removido', `${codigo}`);
     } else {
       ganhadores[codigo] = fornecedor;
-      toast('✓ ' + fornecedor, `Selecionado para ${codigo}`, 'success');
+      toast('✅ ' + fornecedor, `${codigo} - R$ ${itensPorCod[codigo].cotacoes[fornecedor][itensPorCod[codigo].cotacoes[fornecedor].length-1].vtotal.toFixed(2)}`, 'success');
     }
 
-    // Recarrega apenas a tabela e resumo
-    const processoId = document.getElementById('eq-select').value;
-    if (processoId) {
-      setTimeout(() => {
-        document.getElementById('eq-select').dispatchEvent(new Event('change'));
-      }, 100);
-    }
+    // Atualiza apenas o visual (cores na tabela) e resumo (sem recarregar tabela inteira)
+    atualizarVisualizacao();
   }
 
-  function atualizarResuma() {
-    const processoId = document.getElementById('eq-select').value;
-    if (!processoId) return;
-
-    const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
-    const fornecedores = [...new Set(cotProc.map(c => c.fornecedor))];
-
-    const itensPorCod = {};
-    cotProc.forEach(c => {
-      const key = c.codigo;
-      if (!itensPorCod[key]) {
-        itensPorCod[key] = { desc: c.descricao, qtd: c.qtd, unidade: c.unidade, cotacoes: {} };
-      }
-      if (!itensPorCod[key].cotacoes[c.fornecedor]) {
-        itensPorCod[key].cotacoes[c.fornecedor] = [];
-      }
-      itensPorCod[key].cotacoes[c.fornecedor].push({ vunit: c.vunit, vtotal: c.qtd * c.vunit, id: c.id });
+  function atualizarVisualizacao() {
+    // Atualizar cores na tabela
+    Object.entries(ganhadores).forEach(([cod, forn]) => {
+      const cells = document.querySelectorAll(`[data-codigo="${cod}"][data-fornecedor="${forn}"]`);
+      cells.forEach(cell => {
+        cell.style.background = '#dcfce7';
+        cell.style.color = '#065f46';
+        cell.style.fontWeight = '700';
+        cell.style.border = '2px solid #059669';
+      });
     });
 
+    // Atualizar resumo
+    atualizarResumoVisual();
+  }
+
+  function atualizarResumoVisual() {
+    const resumoContainer = document.getElementById('eq-resumo-container');
+    if (!resumoContainer) return;
+
+    const fornecedores = fornecedoresList;
     const totaisPorForn = {};
     fornecedores.forEach(f => {
       let total = 0;
@@ -1214,11 +1155,12 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
       totaisPorForn[f] = total;
     });
 
-    // Atualizar seção de ganhadores
-    let resumoHtml = '<div style="background:#fff;padding:12px;border-radius:6px;border:1px solid #bbf7d0">';
+    let resumoHtml = '<div style="background:#f0fdf4;padding:16px;border-radius:8px;border:2px solid #bbf7d0">';
+    resumoHtml += '<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;color:#065f46">📋 GANHADORES SELECIONADOS POR ITEM</h3>';
 
     let totalGanhadores = 0;
     let contemGanhadores = false;
+    resumoHtml += '<div style="background:#fff;padding:12px;border-radius:6px;border:1px solid #bbf7d0">';
 
     Object.entries(itensPorCod).forEach(([cod, item]) => {
       const ganhador = ganhadores[cod];
@@ -1239,7 +1181,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     });
 
     if (!contemGanhadores) {
-      resumoHtml += '<div style="padding:16px;color:#64748b;font-style:italic;text-align:center">Nenhum ganhador selecionado ainda - use os checkboxes na tabela</div>';
+      resumoHtml += '<div style="padding:16px;color:#64748b;font-style:italic;text-align:center">Nenhum ganhador selecionado ainda - clique no preço para selecionar</div>';
     } else {
       resumoHtml += `<div style="padding:12px;border-top:2px solid #059669;margin-top:8px;background:#ecfdf5;font-weight:700;color:#065f46;text-align:right;font-size:1rem">
         TOTAL SELECIONADO: R$ ${totalGanhadores.toFixed(2).replace('.', ',')}
@@ -1247,7 +1189,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     }
     resumoHtml += '</div>';
 
-    // Fornecedor menor custo
+    // Fornecedor com menor custo geral
     let menorForn = null;
     let menorValor = Infinity;
     Object.entries(totaisPorForn).forEach(([forn, valor]) => {
@@ -1260,7 +1202,8 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     resumoHtml += `<div style="font-size:0.95rem;color:#065f46">Valor Total: <b>R$ ${menorValor.toFixed(2).replace('.', ',')}</b></div>`;
     resumoHtml += '</div>';
 
-    document.getElementById('eq-resumo-container').innerHTML = resumoHtml;
+    resumoHtml += '</div>';
+    resumoContainer.innerHTML = resumoHtml;
   }
 
   // ===== RESUMO =====
