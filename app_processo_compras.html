@@ -18,16 +18,18 @@
 *{margin:0;padding:0}
 html,body{height:100%}
 :root{
-  /* Brand */
-  --brand-50:#eef2ff; --brand-100:#e0e7ff; --brand-500:#6366f1;
-  --brand-600:#4f46e5; --brand-700:#4338ca; --brand-900:#312e81;
+  /* Brand - Cores da empresa */
+  --brand-50:#f5f6f7; --brand-100:#e8eaed; --brand-500:#6b7580;
+  --brand-600:#4a565d; --brand-700:#3a424a; --brand-900:#1a2229;
+  /* Accent - Laranja da empresa */
+  --accent:#f68b1f; --accent-light:#f9a844; --accent-dark:#e07410;
   /* Neutrals */
   --gray-25:#fcfcfd; --gray-50:#f9fafb; --gray-100:#f3f4f6;
   --gray-200:#e5e7eb; --gray-300:#d1d5db; --gray-400:#9ca3af;
   --gray-500:#6b7280; --gray-600:#4b5563; --gray-700:#374151;
   --gray-800:#1f2937; --gray-900:#111827; --gray-950:#0b1220;
   /* Semantic */
-  --success:#059669; --success-bg:#ecfdf5; --success-fg:#065f46;
+  --success:#f68b1f; --success-bg:#fff8f0; --success-fg:#e07410;
   --warning:#d97706; --warning-bg:#fffbeb; --warning-fg:#92400e;
   --danger:#dc2626;  --danger-bg:#fef2f2;  --danger-fg:#991b1b;
   --info:#0284c7;    --info-bg:#f0f9ff;    --info-fg:#075985;
@@ -41,18 +43,18 @@ html,body{height:100%}
   --text-muted:var(--gray-500);
   --text-subtle:var(--gray-400);
   /* Sidebar */
-  --side-bg:var(--gray-950);
-  --side-bg-2:#0f172a;
-  --side-hover:#1e293b;
+  --side-bg:#4a565d;
+  --side-bg-2:#3a424a;
+  --side-hover:#5a6d78;
   --side-text:#cbd5e1;
-  --side-muted:#64748b;
+  --side-muted:#9db3be;
   /* Radius / shadow / motion */
   --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:18px; --r-full:999px;
   --shadow-xs:0 1px 2px rgba(16,24,40,.05);
   --shadow-sm:0 1px 3px rgba(16,24,40,.08),0 1px 2px rgba(16,24,40,.04);
   --shadow-md:0 4px 12px -2px rgba(16,24,40,.08),0 2px 4px -2px rgba(16,24,40,.04);
   --shadow-lg:0 12px 28px -8px rgba(16,24,40,.12),0 4px 10px -4px rgba(16,24,40,.06);
-  --ring:0 0 0 4px rgba(99,102,241,.18);
+  --ring:0 0 0 4px rgba(246,139,31,.18);
   --t-fast:120ms cubic-bezier(.2,.8,.2,1);
   --t-base:200ms cubic-bezier(.2,.8,.2,1);
   /* Type scale */
@@ -287,7 +289,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 }
 .excel th,.excel td{border:1px solid var(--gray-200);padding:8px 10px;white-space:normal;word-break:break-word}
 .excel thead tr:nth-child(1) th{
-  background:linear-gradient(180deg,#fb923c,#f97316);color:#fff;font-weight:700;
+  background:linear-gradient(180deg,#f68b1f,#f68b1f);color:#fff;font-weight:700;
   text-transform:uppercase;letter-spacing:.04em;
   position:sticky;top:0;z-index:11;text-align:center;
 }
@@ -304,8 +306,8 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 .excel tbody tr:nth-child(even) td{background:var(--gray-25)}
 .excel tbody tr:hover td{background:#fff8e1}
 .excel tbody tr:hover .sticky-col{background:#fff8e1}
-.cell-win{background:#dcfce7 !important;color:#065f46;font-weight:700}
-.cell-yes{color:#065f46;font-weight:700;text-align:center}
+.cell-win{background:#fff8f0 !important;color:#e07410;font-weight:700}
+.cell-yes{color:#e07410;font-weight:700;text-align:center}
 .cell-no {background:#fee2e2 !important;color:#991b1b;font-weight:700;text-align:center}
 .cell-num{text-align:right;font-variant-numeric:tabular-nums}
 
@@ -1106,7 +1108,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
         const frete = cotForn.frete || '—';
         const garantia = cotForn.garantia || '—';
         const vigencia = cotForn.vigencia || '—';
-        html += `<th colspan="5" style="text-align:center;background:#ecfdf5;font-size:0.7rem;font-weight:600">
+        html += `<th colspan="5" style="text-align:center;background:#fff8f0;font-size:0.7rem;font-weight:600">
           Ent: ${entrega} | Pgt: ${pagto} | Frt: ${frete} | Gar: ${garantia} | Vig: ${vigencia}
         </th>`;
       });
@@ -1175,12 +1177,12 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
           const analise = state.analises.find(a => a.cotacaoId === ultima.id);
           const statusTecnico = analise ? analise.status : 'Pendente';
-          const badgeClass = statusTecnico === 'SIM' ? 'background:#dcfce7;color:#065f46' :
+          const badgeClass = statusTecnico === 'SIM' ? 'background:#fff8f0;color:#e07410' :
                             statusTecnico === 'NÃO' ? 'background:#fee2e2;color:#991b1b' :
                             'background:#fef3c7;color:#92400e';
 
-          const bgSelecionado = ehSelecionado ? 'background:#dcfce7;color:#065f46;font-weight:700;border:2px solid #059669' : '';
-          const bgMenor = ehMenorPreco && !ehSelecionado ? 'background:#f0fdf4;color:#065f46' : '';
+          const bgSelecionado = ehSelecionado ? 'background:#fff8f0;color:#e07410;font-weight:700;border:2px solid #f68b1f' : '';
+          const bgMenor = ehMenorPreco && !ehSelecionado ? 'background:#fff8f0;color:#e07410' : '';
           const bgEqualizado = ehSelecionado ? bgSelecionado : bgMenor;
 
           if (colunasVisiveis.tecnico) {
@@ -1196,7 +1198,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
             html += `<td class="cell-num" style="padding:6px;font-size:0.75rem;color:#666" data-col="precoInicial">R$ ${(vUnitInicial).toFixed(2).replace('.', ',')}</td>`;
           }
           if (colunasVisiveis.precoFinal) {
-            html += `<td class="cell-num" style="padding:6px;font-size:0.75rem;color:#065f46;font-weight:600" data-col="precoFinal">R$ ${(vUnitFinal).toFixed(2).replace('.', ',')}</td>`;
+            html += `<td class="cell-num" style="padding:6px;font-size:0.75rem;color:#e07410;font-weight:600" data-col="precoFinal">R$ ${(vUnitFinal).toFixed(2).replace('.', ',')}</td>`;
           }
           if (colunasVisiveis.totalItem) {
             html += `<td class="cell-num" style="padding:6px;font-size:0.75rem" data-col="totalItem">R$ ${(vTotal).toFixed(2).replace('.', ',')}</td>`;
@@ -1252,10 +1254,10 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     Object.entries(ganhadores).forEach(([cod, forn]) => {
       const cells = document.querySelectorAll(`[data-codigo="${cod}"][data-fornecedor="${forn}"]`);
       cells.forEach(cell => {
-        cell.style.background = '#dcfce7';
-        cell.style.color = '#065f46';
+        cell.style.background = '#fff8f0';
+        cell.style.color = '#e07410';
         cell.style.fontWeight = '700';
-        cell.style.border = '2px solid #059669';
+        cell.style.border = '2px solid #f68b1f';
       });
     });
 
@@ -1279,12 +1281,12 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
       totaisPorForn[f] = total;
     });
 
-    let resumoHtml = '<div style="background:#f0fdf4;padding:16px;border-radius:8px;border:2px solid #bbf7d0">';
-    resumoHtml += '<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;color:#065f46">📋 GANHADORES SELECIONADOS POR ITEM</h3>';
+    let resumoHtml = '<div style="background:#fff8f0;padding:16px;border-radius:8px;border:2px solid #ffe4cc">';
+    resumoHtml += '<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;color:#e07410">📋 GANHADORES SELECIONADOS POR ITEM</h3>';
 
     let totalGanhadores = 0;
     let contemGanhadores = false;
-    resumoHtml += '<div style="background:#fff;padding:12px;border-radius:6px;border:1px solid #bbf7d0">';
+    resumoHtml += '<div style="background:#fff;padding:12px;border-radius:6px;border:1px solid #ffe4cc">';
 
     Object.entries(itensPorCod).forEach(([cod, item]) => {
       const ganhador = ganhadores[cod];
@@ -1294,9 +1296,9 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
         const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0 };
         const vtotal = ultima.vunit * item.qtd;
         resumoHtml += `<div style="padding:8px;border-bottom:1px solid #e5e7eb;font-size:0.9rem;display:flex;justify-content:space-between;align-items:center">
-          <div><b style="color:#059669">${cod}</b> - ${item.desc} (${item.qtd} un.)</div>
+          <div><b style="color:#f68b1f">${cod}</b> - ${item.desc} (${item.qtd} un.)</div>
           <div style="text-align:right">
-            <div style="color:#059669;font-weight:700;margin-bottom:2px">${ganhador}</div>
+            <div style="color:#f68b1f;font-weight:700;margin-bottom:2px">${ganhador}</div>
             <div style="font-weight:700">R$ ${vtotal.toFixed(2).replace('.', ',')}</div>
           </div>
         </div>`;
@@ -1307,7 +1309,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     if (!contemGanhadores) {
       resumoHtml += '<div style="padding:16px;color:#64748b;font-style:italic;text-align:center">Nenhum ganhador selecionado ainda - clique no preço para selecionar</div>';
     } else {
-      resumoHtml += `<div style="padding:12px;border-top:2px solid #059669;margin-top:8px;background:#ecfdf5;font-weight:700;color:#065f46;text-align:right;font-size:1rem">
+      resumoHtml += `<div style="padding:12px;border-top:2px solid #f68b1f;margin-top:8px;background:#fff8f0;font-weight:700;color:#e07410;text-align:right;font-size:1rem">
         TOTAL SELECIONADO: R$ ${totalGanhadores.toFixed(2).replace('.', ',')}
       </div>`;
     }
@@ -1320,10 +1322,10 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
       if (valor < menorValor) { menorValor = valor; menorForn = forn; }
     });
 
-    resumoHtml += '<div style="background:#dcfce7;padding:16px;border-radius:8px;border:2px solid #059669;margin-top:16px;text-align:center">';
-    resumoHtml += '<h3 style="font-size:1rem;font-weight:700;margin-bottom:10px;color:#065f46">🏆 FORNECEDOR COM MENOR CUSTO GERAL</h3>';
-    resumoHtml += `<div style="font-size:1.3rem;font-weight:700;color:#065f46;margin-bottom:6px">${menorForn}</div>`;
-    resumoHtml += `<div style="font-size:0.95rem;color:#065f46">Valor Total: <b>R$ ${menorValor.toFixed(2).replace('.', ',')}</b></div>`;
+    resumoHtml += '<div style="background:#fff8f0;padding:16px;border-radius:8px;border:2px solid #f68b1f;margin-top:16px;text-align:center">';
+    resumoHtml += '<h3 style="font-size:1rem;font-weight:700;margin-bottom:10px;color:#e07410">🏆 FORNECEDOR COM MENOR CUSTO GERAL</h3>';
+    resumoHtml += `<div style="font-size:1.3rem;font-weight:700;color:#e07410;margin-bottom:6px">${menorForn}</div>`;
+    resumoHtml += `<div style="font-size:0.95rem;color:#e07410">Valor Total: <b>R$ ${menorValor.toFixed(2).replace('.', ',')}</b></div>`;
     resumoHtml += '</div>';
 
     resumoHtml += '</div>';
