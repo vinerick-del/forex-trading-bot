@@ -1068,7 +1068,6 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
           const vTotal = vUnit * item.qtd;
           const ehSelecionado = ganhadores[cod] === f;
           const ehMenorPreco = vUnit === precosMinimos[cod];
-          const bgClass = ehMenorPreco ? 'background:#dcfce7;color:#065f46;font-weight:700' : '';
 
           const analise = state.analises.find(a => a.cotacaoId === ultima.id);
           const statusTecnico = analise ? analise.status : 'Pendente';
@@ -1076,14 +1075,14 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
                             statusTecnico === 'NÃO' ? 'background:#fee2e2;color:#991b1b' :
                             'background:#fef3c7;color:#92400e';
 
-          const checkboxId = `sel_${cod}_${f.replace(/\s+/g, '_')}`;
-          const checkboxBg = ehSelecionado ? 'background:#dcfce7;border-color:#059669' : 'background:#fff';
+          const bgSelecionado = ehSelecionado ? 'background:#dcfce7;color:#065f46;font-weight:700;border:2px solid #059669' : '';
+          const bgMenor = ehMenorPreco && !ehSelecionado ? 'background:#f0fdf4;color:#065f46' : '';
+          const bgPreco = ehSelecionado ? bgSelecionado : bgMenor;
 
           html += `<td style="${badgeClass};text-align:center;font-weight:600;font-size:0.75rem;padding:4px">${statusTecnico}</td>`;
-          html += `<td class="cell-num" style="${bgClass};padding:4px;font-size:0.75rem">R$ ${(vUnit).toFixed(2).replace('.', ',')}</td>`;
-          html += `<td class="cell-num" style="${bgClass};padding:4px;font-size:0.75rem">R$ ${(vUnit * 0.98).toFixed(2).replace('.', ',')}</td>`;
-          html += `<td class="cell-num" style="${bgClass};padding:4px;font-size:0.75rem">R$ ${(vTotal).toFixed(2).replace('.', ',')}</td>`;
-          html += `<td style="text-align:center;padding:4px"><input type="checkbox" id="${checkboxId}" ${ehSelecionado ? 'checked' : ''} onchange="selecionarGanhadorCheckbox('${cod}', '${f}', this)" style="width:20px;height:20px;cursor:pointer"></td>`;
+          html += `<td class="cell-num" style="${bgPreco};padding:6px;font-size:0.75rem;cursor:pointer;border-radius:4px;transition:all 0.2s" onclick="selecionarPorPreco('${cod}', '${f}')" title="Clique para selecionar como ganhador">R$ ${(vUnit).toFixed(2).replace('.', ',')}</td>`;
+          html += `<td class="cell-num" style="padding:4px;font-size:0.75rem">R$ ${(vUnit * 0.98).toFixed(2).replace('.', ',')}</td>`;
+          html += `<td class="cell-num" style="${bgSelecionado};padding:6px;font-size:0.75rem;cursor:pointer;border-radius:4px;transition:all 0.2s" onclick="selecionarPorPreco('${cod}', '${f}')" title="Clique para selecionar como ganhador">R$ ${(vTotal).toFixed(2).replace('.', ',')}</td>`;
         });
         html += '</tr>';
       });
@@ -1166,29 +1165,23 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     });
   }
 
-  function selecionarGanhadorCheckbox(codigo, fornecedor, checkbox) {
+  function selecionarPorPreco(codigo, fornecedor) {
     if (!ganhadores) ganhadores = {};
 
-    if (checkbox.checked) {
-      // Desseleciona outro fornecedor do mesmo item (se houver)
-      Object.keys(ganhadores).forEach(k => {
-        if (k === codigo && ganhadores[k] !== fornecedor) {
-          delete ganhadores[k];
-          // Desseleciona o checkbox do fornecedor anterior
-          const checkboxId = `sel_${codigo}_${ganhadores[k].replace(/\s+/g, '_')}`;
-          const checkboxAntigo = document.getElementById(checkboxId);
-          if (checkboxAntigo) checkboxAntigo.checked = false;
-        }
-      });
-      ganhadores[codigo] = fornecedor;
-      toast('Sucesso', `${fornecedor} selecionado para ${codigo}`, 'success');
-    } else {
+    // Se já está selecionado, desseleciona
+    if (ganhadores[codigo] === fornecedor) {
       delete ganhadores[codigo];
-      toast('Info', `Deseleccionado ${codigo}`, 'info');
+      toast('Info', `Seleção removida de ${codigo}`, 'info');
+    } else {
+      ganhadores[codigo] = fornecedor;
+      toast('Sucesso', `✓ ${fornecedor} selecionado para ${codigo}`, 'success');
     }
 
-    // Atualiza apenas o resumo (não recarrega matriz inteira)
-    atualizarResuma();
+    // Recarrega a visualização
+    const processoId = document.getElementById('eq-select').value;
+    if (processoId) {
+      document.getElementById('eq-select').dispatchEvent(new Event('change'));
+    }
   }
 
   function atualizarResuma() {
