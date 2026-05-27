@@ -1206,33 +1206,56 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
   // ===== SISTEMA DE TEMAS =====
   function mudarTema(tema) {
+    console.log('Mudando para tema:', tema);
     document.documentElement.setAttribute('data-theme', tema);
     localStorage.setItem('cp_tema', tema);
-    document.querySelectorAll('input[name="theme"]').forEach(r => r.checked = r.value === tema);
-    document.getElementById('theme-menu').style.display = 'none';
+
+    // Atualizar checkboxes
+    const radios = document.querySelectorAll('input[name="theme"]');
+    console.log('Radios encontrados:', radios.length);
+    radios.forEach(r => {
+      r.checked = r.value === tema;
+    });
+
+    // Fechar menu
+    const menu = document.getElementById('theme-menu');
+    if (menu) menu.style.display = 'none';
   }
 
   function carregarTema() {
     const tema = localStorage.getItem('cp_tema') || 'dark';
+    console.log('Carregando tema:', tema);
     mudarTema(tema);
   }
 
-  // Menu de temas
-  document.getElementById('btn-theme').addEventListener('click', () => {
-    const menu = document.getElementById('theme-menu');
-    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-  });
-
-  document.querySelectorAll('input[name="theme"]').forEach(radio => {
-    radio.addEventListener('change', (e) => mudarTema(e.target.value));
-  });
-
-  // Fechar menu ao clicar fora
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('#btn-theme') && !e.target.closest('#theme-menu')) {
-      document.getElementById('theme-menu').style.display = 'none';
+  // Inicializar temas quando DOM estiver pronto
+  function inicializarTemas() {
+    // Botão para abrir menu
+    const btnTheme = document.getElementById('btn-theme');
+    if (btnTheme) {
+      btnTheme.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const menu = document.getElementById('theme-menu');
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+      });
     }
-  });
+
+    // Radios para mudar tema
+    document.querySelectorAll('input[name="theme"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        console.log('Radio mudou para:', e.target.value);
+        mudarTema(e.target.value);
+      });
+    });
+
+    // Fechar menu ao clicar fora
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('theme-menu');
+      if (menu && !e.target.closest('#btn-theme') && !e.target.closest('#theme-menu')) {
+        menu.style.display = 'none';
+      }
+    });
+  }
 
   // ===== REDIMENSIONAMENTO DE COLUNAS =====
   let colResizing = null;
@@ -1936,6 +1959,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
   // ===== INICIALIZAR =====
   carregarTema();
+  inicializarTemas();
   carregarLayoutSalvo();
   renderRequisicoes();
   atualizarKPIs();
