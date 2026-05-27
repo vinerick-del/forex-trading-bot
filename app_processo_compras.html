@@ -948,6 +948,8 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
   });
 
   // ===== EQUALIZAÇÃO =====
+  let ganhadores = {}; // Armazena seleções manuais de ganhadores
+
   function atualizarSelectEqualizacao() {
     const sel = document.getElementById('eq-select');
     sel.innerHTML = '<option>Selecione um processo</option>' +
@@ -956,6 +958,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     sel.addEventListener('change', () => {
       const processoId = sel.value;
       if (!processoId) return;
+      ganhadores = {}; // Limpa seleções ao mudar processo
 
       const processo = state.requisicoes.find(r => r.id == processoId);
       const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
@@ -963,38 +966,185 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
       document.getElementById('eq-processo').textContent = processo.numero + ' — ' + processo.depart;
       document.getElementById('eq-fornecedores').textContent = fornecedores.length + ' fornecedor(es)';
-      document.getElementById('eq-rodadas').textContent = '2 rodadas (est.)';
 
+      // Contar rodadas
+      const codsUnicos = [...new Set(cotProc.map(c => c.codigo))];
+      const rodasPorItem = {};
+      cotProc.forEach(c => {
+        const key = `${c.codigo}-${c.fornecedor}`;
+        rodasPorItem[key] = (rodasPorItem[key] || 0) + 1;
+      });
+      const maxRodas = Math.max(...Object.values(rodasPorItem), 1);
+      document.getElementById('eq-rodadas').textContent = `${maxRodas} rodada(s)`;
+
+      // Construir matriz com cabeçalhos aprimorados
       let html = '<table class="excel"><thead>';
+
+      // Linha 1: Item + Fornecedores com UF
       html += '<tr><th class="sticky-col" colspan="3">Item</th>';
-      fornecedores.forEach(f => html += '<th colspan="2">' + f + '</th>');
+      fornecedores.forEach(nomeForn => {
+        const forn = state.fornecedores.find(f => f.nome === nomeForn);
+        const uf = forn ? forn.uf : '—';
+        html += `<th colspan="5" style="text-align:center;background:linear-gradient(180deg,#f97316,#fb923c);color:#fff"><b>${nomeForn}</b><br/><span style="font-size:0.75rem;font-weight:normal">${uf}</span></th>`;
+      });
       html += '</tr>';
+
+      // Linha 2: Tributos
+      html += '<tr><th class="sticky-col" colspan="3"></th>';
+      fornecedores.forEach(nomeForn => {
+        const forn = state.fornecedores.find(f => f.nome === nomeForn);
+        const icms = forn ? forn.icms || 18 : 18;
+        const ipi = forn ? forn.ipi || 0 : 0;
+        const pis = forn ? forn.pis || 0 : 0;
+        const isento = icms === 0 ? '✓ ISENTO' : icms + '%';
+        html += `<th colspan="5" style="text-align:center;background:#fee2e2;font-size:0.75rem;font-weight:600">
+          ICMS: ${isento} | IPI: ${ipi}% | PIS: ${pis}%
+        </th>`;
+      });
+      html += '</tr>';
+
+      // Linha 3: Condições Comerciais
+      html += '<tr><th class="sticky-col" colspan="3"></th>';
+      fornecedores.forEach(nomeForn => {
+        const cotForn = cotProc.find(c => c.fornecedor === nomeForn) || {};
+        const entrega = cotForn.entrega || '—';
+        const pagto = cotForn.pagamento || '—';
+        const frete = cotForn.frete || '—';
+        const garantia = cotForn.garantia || '—';
+        const vigencia = cotForn.vigencia || '—';
+        html += `<th colspan="5" style="text-align:center;background:#ecfdf5;font-size:0.7rem;font-weight:600">
+          Ent: ${entrega} | Pgt: ${pagto} | Frt: ${frete} | Gar: ${garantia} | Vig: ${vigencia}
+        </th>`;
+      });
+      html += '</tr>';
+
+      // Linha 4: Cabeçalhos das colunas
       html += '<tr><th class="sticky-col">Cód.</th><th class="sticky-col" style="left:60px">Descrição</th><th class="sticky-col" style="left:240px">Qtd</th>';
-      fornecedores.forEach(f => html += '<th>V. Inicial</th><th>V. Final</th>');
+      fornecedores.forEach(f => html += '<th>Técnico</th><th>V. Original</th><th>V. Equalizado</th><th>Total Item</th><th style="background:#f0f0f0">Selecionar</th>');
       html += '</tr></thead><tbody>';
 
+      // Construir linhas de itens
       const itensPorCod = {};
       cotProc.forEach(c => {
-        if (!itensPorCod[c.codigo]) {
-          itensPorCod[c.codigo] = { desc: c.descricao, qtd: c.qtd, cotacoes: {} };
+        const key = c.codigo;
+        if (!itensPorCod[key]) {
+          itensPorCod[key] = {
+            desc: c.descricao,
+            qtd: c.qtd,
+            unidade: c.unidade,
+            cotacoes: {}
+          };
         }
-        itensPorCod[c.codigo].cotacoes[c.fornecedor] = { inicial: c.vunit, final: c.vunit };
+        if (!itensPorCod[key].cotacoes[c.fornecedor]) {
+          itensPorCod[key].cotacoes[c.fornecedor] = [];
+        }
+        itensPorCod[key].cotacoes[c.fornecedor].push({
+          vunit: c.vunit,
+          vtotal: c.qtd * c.vunit,
+          id: c.id
+        });
       });
 
+      // Determinar preços mínimos por item
+      const precosMinimos = {};
       Object.entries(itensPorCod).forEach(([cod, item]) => {
-        html += `<tr><td class="sticky-col"><b>${cod}</b></td><td class="sticky-col" style="left:60px">${item.desc}</td><td class="sticky-col cell-num" style="left:240px">${item.qtd.toLocaleString('pt-BR')}</td>`;
+        let minPreco = Infinity;
+        Object.values(item.cotacoes).forEach(cotacoes => {
+          cotacoes.forEach(c => {
+            if (c.vunit < minPreco) minPreco = c.vunit;
+          });
+        });
+        precosMinimos[cod] = minPreco;
+      });
+
+      // Renderizar itens
+      Object.entries(itensPorCod).forEach(([cod, item]) => {
+        html += `<tr><td class="sticky-col"><b>${cod}</b></td><td class="sticky-col" style="left:60px">${item.desc}</td><td class="sticky-col cell-num" style="left:240px">${item.qtd.toLocaleString('pt-BR')} ${item.unidade}</td>`;
+
         fornecedores.forEach(f => {
-          const dados = item.cotacoes[f] || { inicial: 0, final: 0 };
-          const vInicial = dados.inicial;
-          const vFinal = dados.final;
-          html += `<td class="cell-num">R$ ${(vInicial).toFixed(2).replace('.', ',')}</td><td class="cell-num">R$ ${(vFinal).toFixed(2).replace('.', ',')}</td>`;
+          const cotacoes = item.cotacoes[f] || [];
+          const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0, vtotal: 0 };
+          const vUnit = ultima.vunit;
+          const vTotal = vUnit * item.qtd;
+          const ehGanhador = ganhadores[`${cod}-${f}`];
+          const ehMenorPreco = vUnit === precosMinimos[cod];
+          const bgClass = ehGanhador ? 'background:#dcfce7;font-weight:700;color:#065f46' :
+                         ehMenorPreco ? 'background:#dcfce7;color:#065f46' : '';
+
+          const analise = state.analises.find(a => a.cotacaoId === ultima.id);
+          const statusTecnico = analise ? analise.status : 'Pendente';
+          const badgeClass = statusTecnico === 'SIM' ? 'background:#dcfce7;color:#065f46' :
+                            statusTecnico === 'NÃO' ? 'background:#fee2e2;color:#991b1b' :
+                            'background:#fef3c7;color:#92400e';
+
+          html += `<td style="${badgeClass};text-align:center;font-weight:600;font-size:0.8rem">${statusTecnico}</td>`;
+          html += `<td class="cell-num" style="${bgClass}">R$ ${(vUnit).toFixed(2).replace('.', ',')}</td>`;
+          html += `<td class="cell-num" style="${bgClass}">R$ ${(vUnit * 0.98).toFixed(2).replace('.', ',')}</td>`;
+          html += `<td class="cell-num" style="${bgClass}">R$ ${(vTotal).toFixed(2).replace('.', ',')}</td>`;
+          html += `<td style="text-align:center;background:#f0f0f0;cursor:pointer;padding:0;border:2px solid ${ehGanhador ? '#059669' : '#ddd'}" onclick="selecionarGanhador('${cod}', '${f}', event)" title="Clique para selecionar como ganhador"><b style="display:block;padding:4px;font-size:1.1rem">${ehGanhador ? '✓' : '○'}</b></td>`;
         });
         html += '</tr>';
       });
 
+      // Rodapé com resumo
+      html += '<tr style="background:#f3f4f6;font-weight:700;border-top:3px solid #333"><td class="sticky-col" colspan="3">TOTAL POR FORNECEDOR</td>';
+
+      const totaisPorForn = {};
+      fornecedores.forEach(f => {
+        let total = 0;
+        Object.entries(itensPorCod).forEach(([cod, item]) => {
+          const cotacoes = item.cotacoes[f] || [];
+          const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0 };
+          total += ultima.vunit * item.qtd;
+        });
+        totaisPorForn[f] = total;
+        html += `<td colspan="5" style="text-align:right;background:#fffbeb;border:1px solid #f59e0b">R$ ${total.toFixed(2).replace('.', ',')}</td>`;
+      });
+      html += '</tr>';
+
+      // Encontrar fornecedor com menor custo
+      let menorForn = null;
+      let menorValor = Infinity;
+      Object.entries(totaisPorForn).forEach(([forn, valor]) => {
+        if (valor < menorValor) {
+          menorValor = valor;
+          menorForn = forn;
+        }
+      });
+
+      html += `<tr style="background:#dcfce7;font-weight:700;color:#065f46;border-top:2px solid #059669"><td class="sticky-col" colspan="3">🏆 GANHADOR GERAL</td>`;
+      fornecedores.forEach(f => {
+        const ehGanhador = f === menorForn;
+        html += `<td colspan="5" style="text-align:center;background:${ehGanhador ? '#dcfce7' : '#f3f4f6'};border:1px solid ${ehGanhador ? '#059669' : '#ddd'}">${ehGanhador ? '✓ ' + f : '—'}</td>`;
+      });
+      html += '</tr>';
+
       html += '</tbody></table>';
       document.getElementById('eq-tabela-container').innerHTML = html;
     });
+  }
+
+  function selecionarGanhador(codigo, fornecedor, event) {
+    const key = `${codigo}-${fornecedor}`;
+
+    // Toggle: se já está selecionado, desseleciona; se não está, seleciona
+    if (ganhadores[key]) {
+      delete ganhadores[key];
+    } else {
+      // Remove outras seleções do mesmo item
+      Object.keys(ganhadores).forEach(k => {
+        if (k.startsWith(codigo + '-')) {
+          delete ganhadores[k];
+        }
+      });
+      ganhadores[key] = true;
+    }
+
+    // Recarrega a visualização
+    const processoId = document.getElementById('eq-select').value;
+    document.getElementById('eq-select').dispatchEvent(new Event('change'));
+
+    toast('Sucesso', `Ganhador do item ${codigo} selecionado`);
   }
 
   // ===== RESUMO =====
