@@ -1085,6 +1085,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
           html += `<td class="cell-num" style="${bgPreco};padding:6px;font-size:0.75rem;cursor:pointer;border-radius:4px;transition:all 0.2s" data-codigo="${cod}" data-fornecedor="${f}" onclick="selecionarPorPreco('${cod}', '${f}')" title="Clique para selecionar como ganhador">R$ ${(vUnit).toFixed(2).replace('.', ',')}</td>`;
           html += `<td class="cell-num" style="padding:4px;font-size:0.75rem">R$ ${(vUnit * 0.98).toFixed(2).replace('.', ',')}</td>`;
           html += `<td class="cell-num" style="${bgSelecionado};padding:6px;font-size:0.75rem;cursor:pointer;border-radius:4px;transition:all 0.2s" data-codigo="${cod}" data-fornecedor="${f}" onclick="selecionarPorPreco('${cod}', '${f}')" title="Clique para selecionar como ganhador">R$ ${(vTotal).toFixed(2).replace('.', ',')}</td>`;
+          html += `<td style="background:#f0f0f0;padding:4px;text-align:center;font-size:0.75rem">${ehSelecionado ? '✓' : ''}</td>`;
         });
         html += '</tr>';
       });
