@@ -1082,9 +1082,9 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
           const bgPreco = ehSelecionado ? bgSelecionado : bgMenor;
 
           html += `<td style="${badgeClass};text-align:center;font-weight:600;font-size:0.75rem;padding:4px">${statusTecnico}</td>`;
-          html += `<td class="cell-num" style="${bgPreco};padding:6px;font-size:0.75rem;cursor:pointer;border-radius:4px;transition:all 0.2s" onclick="selecionarPorPreco('${cod}', '${f}')" title="Clique para selecionar como ganhador">R$ ${(vUnit).toFixed(2).replace('.', ',')}</td>`;
+          html += `<td class="cell-num" style="${bgPreco};padding:6px;font-size:0.75rem;cursor:pointer;border-radius:4px;transition:all 0.2s" data-codigo="${cod}" data-fornecedor="${f}" onclick="selecionarPorPreco('${cod}', '${f}')" title="Clique para selecionar como ganhador">R$ ${(vUnit).toFixed(2).replace('.', ',')}</td>`;
           html += `<td class="cell-num" style="padding:4px;font-size:0.75rem">R$ ${(vUnit * 0.98).toFixed(2).replace('.', ',')}</td>`;
-          html += `<td class="cell-num" style="${bgSelecionado};padding:6px;font-size:0.75rem;cursor:pointer;border-radius:4px;transition:all 0.2s" onclick="selecionarPorPreco('${cod}', '${f}')" title="Clique para selecionar como ganhador">R$ ${(vTotal).toFixed(2).replace('.', ',')}</td>`;
+          html += `<td class="cell-num" style="${bgSelecionado};padding:6px;font-size:0.75rem;cursor:pointer;border-radius:4px;transition:all 0.2s" data-codigo="${cod}" data-fornecedor="${f}" onclick="selecionarPorPreco('${cod}', '${f}')" title="Clique para selecionar como ganhador">R$ ${(vTotal).toFixed(2).replace('.', ',')}</td>`;
         });
         html += '</tr>';
       });
@@ -1124,7 +1124,15 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
   }
 
   function atualizarVisualizacao() {
-    // Atualizar cores na tabela
+    // Limpar todas as seleções anteriores
+    document.querySelectorAll('[data-codigo]').forEach(cell => {
+      cell.style.background = '';
+      cell.style.color = '';
+      cell.style.fontWeight = '';
+      cell.style.border = '';
+    });
+
+    // Atualizar cores na tabela para seleções atuais
     Object.entries(ganhadores).forEach(([cod, forn]) => {
       const cells = document.querySelectorAll(`[data-codigo="${cod}"][data-fornecedor="${forn}"]`);
       cells.forEach(cell => {
