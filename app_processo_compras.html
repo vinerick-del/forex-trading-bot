@@ -613,6 +613,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
             <div><h1 class="page-title">Matriz de equalização</h1><p class="page-desc">Comparativo multifornecedor com rodadas, impostos e parecer técnico.</p></div>
             <div style="display:flex;gap:8px">
               <button class="btn btn-secondary" id="btn-imprimir"><i class="lucide lucide-printer"></i> Imprimir</button>
+              <button class="btn btn-secondary" id="btn-layout"><i class="lucide lucide-layout"></i> Layout</button>
               <button class="btn btn-primary" id="btn-exportar"><i class="lucide lucide-download"></i> Exportar CSV</button>
             </div>
           </div>
@@ -630,6 +631,44 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
             <div class="excel-wrap" id="eq-tabela-container">
               <div class="empty"><i class="lucide lucide-inbox"></i> Selecione um processo para visualizar a matriz</div>
+            </div>
+
+            <!-- Modal de Layout -->
+            <div id="layout-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;padding:20px">
+              <div style="background:#fff;border-radius:8px;max-width:500px;margin:80px auto;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.15)">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                  <h2 style="margin:0;font-size:1.3rem;font-weight:700">⚙️ Configurar Layout</h2>
+                  <button onclick="document.getElementById('layout-modal').style.display='none'" style="background:none;border:none;font-size:1.5rem;cursor:pointer">✕</button>
+                </div>
+
+                <p style="color:#666;margin-bottom:16px">Escolha quais colunas exibir por fornecedor:</p>
+
+                <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                    <input type="checkbox" id="chk-tecnico" onchange="atualizarVisibilidade()"> Técnico (status de aprovação)
+                  </label>
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                    <input type="checkbox" id="chk-vOriginal" onchange="atualizarVisibilidade()"> V. Original (preço inicial)
+                  </label>
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                    <input type="checkbox" id="chk-vEqualizado" onchange="atualizarVisibilidade()"> V. Equalizado (preço para comparação)
+                  </label>
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;border-top:1px solid #eee;padding-top:12px">
+                    <input type="checkbox" id="chk-precoInicial" onchange="atualizarVisibilidade()"> <b>Preço Inicial</b> (1ª cotação)
+                  </label>
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                    <input type="checkbox" id="chk-precoFinal" onchange="atualizarVisibilidade()"> <b>Preço Final</b> (última cotação)
+                  </label>
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;border-top:1px solid #eee;padding-top:12px">
+                    <input type="checkbox" id="chk-totalItem" onchange="atualizarVisibilidade()"> Total Item (valor total)
+                  </label>
+                </div>
+
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                  <button onclick="document.getElementById('layout-modal').style.display='none'" style="padding:8px 16px;border:1px solid #ddd;border-radius:4px;background:#fff;cursor:pointer">Cancelar</button>
+                  <button onclick="salvarLayout();document.getElementById('layout-modal').style.display='none'" style="padding:8px 16px;border:none;border-radius:4px;background:#0066cc;color:#fff;cursor:pointer;font-weight:600">💾 Salvar Layout</button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -952,6 +991,59 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
   let itensPorCod = {}; // Cache dos itens para atualizações
   let fornecedoresList = []; // Cache dos fornecedores
 
+  // Configuração de visibilidade de colunas por fornecedor
+  let colunasVisiveis = {
+    tecnico: false,
+    vOriginal: false,
+    vEqualizado: true,
+    precoInicial: true,
+    precoFinal: true,
+    totalItem: false
+  };
+
+  // Carregar layout salvo
+  function carregarLayoutSalvo() {
+    const layout = localStorage.getItem('sc_layout_colunas');
+    if (layout) {
+      colunasVisiveis = JSON.parse(layout);
+    }
+  }
+
+  // Salvar layout
+  function salvarLayout() {
+    localStorage.setItem('sc_layout_colunas', JSON.stringify(colunasVisiveis));
+    toast('✅ Layout', 'Preferências salvas com sucesso', 'success');
+  }
+
+  // Atualizar visibilidade de colunas
+  function atualizarVisibilidade() {
+    colunasVisiveis.tecnico = document.getElementById('chk-tecnico').checked;
+    colunasVisiveis.vOriginal = document.getElementById('chk-vOriginal').checked;
+    colunasVisiveis.vEqualizado = document.getElementById('chk-vEqualizado').checked;
+    colunasVisiveis.precoInicial = document.getElementById('chk-precoInicial').checked;
+    colunasVisiveis.precoFinal = document.getElementById('chk-precoFinal').checked;
+    colunasVisiveis.totalItem = document.getElementById('chk-totalItem').checked;
+
+    // Recarregar a tabela
+    const sel = document.getElementById('eq-select');
+    if (sel.value) {
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+
+  // Abrir modal de layout
+  function abrirLayoutModal() {
+    // Sincronizar checkboxes com estado atual
+    document.getElementById('chk-tecnico').checked = colunasVisiveis.tecnico;
+    document.getElementById('chk-vOriginal').checked = colunasVisiveis.vOriginal;
+    document.getElementById('chk-vEqualizado').checked = colunasVisiveis.vEqualizado;
+    document.getElementById('chk-precoInicial').checked = colunasVisiveis.precoInicial;
+    document.getElementById('chk-precoFinal').checked = colunasVisiveis.precoFinal;
+    document.getElementById('chk-totalItem').checked = colunasVisiveis.totalItem;
+
+    document.getElementById('layout-modal').style.display = 'block';
+  }
+
   function atualizarSelectEqualizacao() {
     const sel = document.getElementById('eq-select');
     sel.innerHTML = '<option>Selecione um processo</option>' +
@@ -1022,7 +1114,14 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
       // Linha 4: Cabeçalhos das colunas
       html += '<tr><th class="sticky-col">Cód.</th><th class="sticky-col" style="left:60px">Descrição</th><th class="sticky-col" style="left:240px">Qtd</th>';
-      fornecedoresList.forEach(f => html += '<th>Técnico</th><th>V. Original</th><th>V. Equalizado</th><th>Total Item</th><th style="background:#f0f0f0">Selecionar</th>');
+      fornecedoresList.forEach(f => {
+        if (colunasVisiveis.tecnico) html += '<th data-col="tecnico">Técnico</th>';
+        if (colunasVisiveis.vOriginal) html += '<th data-col="vOriginal">V. Original</th>';
+        if (colunasVisiveis.vEqualizado) html += '<th data-col="vEqualizado">V. Equalizado</th>';
+        if (colunasVisiveis.precoInicial) html += '<th data-col="precoInicial">Preço Inicial</th>';
+        if (colunasVisiveis.precoFinal) html += '<th data-col="precoFinal">Preço Final</th>';
+        if (colunasVisiveis.totalItem) html += '<th data-col="totalItem">Total Item</th>';
+      });
       html += '</tr></thead><tbody>';
 
       // Construir linhas de itens e guardar globalmente
@@ -1065,11 +1164,14 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
         fornecedoresList.forEach(f => {
           const cotacoes = item.cotacoes[f] || [];
+          const primeira = cotacoes[0] || { vunit: 0, vtotal: 0 };
           const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0, vtotal: 0 };
-          const vUnit = ultima.vunit;
-          const vTotal = vUnit * item.qtd;
+
+          const vUnitInicial = primeira.vunit;
+          const vUnitFinal = ultima.vunit;
+          const vTotal = vUnitFinal * item.qtd;
           const ehSelecionado = ganhadores[cod] === f;
-          const ehMenorPreco = vUnit === precosMinimos[cod];
+          const ehMenorPreco = vUnitFinal === precosMinimos[cod];
 
           const analise = state.analises.find(a => a.cotacaoId === ultima.id);
           const statusTecnico = analise ? analise.status : 'Pendente';
@@ -1079,13 +1181,26 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
 
           const bgSelecionado = ehSelecionado ? 'background:#dcfce7;color:#065f46;font-weight:700;border:2px solid #059669' : '';
           const bgMenor = ehMenorPreco && !ehSelecionado ? 'background:#f0fdf4;color:#065f46' : '';
-          const bgPreco = ehSelecionado ? bgSelecionado : bgMenor;
+          const bgEqualizado = ehSelecionado ? bgSelecionado : bgMenor;
 
-          html += `<td style="${badgeClass};text-align:center;font-weight:600;font-size:0.75rem;padding:4px">${statusTecnico}</td>`;
-          html += `<td class="cell-num" style="${bgPreco};padding:6px;font-size:0.75rem;cursor:pointer;border-radius:4px;transition:all 0.2s" data-codigo="${cod}" data-fornecedor="${f}" onclick="selecionarPorPreco('${cod}', '${f}')" title="Clique para selecionar como ganhador">R$ ${(vUnit).toFixed(2).replace('.', ',')}</td>`;
-          html += `<td class="cell-num" style="padding:4px;font-size:0.75rem">R$ ${(vUnit * 0.98).toFixed(2).replace('.', ',')}</td>`;
-          html += `<td class="cell-num" style="${bgSelecionado};padding:6px;font-size:0.75rem;cursor:pointer;border-radius:4px;transition:all 0.2s" data-codigo="${cod}" data-fornecedor="${f}" onclick="selecionarPorPreco('${cod}', '${f}')" title="Clique para selecionar como ganhador">R$ ${(vTotal).toFixed(2).replace('.', ',')}</td>`;
-          html += `<td style="background:#f0f0f0;padding:4px;text-align:center;font-size:0.75rem">${ehSelecionado ? '✓' : ''}</td>`;
+          if (colunasVisiveis.tecnico) {
+            html += `<td style="${badgeClass};text-align:center;font-weight:600;font-size:0.75rem;padding:4px" data-col="tecnico">${statusTecnico}</td>`;
+          }
+          if (colunasVisiveis.vOriginal) {
+            html += `<td class="cell-num" style="padding:6px;font-size:0.75rem" data-col="vOriginal">R$ ${(vUnitInicial).toFixed(2).replace('.', ',')}</td>`;
+          }
+          if (colunasVisiveis.vEqualizado) {
+            html += `<td class="cell-num" style="${bgEqualizado};padding:6px;font-size:0.75rem;cursor:pointer;border-radius:4px;transition:all 0.2s" data-codigo="${cod}" data-fornecedor="${f}" data-col="vEqualizado" onclick="selecionarPorPreco('${cod}', '${f}')" title="Clique para selecionar como ganhador">R$ ${(vUnitFinal * 0.98).toFixed(2).replace('.', ',')}</td>`;
+          }
+          if (colunasVisiveis.precoInicial) {
+            html += `<td class="cell-num" style="padding:6px;font-size:0.75rem;color:#666" data-col="precoInicial">R$ ${(vUnitInicial).toFixed(2).replace('.', ',')}</td>`;
+          }
+          if (colunasVisiveis.precoFinal) {
+            html += `<td class="cell-num" style="padding:6px;font-size:0.75rem;color:#065f46;font-weight:600" data-col="precoFinal">R$ ${(vUnitFinal).toFixed(2).replace('.', ',')}</td>`;
+          }
+          if (colunasVisiveis.totalItem) {
+            html += `<td class="cell-num" style="padding:6px;font-size:0.75rem" data-col="totalItem">R$ ${(vTotal).toFixed(2).replace('.', ',')}</td>`;
+          }
         });
         html += '</tr>';
       });
@@ -1283,6 +1398,10 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
     toast('Sucesso', 'Abrindo impressão…');
   });
 
+  document.getElementById('btn-layout').addEventListener('click', () => {
+    abrirLayoutModal();
+  });
+
   document.getElementById('btn-exportar').addEventListener('click', () => {
     const processoId = document.getElementById('eq-select').value;
     if (!processoId) {
@@ -1306,6 +1425,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
   });
 
   // ===== INICIALIZAR =====
+  carregarLayoutSalvo();
   renderRequisicoes();
 </script>
 </body>
