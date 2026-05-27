@@ -948,7 +948,7 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
   });
 
   // ===== EQUALIZAÇÃO =====
-  let ganhadores = {}; // Armazena seleções manuais de ganhadores
+  let ganhadores = {}; // {codigo: fornecedor}
 
   function atualizarSelectEqualizacao() {
     const sel = document.getElementById('eq-select');
@@ -1066,10 +1066,9 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
           const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0, vtotal: 0 };
           const vUnit = ultima.vunit;
           const vTotal = vUnit * item.qtd;
-          const ehGanhador = ganhadores[`${cod}-${f}`];
+          const ehSelecionado = ganhadores[cod] === f;
           const ehMenorPreco = vUnit === precosMinimos[cod];
-          const bgClass = ehGanhador ? 'background:#dcfce7;font-weight:700;color:#065f46' :
-                         ehMenorPreco ? 'background:#dcfce7;color:#065f46' : '';
+          const bgClass = ehMenorPreco ? 'background:#dcfce7;color:#065f46;font-weight:700' : '';
 
           const analise = state.analises.find(a => a.cotacaoId === ultima.id);
           const statusTecnico = analise ? analise.status : 'Pendente';
@@ -1077,19 +1076,22 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
                             statusTecnico === 'NÃO' ? 'background:#fee2e2;color:#991b1b' :
                             'background:#fef3c7;color:#92400e';
 
-          html += `<td style="${badgeClass};text-align:center;font-weight:600;font-size:0.8rem">${statusTecnico}</td>`;
-          html += `<td class="cell-num" style="${bgClass}">R$ ${(vUnit).toFixed(2).replace('.', ',')}</td>`;
-          html += `<td class="cell-num" style="${bgClass}">R$ ${(vUnit * 0.98).toFixed(2).replace('.', ',')}</td>`;
-          html += `<td class="cell-num" style="${bgClass}">R$ ${(vTotal).toFixed(2).replace('.', ',')}</td>`;
-          html += `<td style="text-align:center;background:#f0f0f0;cursor:pointer;padding:0;border:2px solid ${ehGanhador ? '#059669' : '#ddd'}" onclick="selecionarGanhador('${cod}', '${f}', event)" title="Clique para selecionar como ganhador"><b style="display:block;padding:4px;font-size:1.1rem">${ehGanhador ? '✓' : '○'}</b></td>`;
+          const btnColor = ehSelecionado ? '#059669' : '#999';
+          const btnBg = ehSelecionado ? 'background:#dcfce7' : 'background:#f5f5f5';
+
+          html += `<td style="${badgeClass};text-align:center;font-weight:600;font-size:0.75rem;padding:4px">${statusTecnico}</td>`;
+          html += `<td class="cell-num" style="${bgClass};padding:4px;font-size:0.75rem">R$ ${(vUnit).toFixed(2).replace('.', ',')}</td>`;
+          html += `<td class="cell-num" style="${bgClass};padding:4px;font-size:0.75rem">R$ ${(vUnit * 0.98).toFixed(2).replace('.', ',')}</td>`;
+          html += `<td class="cell-num" style="${bgClass};padding:4px;font-size:0.75rem">R$ ${(vTotal).toFixed(2).replace('.', ',')}</td>`;
+          html += `<td style="text-align:center;${btnBg};cursor:pointer;padding:4px;border-radius:4px" onclick="selecionarGanhador('${cod}', '${f}')"><span style="color:${btnColor};font-weight:bold;font-size:1rem">${ehSelecionado ? '✓' : '○'}</span></td>`;
         });
         html += '</tr>';
       });
 
       html += '</tbody></table>';
 
-      // ===== SEÇÃO DE SELEÇÃO ABAIXO =====
-      let selecoesHtml = '<div style="margin-top:24px">';
+      // ===== RESUMO ABAIXO DA TABELA =====
+      let resumoHtml = '<div style="margin-top:24px">';
 
       // Cálculos para resumo
       const totaisPorForn = {};
@@ -1103,56 +1105,14 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
         totaisPorForn[f] = total;
       });
 
-      // Seção de seleção
-      selecoesHtml += '<div style="background:#f3f4f6;padding:16px;border-radius:8px;margin-bottom:16px;border:1px solid #d1d5db">';
-      selecoesHtml += '<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;color:#111827">📋 SELECIONAR GANHADORES POR ITEM</h3>';
-      selecoesHtml += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px">';
-
-      Object.entries(itensPorCod).forEach(([cod, item]) => {
-        selecoesHtml += `<div style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:12px;box-shadow:0 1px 2px rgba(0,0,0,0.05)">`;
-        selecoesHtml += `<div style="font-weight:600;margin-bottom:10px;color:#374151;font-size:0.95rem"><b>${cod}</b> - ${item.desc}</div>`;
-        selecoesHtml += `<div style="display:flex;flex-direction:column;gap:6px">`;
-
-        fornecedores.forEach(f => {
-          const cotacoes = item.cotacoes[f] || [];
-          const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0 };
-          const vUnit = ultima.vunit;
-          const vTotal = vUnit * item.qtd;
-          const ehSelecionado = ganhadores[cod] === f;
-          const bgBtn = ehSelecionado ?
-            'background:#059669;color:#fff;border:2px solid #047857;font-weight:700' :
-            'background:#fff;color:#374151;border:2px solid #d1d5db';
-
-          selecoesHtml += `
-            <button onclick="selecionarGanhador('${cod}', '${f}')" style="
-              ${bgBtn};
-              padding:8px 10px;
-              border-radius:4px;
-              cursor:pointer;
-              font-size:0.85rem;
-              text-align:left;
-              transition:all 0.2s;
-            " title="Clique para selecionar">
-              ${ehSelecionado ? '✓' : '○'} ${f} - R$ ${vTotal.toFixed(2).replace('.', ',')}
-            </button>
-          `;
-        });
-
-        selecoesHtml += `</div></div>`;
-      });
-
-      selecoesHtml += '</div></div>';
-
-      // ===== RESUMO FINAL =====
-      selecoesHtml += '<div style="background:#f0fdf4;padding:16px;border-radius:8px;border:2px solid #bbf7d0">';
-      selecoesHtml += '<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;color:#065f46">🏆 RESUMO DE GANHADORES</h3>';
-
-      // Ganhadores selecionados
-      selecoesHtml += '<div style="background:#fff;padding:12px;border-radius:6px;margin-bottom:12px;border-left:4px solid #059669">';
-      selecoesHtml += '<h4 style="font-size:0.95rem;font-weight:600;margin-bottom:10px;color:#374151">Ganhadores Selecionados por Item:</h4>';
+      // Seção Ganhadores Selecionados
+      resumoHtml += '<div style="background:#f0fdf4;padding:16px;border-radius:8px;border:2px solid #bbf7d0">';
+      resumoHtml += '<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;color:#065f46">📋 GANHADORES SELECIONADOS POR ITEM</h3>';
 
       let totalGanhadores = 0;
       let contemGanhadores = false;
+      resumoHtml += '<div style="background:#fff;padding:12px;border-radius:6px;border:1px solid #bbf7d0">';
+
       Object.entries(itensPorCod).forEach(([cod, item]) => {
         const ganhador = ganhadores[cod];
         if (ganhador) {
@@ -1160,23 +1120,25 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
           const cotacoes = item.cotacoes[ganhador] || [];
           const ultima = cotacoes[cotacoes.length - 1] || { vunit: 0 };
           const vtotal = ultima.vunit * item.qtd;
-          selecoesHtml += `<div style="padding:8px;border-bottom:1px solid #e5e7eb;font-size:0.9rem">
-            <b style="color:#059669">${cod}</b>: <span style="color:#059669;font-weight:700">${ganhador}</span>
-            <span style="float:right;font-weight:700">R$ ${vtotal.toFixed(2).replace('.', ',')}</span>
+          resumoHtml += `<div style="padding:8px;border-bottom:1px solid #e5e7eb;font-size:0.9rem;display:flex;justify-content:space-between;align-items:center">
+            <div><b style="color:#059669">${cod}</b> - ${item.desc} (${item.qtd} un.)</div>
+            <div style="text-align:right">
+              <div style="color:#059669;font-weight:700;margin-bottom:2px">${ganhador}</div>
+              <div style="font-weight:700">R$ ${vtotal.toFixed(2).replace('.', ',')}</div>
+            </div>
           </div>`;
           totalGanhadores += vtotal;
         }
       });
 
       if (!contemGanhadores) {
-        selecoesHtml += '<div style="padding:10px;color:#64748b;font-style:italic;text-align:center">Nenhum ganhador selecionado ainda</div>';
+        resumoHtml += '<div style="padding:16px;color:#64748b;font-style:italic;text-align:center">Nenhum ganhador selecionado ainda - clique no ○ na tabela para selecionar</div>';
       } else {
-        selecoesHtml += `<div style="padding:10px;border-top:2px solid #059669;margin-top:8px;background:#ecfdf5;font-weight:700;color:#065f46;text-align:right">
+        resumoHtml += `<div style="padding:12px;border-top:2px solid #059669;margin-top:8px;background:#ecfdf5;font-weight:700;color:#065f46;text-align:right;font-size:1rem">
           TOTAL SELECIONADO: R$ ${totalGanhadores.toFixed(2).replace('.', ',')}
         </div>`;
       }
-
-      selecoesHtml += '</div>';
+      resumoHtml += '</div></div>';
 
       // Fornecedor com menor custo geral
       let menorForn = null;
@@ -1185,18 +1147,14 @@ i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
         if (valor < menorValor) { menorValor = valor; menorForn = forn; }
       });
 
-      selecoesHtml += '<div style="background:#dcfce7;padding:14px;border-radius:6px;border:2px solid #059669;text-align:center">';
-      selecoesHtml += '<h4 style="font-size:0.9rem;font-weight:600;margin-bottom:8px;color:#065f46">Fornecedor com Menor Custo Geral:</h4>';
-      selecoesHtml += `<div style="font-size:1.2rem;font-weight:700;color:#065f46">
-        🏆 ${menorForn}
-      </div>`;
-      selecoesHtml += `<div style="font-size:0.95rem;color:#065f46;margin-top:6px">
-        Valor Total: <b>R$ ${menorValor.toFixed(2).replace('.', ',')}</b>
-      </div>`;
-      selecoesHtml += '</div>';
+      resumoHtml += '<div style="background:#dcfce7;padding:16px;border-radius:8px;border:2px solid #059669;margin-top:16px;text-align:center">';
+      resumoHtml += '<h3 style="font-size:1rem;font-weight:700;margin-bottom:10px;color:#065f46">🏆 FORNECEDOR COM MENOR CUSTO GERAL</h3>';
+      resumoHtml += `<div style="font-size:1.3rem;font-weight:700;color:#065f46;margin-bottom:6px">${menorForn}</div>`;
+      resumoHtml += `<div style="font-size:0.95rem;color:#065f46">Valor Total: <b>R$ ${menorValor.toFixed(2).replace('.', ',')}</b></div>`;
+      resumoHtml += '</div>';
 
-      selecoesHtml += '</div>';
-      document.getElementById('eq-tabela-container').innerHTML = html + selecoesHtml;
+      resumoHtml += '</div>';
+      document.getElementById('eq-tabela-container').innerHTML = html + resumoHtml;
     });
   }
 
