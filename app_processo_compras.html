@@ -389,7 +389,20 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           <div class="page-head"><div><h1 class="page-title">Demanda de Materiais</h1><p class="page-desc">Importar dados de consumo por departamento e programa orçamentário.</p></div></div>
 
           <div class="card">
-            <div class="card-head"><div class="card-title">Método 1: Copiar dados da planilha</div></div>
+            <div class="card-head"><div class="card-title">Método 1: Upload de arquivo CSV/Excel</div></div>
+            <div style="padding: 20px;">
+              <p style="margin-bottom: 15px; color: var(--text-muted); font-size: 13px;">
+                📁 <strong>Instruções:</strong><br>
+                Salve a planilha como CSV e upload aqui para importar todos os dados.
+              </p>
+              <input type="file" id="demanda-file-input" accept=".csv,.xlsx" style="display:block;margin-bottom:12px;padding:8px;border:1px solid var(--border-color);border-radius:var(--r-md);font-size:13px;">
+              <button class="btn btn-primary" id="btn-upload-demanda" style="margin-right:8px"><i class="lucide lucide-upload"></i> Fazer Upload</button>
+              <button class="btn btn-ghost" id="btn-limpar-arquivo"><i class="lucide lucide-x"></i> Limpar</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-title">Método 2: Copiar dados da planilha</div></div>
             <div style="padding: 20px;">
               <p style="margin-bottom: 15px; color: var(--text-muted); font-size: 13px;">
                 📋 <strong>Instruções:</strong><br>
@@ -643,6 +656,9 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   let ganhadores = JSON.parse(localStorage.getItem('cp_ganhadores') || '{}');
   let demandaRevisions = JSON.parse(localStorage.getItem('cp_demanda_revisions') || '[]');
   let demandaAtiva = JSON.parse(localStorage.getItem('cp_demanda_ativa') || 'null');
+
+  // Dados completos em memória (não salva em localStorage para economizar espaço)
+  let demandaDadosCompletos = {}; // { id_revision: full_jsonData }
   function salvar() {
     localStorage.setItem('cp_requisicoes', JSON.stringify(state.requisicoes));
     localStorage.setItem('cp_fornecedores', JSON.stringify(state.fornecedores));
@@ -686,18 +702,14 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       return;
     }
     tbody.innerHTML = demandaRevisions.map((rev, idx) => {
-      const deptos = new Set();
-      const progs = new Set();
-      rev.dados.forEach(d => {
-        if(d.DEPARTAMENTO) deptos.add(d.DEPARTAMENTO);
-        if(d['PROGRAMA ORÇAMENTÁRIO']) progs.add(d['PROGRAMA ORÇAMENTÁRIO']);
-      });
+      const deptoCount = (rev.departamentos || []).length;
+      const progCount = (rev.programas || []).length;
       return `
       <tr>
         <td><b>${rev.dataHora}</b></td>
         <td>${rev.linhas.toLocaleString('pt-BR')}</td>
-        <td>${deptos.size}</td>
-        <td>${progs.size}</td>
+        <td>${deptoCount}</td>
+        <td>${progCount}</td>
         <td><span class="badge ${rev.id === demandaAtiva?.id ? 'badge-success' : 'badge-neutral'}">${rev.id === demandaAtiva?.id ? '✓ Ativa' : 'Histórico'}</span></td>
         <td><button class="btn btn-ghost btn-sm" onclick="deletarDemandaRevision('${rev.id}')"><i class="lucide lucide-trash-2"></i></button></td>
       </tr>
@@ -708,59 +720,136 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     if(!confirm('Deletar esta revisão?')) return;
     demandaRevisions = demandaRevisions.filter(r => r.id !== revId);
     if(demandaAtiva?.id === revId) demandaAtiva = demandaRevisions.length ? demandaRevisions[0] : null;
+    delete demandaDadosCompletos[revId]; // Limpar dados em memória
     salvar();
     renderDemandaHistorico();
     toast('Deletado', 'Revisão removida');
   };
+
+  // Parser CSV/TSV genérico
+  function parseCSVOrTSV(texto) {
+    const linhas = texto.split('\n').filter(l => l.trim());
+    if(linhas.length < 2) throw new Error('Dados inválidos. Certifique-se de incluir cabeçalho');
+
+    // Detectar separador (tab ou vírgula)
+    const primeiraLinha = linhas[0];
+    const ehTab = primeiraLinha.includes('\t');
+    const separador = ehTab ? '\t' : ',';
+
+    const colunas = primeiraLinha.split(separador).map(c => c.trim().replace(/^"|"$/g, ''));
+    const jsonData = [];
+
+    for(let i = 1; i < linhas.length; i++) {
+      const valores = linhas[i].split(separador).map(v => v.trim().replace(/^"|"$/g, ''));
+      const row = {};
+      colunas.forEach((col, idx) => {
+        row[col] = valores[idx] || '';
+      });
+      if(Object.values(row).some(v => v)) jsonData.push(row);
+    }
+
+    if(!jsonData.length) throw new Error('Nenhum dado válido encontrado');
+    return jsonData;
+  }
+
+  // Processar dados importados (genérico para copiar e upload)
+  function processarDemandaData(jsonData, nomeArquivo) {
+    const deptos = new Set();
+    const progs = new Set();
+    const consumoPorDepto = {};
+    const consumoPorProg = {};
+
+    jsonData.forEach(row => {
+      const depto = row.DEPARTAMENTO || '';
+      const prog = row['PROGRAMA ORÇAMENTÁRIO'] || '';
+      const qtd = parseFloat(row.Qtd) || 0;
+
+      if(depto) {
+        deptos.add(depto);
+        consumoPorDepto[depto] = (consumoPorDepto[depto] || 0) + qtd;
+      }
+      if(prog) {
+        progs.add(prog);
+        consumoPorProg[prog] = (consumoPorProg[prog] || 0) + qtd;
+      }
+    });
+
+    const dataHora = formatarDataHora();
+    const revId = 'demanda_' + dataHora.completo;
+
+    // Resumo salvo em localStorage (economiza espaço)
+    const revision = {
+      id: revId,
+      nomeArquivo: nomeArquivo || `Demanda_de_materiais_${dataHora.completo}.txt`,
+      dataHora: dataHora.completo,
+      linhas: jsonData.length,
+      departamentos: Array.from(deptos).sort(),
+      programas: Array.from(progs).sort(),
+      consumoPorDepto: consumoPorDepto,
+      consumoPorProg: consumoPorProg,
+      importadoEm: new Date().toISOString()
+    };
+
+    // Dados completos em memória (não salva em localStorage)
+    demandaDadosCompletos[revId] = jsonData;
+
+    demandaRevisions.unshift(revision);
+    demandaAtiva = revision;
+
+    // Limitar histórico a 5 revisões
+    if(demandaRevisions.length > 5) {
+      demandaRevisions = demandaRevisions.slice(0, 5);
+      // Limpar dados em memória das revisões removidas
+      Object.keys(demandaDadosCompletos).forEach(id => {
+        if(!demandaRevisions.find(r => r.id === id)) {
+          delete demandaDadosCompletos[id];
+        }
+      });
+    }
+
+    salvar();
+    renderDemandaHistorico();
+    mostrarDemandaPreviewResumo(revision);
+    return jsonData.length;
+  }
+
+  // CSV Upload
+  document.getElementById('btn-upload-demanda')?.addEventListener('click', () => {
+    const fileInput = document.getElementById('demanda-file-input');
+    if(!fileInput?.files?.length) return toast('Erro', 'Selecione um arquivo CSV primeiro', 'error');
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      try {
+        const texto = e.target.result;
+        const jsonData = parseCSVOrTSV(texto);
+        const count = processarDemandaData(jsonData, file.name);
+        toast('Sucesso', `${count.toLocaleString('pt-BR')} registros importados`);
+        fileInput.value = '';
+      } catch(err) {
+        toast('Erro', `Falha: ${err.message}`, 'error');
+      }
+    };
+
+    reader.onerror = () => toast('Erro', 'Não foi possível ler o arquivo', 'error');
+    reader.readAsText(file);
+  });
+
+  document.getElementById('btn-limpar-arquivo')?.addEventListener('click', () => {
+    document.getElementById('demanda-file-input').value = '';
+  });
 
   document.getElementById('btn-colar-demanda').addEventListener('click', () => {
     const texto = document.getElementById('demanda-textarea').value.trim();
     if(!texto) return toast('Erro', 'Cole os dados da planilha primeiro', 'error');
 
     try {
-      // Fazer parse dos dados colados (tab-separated)
-      const linhas = texto.split('\n').filter(l => l.trim());
-      if(linhas.length < 2) return toast('Erro', 'Dados inválidos. Certifique-se de colar com cabeçalho', 'error');
-
-      // Primeira linha é o cabeçalho
-      const colunas = linhas[0].split('\t').map(c => c.trim());
-      const jsonData = [];
-
-      // Processar dados
-      for(let i = 1; i < linhas.length; i++) {
-        const valores = linhas[i].split('\t');
-        const row = {};
-        colunas.forEach((col, idx) => {
-          row[col] = valores[idx]?.trim() || '';
-        });
-        if(Object.values(row).some(v => v)) { // Ignora linhas vazias
-          jsonData.push(row);
-        }
-      }
-
-      if(!jsonData.length) return toast('Erro', 'Nenhum dado válido encontrado', 'error');
-
-      const dataHora = formatarDataHora();
-      const revId = 'demanda_' + dataHora.completo;
-
-      const revision = {
-        id: revId,
-        nomeArquivo: `Demanda_de_materiais_${dataHora.completo}.txt`,
-        dataHora: dataHora.completo,
-        linhas: jsonData.length,
-        dados: jsonData,
-        importadoEm: new Date().toISOString()
-      };
-
-      demandaRevisions.unshift(revision);
-      demandaAtiva = revision;
-      salvar();
-
-      renderDemandaHistorico();
-      mostrarDemandaPreview(jsonData);
+      const jsonData = parseCSVOrTSV(texto);
+      const count = processarDemandaData(jsonData);
+      toast('Sucesso', `${count.toLocaleString('pt-BR')} registros importados com sucesso`);
       document.getElementById('demanda-textarea').value = '';
-
-      toast('Sucesso', `${jsonData.length} registros importados com sucesso`);
     } catch(err) {
       console.error('Erro ao processar dados:', err);
       toast('Erro', 'Falha ao processar dados: ' + err.message, 'error');
@@ -828,6 +917,68 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
     html += '</tbody></table>';
     if(dados.length > 20) html += `<div style="padding:12px;text-align:center;font-size:12px;color:var(--text-muted)">... e mais ${dados.length - 20} registros</div>`;
+
+    preview.innerHTML = html;
+  }
+
+  // Mostrar preview com dados resumidos (sem acessar dados completos)
+  function mostrarDemandaPreviewResumo(revision) {
+    const preview = document.getElementById('demanda-preview');
+    if(!revision) return;
+
+    let html = `
+      <div style="padding:16px;background:var(--bg-app);border-radius:var(--r-md);margin-bottom:16px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+          <div style="text-align:center">
+            <div style="font-size:24px;font-weight:700;color:var(--ambar-orange)">${revision.linhas.toLocaleString('pt-BR')}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Registros</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:24px;font-weight:700;color:var(--success)">${(revision.departamentos || []).length}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Departamentos</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:24px;font-weight:700;color:var(--info)">${(revision.programas || []).length}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Programas</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:24px;font-weight:700;color:var(--warning)">${new Date(revision.importadoEm).toLocaleDateString('pt-BR')}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Importado em</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Listar departamentos
+    if(revision.departamentos && revision.departamentos.length) {
+      html += `
+        <div style="margin-bottom:16px">
+          <h3 style="margin-bottom:8px;font-size:13px;font-weight:600;color:var(--text-main)">Departamentos</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+      `;
+      revision.departamentos.forEach(depto => {
+        const consumo = revision.consumoPorDepto?.[depto] || 0;
+        html += `<span style="background:var(--bg-app);border-radius:var(--r-md);padding:6px 12px;font-size:12px">${depto} <span style="color:var(--text-muted)">(${consumo.toLocaleString('pt-BR')})</span></span>`;
+      });
+      html += '</div></div>';
+    }
+
+    // Listar programas
+    if(revision.programas && revision.programas.length) {
+      html += `
+        <div style="margin-bottom:16px">
+          <h3 style="margin-bottom:8px;font-size:13px;font-weight:600;color:var(--text-main)">Programas Orçamentários</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+      `;
+      revision.programas.slice(0, 10).forEach(prog => {
+        const consumo = revision.consumoPorProg?.[prog] || 0;
+        html += `<span style="background:var(--bg-app);border-radius:var(--r-md);padding:6px 12px;font-size:12px">${prog} <span style="color:var(--text-muted)">(${consumo.toLocaleString('pt-BR')})</span></span>`;
+      });
+      if(revision.programas.length > 10) {
+        html += `<span style="color:var(--text-muted);font-size:12px">... e mais ${revision.programas.length - 10}</span>`;
+      }
+      html += '</div></div>';
+    }
 
     preview.innerHTML = html;
   }
