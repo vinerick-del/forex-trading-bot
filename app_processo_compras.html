@@ -828,6 +828,11 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       if(idx === 0) {
         console.log('Processamento: CHAVES do primeiro registro:', Object.keys(row));
         console.log('Processamento: PRIMEIRO REGISTRO COMPLETO:', row);
+
+        // Debug: mostrar cada coluna e seu valor
+        Object.keys(row).forEach(chave => {
+          console.log(`  Coluna "${chave}": "${row[chave]}"`);
+        });
       }
 
       // Procurar colunas com diferentes variações de nomes
@@ -835,6 +840,10 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       const prog = row['PROGRAMA ORÇAMENTÁRIO'] || row['PROGRAMA ORÇAMENTARIA'] || row.programa || row['PROGRAMA'] || '';
       const qtdStr = row.Qtd || row.qtd || row.QTD || row['Qtd'] || '0';
       const qtd = parseFloat(qtdStr) || 0;
+
+      if(idx === 0) {
+        console.log('Processamento: amostra do primeiro registro:', { depto, prog, qtd });
+      }
 
       if(depto) {
         deptos.add(depto);
