@@ -733,28 +733,30 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
     if(linhas.length < 2) throw new Error('Dados inválidos. Certifique-se de incluir cabeçalho');
 
-    // Detectar separador (tab, vírgula, ou espaços múltiplos)
+    // Detectar separador (tab, vírgula, ponto-e-vírgula, ou espaços múltiplos)
     const primeiraLinha = linhas[0];
 
     let separador = '\t';
-    let temTab = primeiraLinha.includes('\t');
-    let temVirgula = primeiraLinha.includes(',');
+    let tipoSeparador = 'TAB';
 
-    // Se não tem tab, tenta vírgula
-    if(!temTab) {
-      if(temVirgula) {
-        separador = ',';
-      } else {
-        // Tenta detectar espaços múltiplos como separador
-        // Procura por 2+ espaços em sequência
-        if(/  +/.test(primeiraLinha)) {
-          separador = /  +/; // Regex para 2+ espaços
-          console.log('Parse: detectado separador de espaços múltiplos');
-        }
-      }
+    // Tentar detectar por ordem de prioridade
+    if(primeiraLinha.includes(';')) {
+      separador = ';';
+      tipoSeparador = 'PONTO-E-VÍRGULA (;)';
+    } else if(primeiraLinha.includes('\t')) {
+      separador = '\t';
+      tipoSeparador = 'TAB';
+    } else if(primeiraLinha.includes(',')) {
+      separador = ',';
+      tipoSeparador = 'VÍRGULA (,)';
+    } else if(/  +/.test(primeiraLinha)) {
+      // Espaços múltiplos como fallback
+      separador = /  +/;
+      tipoSeparador = 'ESPAÇOS MÚLTIPLOS';
+      console.log('Parse: detectado separador de espaços múltiplos');
     }
 
-    console.log(`Parse: separador detectado =`, separador === '\t' ? 'TAB' : separador === ',' ? 'VIRGULA' : 'ESPAÇOS MÚLTIPLOS');
+    console.log(`Parse: separador detectado = ${tipoSeparador}`);
     console.log('Parse: primeira linha (primeiros 200 chars):', primeiraLinha.substring(0, 200));
 
     let colunas;
