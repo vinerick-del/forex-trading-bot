@@ -1442,8 +1442,152 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     });
 
     html += `</tbody></table></div>`;
+
+    // Análise de Materiais da Demanda
+    if(demandaAtiva && demandaDadosCompletos[demandaAtiva.id]) {
+      html += gerarAnaliseMateriais();
+    }
+
     apresContent.innerHTML = html;
   }
+
+  // Gera análise de materiais com rateio por departamento
+  function gerarAnaliseMateriais() {
+    const dados = demandaDadosCompletos[demandaAtiva?.id];
+    if(!dados || !dados.length) return '';
+
+    // Agrupar por CÓDIGO
+    const materiais = {};
+    dados.forEach(row => {
+      const cod = row['CÓDIGO'] || row['Código'] || row['codigo'] || '';
+      const desc = row['Descrição'] || row['Descricao'] || row['descrição'] || '';
+      const depto = Object.keys(row).find(k => k.includes('DEPARTAMENTO')) ? row[Object.keys(row).find(k => k.includes('DEPARTAMENTO'))] : '';
+      const prog = Object.keys(row).find(k => k.includes('PROGRAMA')) ? row[Object.keys(row).find(k => k.includes('PROGRAMA'))] : '';
+      const qtdStr = row['Qtd'] || row['qtd'] || row['QTD'] || '0';
+      const qtd = parseFloat(qtdStr) || 0;
+
+      if(!cod || !qtd) return;
+
+      if(!materiais[cod]) {
+        materiais[cod] = { desc, deptos: {}, progs: {}, totalQtd: 0 };
+      }
+
+      materiais[cod].totalQtd += qtd;
+
+      if(depto) {
+        materiais[cod].deptos[depto] = (materiais[cod].deptos[depto] || 0) + qtd;
+      }
+      if(prog) {
+        materiais[cod].progs[prog] = (materiais[cod].progs[prog] || 0) + qtd;
+      }
+    });
+
+    let html = `<div class="card">
+      <div class="card-title" style="margin-bottom:20px">Análise de Materiais da Demanda</div>
+      <div style="display:grid;gap:16px">`;
+
+    Object.keys(materiais).forEach(cod => {
+      const mat = materiais[cod];
+      const deptos = Object.entries(mat.deptos).sort((a, b) => b[1] - a[1]);
+      const progs = Object.entries(mat.progs).sort((a, b) => b[1] - a[1]);
+
+      html += `
+      <div style="background:var(--bg-app);border:1px solid var(--border-color);border-radius:var(--r-md);padding:16px">
+        <div style="display:grid;grid-template-columns:1fr auto;gap:12px;margin-bottom:12px">
+          <div>
+            <div style="font-weight:600;color:var(--text-main)">${cod}</div>
+            <div style="font-size:12px;color:var(--text-muted)">${mat.desc || '—'}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:24px;font-weight:700;color:var(--ambar-orange)">${mat.totalQtd.toLocaleString('pt-BR')}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Qtd Total</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+          <div>
+            <div style="font-weight:600;font-size:12px;color:var(--ambar-orange);margin-bottom:8px;text-transform:uppercase">Departamentos</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              ${deptos.map(([depto, qtd]) => {
+                const pct = ((qtd / mat.totalQtd) * 100).toFixed(1);
+                return `<div style="font-size:12px;display:flex;justify-content:space-between">
+                  <span>${depto}</span>
+                  <span style="color:var(--text-muted)">${qtd.toLocaleString('pt-BR')} (${pct}%)</span>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>
+
+          <div>
+            <div style="font-weight:600;font-size:12px;color:var(--ambar-orange);margin-bottom:8px;text-transform:uppercase">Programas Orçamentários</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              ${progs.slice(0, 3).map(([prog, qtd]) => {
+                const pct = ((qtd / mat.totalQtd) * 100).toFixed(1);
+                return `<div style="font-size:12px;display:flex;justify-content:space-between">
+                  <span style="max-width:120px;text-overflow:ellipsis;overflow:hidden">${prog}</span>
+                  <span style="color:var(--text-muted)">${qtd.toLocaleString('pt-BR')} (${pct}%)</span>
+                </div>`;
+              }).join('')}
+              ${progs.length > 3 ? `<div style="font-size:11px;color:var(--text-muted)">... e mais ${progs.length - 3}</div>` : ''}
+            </div>
+          </div>
+        </div>
+
+        <div style="padding-top:12px;border-top:1px solid var(--border-color);display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center">
+          <div>
+            <label style="font-size:12px;font-weight:500;color:var(--text-muted);text-transform:uppercase;display:block;margin-bottom:4px">Contratarei (un)</label>
+            <input type="number" class="input" style="width:100%" placeholder="Digite a quantidade" value="${mat.totalQtd}" data-codigo="${cod}" data-total="${mat.totalQtd}">
+          </div>
+          <div id="rateio-${cod}" style="font-size:11px;padding:8px;background:white;border-radius:var(--r-md);max-height:60px;overflow-y:auto">
+            <!-- Rateio será calculado aqui -->
+          </div>
+        </div>
+      </div>`;
+    });
+
+    html += `</div></div>`;
+
+    // Após renderizar, adicionar listeners nos inputs
+    setTimeout(() => {
+      document.querySelectorAll('input[data-codigo]').forEach(input => {
+        input.addEventListener('change', calcularRateio);
+        input.addEventListener('keyup', calcularRateio);
+      });
+    }, 100);
+
+    return html;
+  }
+
+  // Calcula e mostra rateio de contratação
+  window.calcularRateio = function(e) {
+    const input = e.target;
+    const cod = input.getAttribute('data-codigo');
+    const totalDemanda = parseFloat(input.getAttribute('data-total'));
+    const qtdContratar = parseFloat(input.value) || 0;
+
+    const dados = demandaDadosCompletos[demandaAtiva?.id];
+    if(!dados) return;
+
+    // Montar rateio
+    const deptos = {};
+    dados.forEach(row => {
+      const rowCod = row['CÓDIGO'] || row['Código'] || row['codigo'] || '';
+      if(rowCod !== cod) return;
+      const depto = Object.keys(row).find(k => k.includes('DEPARTAMENTO')) ? row[Object.keys(row).find(k => k.includes('DEPARTAMENTO'))] : '';
+      const qtdStr = row['Qtd'] || row['qtd'] || row['QTD'] || '0';
+      const qtd = parseFloat(qtdStr) || 0;
+      if(depto) deptos[depto] = (deptos[depto] || 0) + qtd;
+    });
+
+    let rateioHtml = '';
+    Object.entries(deptos).forEach(([depto, qtdDepto]) => {
+      const pct = (qtdDepto / totalDemanda) * 100;
+      const qtdRateio = (qtdContratar * pct) / 100;
+      rateioHtml += `<div style="margin-bottom:4px;font-size:11px">${depto}: <b>${qtdRateio.toFixed(0)}</b> un</div>`;
+    });
+
+    document.getElementById(`rateio-${cod}`).innerHTML = rateioHtml || '<span style="color:var(--text-muted)">Selecione quantidade</span>';
+  };
   document.getElementById('btn-gravar-ana').addEventListener('click', () => {
     const i=document.getElementById('ana-item').value, s=document.getElementById('ana-status').value;
     if(!i||!s) return toast('Erro','Preencha os obrigatórios','error');
