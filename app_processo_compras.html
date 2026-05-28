@@ -630,21 +630,25 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   const pages = document.querySelectorAll('.page');
   const crumb = document.getElementById('crumb-page');
   function navigate(id){
-    items.forEach(i => i.classList.toggle('active', i.dataset.page === id));
-    pages.forEach(p => p.classList.toggle('active', p.id === id));
-    const it = document.querySelector(`.nav-item[data-page="${id}"]`);
-    if(it) crumb.textContent = it.querySelector('span').textContent;
-    document.querySelector('.content').scrollTo({top:0,behavior:'smooth'});
+    try {
+      items.forEach(i => i.classList.toggle('active', i.dataset.page === id));
+      pages.forEach(p => p.classList.toggle('active', p.id === id));
+      const it = document.querySelector(`.nav-item[data-page="${id}"]`);
+      if(it) crumb.textContent = it.querySelector('span').textContent;
+      document.querySelector('.content').scrollTo({top:0,behavior:'smooth'});
 
-    if (id === 'dashboard') { renderRequisicoes(); atualizarKPIs(); }
-    if (id === 'requisicoes') renderRequisicoesFull();
-    if (id === 'fornecedores') renderFornecedores();
-    if (id === 'cotacoes') atualizarSelectProcesso();
-    if (id === 'analise') atualizarSelectAnalise();
-    if (id === 'equalizacao') atualizarSelectEqualizacao();
-    if (id === 'apresentacao') atualizarSelectApresentacao();
-    if (id === 'resumo') atualizarSelectResumo();
-    if (id === 'contratos') { atualizarSelectContratos(); renderContratos(); }
+      if (id === 'dashboard') { renderRequisicoes(); atualizarKPIs(); }
+      if (id === 'requisicoes') renderRequisicoesFull();
+      if (id === 'fornecedores') renderFornecedores();
+      if (id === 'cotacoes') atualizarSelectProcesso();
+      if (id === 'analise') atualizarSelectAnalise();
+      if (id === 'equalizacao') atualizarSelectEqualizacao();
+      if (id === 'apresentacao') atualizarSelectApresentacao();
+      if (id === 'resumo') atualizarSelectResumo();
+      if (id === 'contratos') { atualizarSelectContratos(); renderContratos(); }
+    } catch(e) {
+      console.error('Erro ao navegar para ' + id + ':', e);
+    }
   }
   items.forEach(it => it.addEventListener('click', () => navigate(it.dataset.page)));
 
@@ -766,6 +770,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
   function atualizarSelectApresentacao(){
     const sel = document.getElementById('apres-processo');
+    if(!sel) return;
     sel.innerHTML = '<option value="">Selecione…</option>' + state.requisicoes.map(r => `<option value="${r.id}">${r.numero} — ${r.depart}</option>`).join('');
     sel.onchange = () => renderApresentacao(sel.value);
   }
@@ -817,7 +822,14 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   }
 
   function renderApresentacao(processoId){
-    if(!processoId) { document.getElementById('apres-content').innerHTML = '<div class="card"><div style="text-align:center;padding:40px;color:var(--text-muted)"><i class="lucide lucide-mouse-pointer-click" style="font-size:2rem;margin-bottom:8px;display:block"></i> Selecione um processo</div></div>'; return; }
+    const apresContent = document.getElementById('apres-content');
+    if(!apresContent) return;
+
+    if(!processoId) {
+      apresContent.innerHTML = '<div class="card"><div style="text-align:center;padding:40px;color:var(--text-muted)"><i class="lucide lucide-mouse-pointer-click" style="font-size:2rem;margin-bottom:8px;display:block"></i> Selecione um processo</div></div>';
+      return;
+    }
+
     const processo = state.requisicoes.find(r => r.id == processoId);
     const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
     const risco = obterStatusRisco(processoId);
@@ -896,7 +908,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     });
 
     html += `</tbody></table></div>`;
-    document.getElementById('apres-content').innerHTML = html;
+    apresContent.innerHTML = html;
   }
   document.getElementById('btn-gravar-ana').addEventListener('click', () => {
     const i=document.getElementById('ana-item').value, s=document.getElementById('ana-status').value;
