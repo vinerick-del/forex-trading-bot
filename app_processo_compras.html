@@ -780,10 +780,15 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     console.log('Processamento: iniciando extração de dados...');
 
     jsonData.forEach((row, idx) => {
+      if(idx === 0) {
+        console.log('Processamento: CHAVES do primeiro registro:', Object.keys(row));
+        console.log('Processamento: PRIMEIRO REGISTRO COMPLETO:', row);
+      }
+
       // Procurar colunas com diferentes variações de nomes
-      const depto = row.DEPARTAMENTO || row.departamento || '';
-      const prog = row['PROGRAMA ORÇAMENTÁRIO'] || row['PROGRAMA ORÇAMENTARIA'] || row.programa || '';
-      const qtdStr = row.Qtd || row.qtd || row.QTD || '0';
+      const depto = row.DEPARTAMENTO || row.departamento || row['DEPARTAMENTO'] || '';
+      const prog = row['PROGRAMA ORÇAMENTÁRIO'] || row['PROGRAMA ORÇAMENTARIA'] || row.programa || row['PROGRAMA'] || '';
+      const qtdStr = row.Qtd || row.qtd || row.QTD || row['Qtd'] || '0';
       const qtd = parseFloat(qtdStr) || 0;
 
       if(depto) {
