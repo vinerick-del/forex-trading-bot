@@ -1,1964 +1,796 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AmbarEnergia-AM · CotaPro</title>
+<title>Âmbar Energia · CotaPro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.460.0/font/lucide.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 /* ============================================================
-   CotaPro — Futuristic Design System (Cyber / Glass)
+   CotaPro — Âmbar Energia (Enterprise Clean Theme)
    ============================================================ */
 *,*::before,*::after{box-sizing:border-box}
 *{margin:0;padding:0}
 html,body{height:100%}
-:root{
-  /* Cyber palette */
-  --bg-0:#05070d;
-  --bg-1:#0a0e1a;
-  --bg-2:#0f1525;
-  --surface:rgba(18,24,42,.72);
-  --surface-2:rgba(28,36,60,.55);
-  --surface-3:rgba(40,50,82,.45);
-  --border:rgba(120,140,200,.14);
-  --border-strong:rgba(120,140,200,.28);
-  --border-glow:rgba(246,139,31,.35);
 
-  --text:#e6ecff;
-  --text-muted:#8a96b8;
-  --text-subtle:#5c668a;
+:root {
+  --ambar-slate: #4a565d;
+  --ambar-slate-dark: #3a4449;
+  --ambar-slate-light: #6a7982;
+  --ambar-orange: #f68b1f;
+  --ambar-orange-hover: #e07a16;
+  --ambar-orange-light: rgba(246, 139, 31, 0.1);
 
-  /* Neon accents - Cores da empresa */
-  --neon-orange:#f68b1f;
-  --neon-orange-2:#ff9d3d;
-  --neon-accent:#4a565d;
-  --neon-pink:#ec4899;
-  --neon-green:#22d3a4;
-  --neon-amber:#fbbf24;
-  --neon-red:#ff4d6d;
+  --bg-app: #f4f7f9;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f9fafb;
+  --text-main: #334155;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --border-color: #e2e8f0;
 
-  --grad-primary:linear-gradient(135deg,#f68b1f 0%,#ff9d3d 100%);
-  --grad-success:linear-gradient(135deg,#f68b1f 0%,#ff9d3d 100%);
-  --grad-warning:linear-gradient(135deg,#ff9d3d 0%,#f68b1f 100%);
-  --grad-danger:linear-gradient(135deg,#ff4d6d 0%,#f68b1f 100%);
-  --grad-surface:linear-gradient(180deg,rgba(40,50,82,.55) 0%,rgba(18,24,42,.55) 100%);
+  --success: #10b981;
+  --success-bg: #d1fae5;
+  --danger: #ef4444;
+  --danger-bg: #fee2e2;
+  --warning: #f59e0b;
+  --warning-bg: #fef3c7;
+  --info: #3b82f6;
+  --info-bg: #dbeafe;
 
-  --glow-orange:0 0 24px rgba(246,139,31,.35);
-  --glow-amber:0 0 24px rgba(255,157,61,.35);
-  --glow-green:0 0 20px rgba(34,211,164,.35);
+  --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-full: 9999px;
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --t-fast: 150ms ease;
 
-  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:22px; --r-full:999px;
-  --shadow-xs:0 1px 2px rgba(0,0,0,.4);
-  --shadow-sm:0 4px 16px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.04);
-  --shadow-md:0 10px 30px -10px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.05);
-  --shadow-lg:0 24px 60px -20px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06);
-
-  --ring:0 0 0 3px rgba(246,139,31,.25);
-  --t-fast:140ms cubic-bezier(.2,.8,.2,1);
-  --t-base:240ms cubic-bezier(.2,.8,.2,1);
-
-  --fs-xs:.72rem; --fs-sm:.82rem; --fs-base:.9rem;
-  --fs-md:1rem; --fs-lg:1.15rem; --fs-xl:1.4rem; --fs-2xl:1.85rem; --fs-3xl:2.4rem;
+  --fs-xs: .75rem; --fs-sm: .875rem; --fs-base: 1rem; --fs-md: 1.125rem; --fs-lg: 1.25rem; --fs-xl: 1.5rem; --fs-2xl: 1.875rem;
 }
 
-/* ===================== TEMA CLARO (Light) ===================== */
-[data-theme="light"]{
-  --bg-0:#ffffff;
-  --bg-1:#f8f9fa;
-  --bg-2:#f0f2f5;
-  --surface:rgba(255,255,255,1);
-  --surface-2:rgba(245,246,248,1);
-  --surface-3:rgba(235,238,242,1);
-  --border:rgba(74,86,93,.15);
-  --border-strong:rgba(74,86,93,.25);
-  --border-glow:rgba(246,139,31,.30);
-  --text:#000000;
-  --text-muted:#333333;
-  --text-subtle:#666666;
-}
-
-/* ===================== TEMA LEITURA (Reading) ===================== */
-[data-theme="reading"]{
-  --bg-0:#fdf9f3;
-  --bg-1:#faf6ef;
-  --bg-2:#f5ede4;
-  --surface:rgba(255,250,245,.95);
-  --surface-2:rgba(250,246,239,.95);
-  --surface-3:rgba(245,237,228,.90);
-  --border:rgba(74,86,93,.08);
-  --border-strong:rgba(74,86,93,.14);
-  --border-glow:rgba(246,139,31,.20);
-  --text:#2c2416;
-  --text-muted:#5c5247;
-  --text-subtle:#8a7d6f;
-  --fs-base:.95rem;
-  --fs-md:1.05rem;
-  --fs-lg:1.25rem;
-}
-
-/* ===================== TEMA ALTO CONTRASTE (High Contrast) ===================== */
-[data-theme="high-contrast"]{
-  --bg-0:#000000;
-  --bg-1:#0d0d0d;
-  --bg-2:#1a1a1a;
-  --surface:rgba(30,30,30,.98);
-  --surface-2:rgba(45,45,45,.98);
-  --surface-3:rgba(60,60,60,.95);
-  --border:rgba(246,139,31,.40);
-  --border-strong:rgba(246,139,31,.60);
-  --border-glow:rgba(246,139,31,.50);
-  --text:#ffffff;
-  --text-muted:#e6e6e6;
-  --text-subtle:#cccccc;
-  --neon-orange:#ffaa00;
-  --neon-orange-2:#ffbb33;
-}
 html{font-size:16px}
 body{
-  font-family:'Inter','Space Grotesk',system-ui,-apple-system,sans-serif;
-  background:var(--bg-0); color:var(--text);
-  font-size:var(--fs-base); line-height:1.5;
-  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-  overflow:hidden;
-  position:relative;
-}
-[data-theme="light"] body{
-  background:#ffffff !important;
-}
-/* Ambient cyber grid background */
-body::before{
-  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
-  background:
-    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(0,229,255,.10), transparent 60%),
-    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(168,85,247,.12), transparent 60%),
-    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(236,72,153,.05), transparent 70%),
-    linear-gradient(180deg,var(--bg-0),var(--bg-1));
-}
-[data-theme="light"] body::before{
-  display:none;
-}
-body::after{
-  content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.35;
-  background-image:
-    linear-gradient(rgba(120,140,200,.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(120,140,200,.06) 1px, transparent 1px);
-  background-size:48px 48px;
-  mask-image:radial-gradient(ellipse 80% 60% at 50% 40%, #000 30%, transparent 80%);
-}
-[data-theme="light"] body::after{
-  display:none;
+  font-family:'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg-app); color: var(--text-main);
+  font-size: var(--fs-base); line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility; overflow: hidden;
 }
 
-:focus-visible{outline:none; box-shadow:var(--ring); border-radius:10px}
+:focus-visible{outline: none; box-shadow: 0 0 0 3px var(--ambar-orange-light); border-radius: var(--r-sm);}
 button,input,select,textarea{font:inherit;color:inherit}
-i.lucide{font-size:1.05em;line-height:1;vertical-align:-2px}
-.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
+.mono{font-family:'JetBrains Mono', ui-monospace, monospace}
 
-/* ============================ LAYOUT ============================ */
-.app{display:grid;grid-template-columns:272px 1fr;height:100vh;width:100vw;position:relative;z-index:1}
+.app{display:grid;grid-template-columns:260px 1fr;height:100vh;width:100vw;}
+.sidebar{background-color:var(--ambar-slate);color:#ffffff;display:flex;flex-direction:column;border-right:1px solid var(--ambar-slate-dark);box-shadow:2px 0 8px rgba(0,0,0,0.1);z-index:10;}
+.brand{padding:24px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.1);}
+.brand-mark{width:40px;height:40px;border-radius:var(--r-md);background:var(--ambar-orange);display:grid;place-items:center;color:#fff;font-size:1.4rem;font-weight:700;box-shadow:0 2px 4px rgba(0,0,0,0.2);}
+.brand-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.2rem;letter-spacing:-.02em;color:#ffffff;line-height:1.1;}
+.brand-sub{font-size:.75rem;color:rgba(255,255,255,0.7);letter-spacing:.05em;text-transform:uppercase;font-weight:500;margin-top:2px;}
+.nav{flex:1;padding:20px 12px;overflow-y:auto}
+.nav-section{margin-bottom:24px}
+.nav-label{padding:0 12px 8px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ambar-slate-light);}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;margin-bottom:4px;border-radius:var(--r-md);color:rgba(255,255,255,0.8);cursor:pointer;font-size:var(--fs-sm);font-weight:500;transition:all var(--t-fast);}
+.nav-item i{width:20px;text-align:center;color:rgba(255,255,255,0.5);transition:all var(--t-fast)}
+.nav-item:hover{background:rgba(255,255,255,0.05);color:#ffffff;}
+.nav-item:hover i{color:#ffffff;}
+.nav-item.active{background:var(--ambar-orange);color:#ffffff;font-weight:600;}
+.nav-item.active i{color:#ffffff;}
+.side-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.1);font-size:.75rem;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:8px;}
+.side-footer .pulse{width:8px;height:8px;border-radius:50%;background:var(--success);}
 
-/* ============================ SIDEBAR ============================ */
-.sidebar{
-  background:linear-gradient(180deg,#f5f6f8 0%,#eef0f4 100%);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  color:#1a1a1a; display:flex; flex-direction:column;
-  border-right:1px solid var(--border);
-  position:relative;
-}
-.sidebar::after{
-  content:""; position:absolute; top:0; right:0; bottom:0; width:1px;
-  background:linear-gradient(180deg, transparent, var(--neon-orange), var(--neon-orange-2), transparent);
-  opacity:.4;
-}
-.brand{
-  padding:22px 20px 18px; display:flex; align-items:center; gap:14px;
-  border-bottom:1px solid var(--border);
-}
-.brand-mark{
-  width:44px;height:44px;border-radius:12px;
-  background:var(--grad-primary);
-  display:grid;place-items:center;color:#0a0e1a;font-size:1.3rem;font-weight:700;
-  box-shadow:var(--glow-orange),inset 0 1px 0 rgba(255,255,255,.3);
-  position:relative;
-}
-.brand-mark::before{
-  content:""; position:absolute; inset:-2px; border-radius:14px;
-  background:var(--grad-primary); z-index:-1; filter:blur(10px); opacity:.5;
-}
-.brand-name{
-  font-family:'Space Grotesk',sans-serif;
-  font-weight:700;font-size:1.1rem;letter-spacing:-.01em;
-  color:#000000;
-}
-.brand-sub{
-  font-family:'JetBrains Mono',monospace;
-  font-size:.7rem;color:var(--neon-orange);margin-top:3px;
-  letter-spacing:.12em;text-transform:uppercase;font-weight:600;
-}
-.brand-sub::before{content:"▸ "}
+.main{display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{height:70px;background:#ffffff;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;padding:0 32px;gap:16px;z-index:5;}
+.crumbs{display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:var(--fs-sm)}
+.crumbs strong{color:var(--text-main);font-weight:600;}
+.crumbs i{font-size:.9em;color:var(--text-light)}
+.topbar-actions{display:flex;align-items:center;gap:16px}
+.search{display:flex;align-items:center;gap:10px;background:var(--bg-app);border:1px solid var(--border-color);padding:8px 16px;border-radius:var(--r-full);width:300px;transition:all var(--t-fast);}
+.search:focus-within{border-color:var(--ambar-orange);background:#fff;}
+.search input{flex:1;border:0;background:transparent;outline:none;font-size:var(--fs-sm);color:var(--text-main)}
+.search input::placeholder{color:var(--text-muted)}
+.icon-btn{width:36px;height:36px;border-radius:var(--r-full);border:none;background:transparent;display:grid;place-items:center;cursor:pointer;color:var(--text-muted);transition:all var(--t-fast);position:relative;}
+.icon-btn:hover{background:var(--bg-app);color:var(--ambar-orange);}
+.user-chip{display:flex;align-items:center;gap:10px;padding:4px 12px 4px 4px;border:1px solid var(--border-color);border-radius:var(--r-full);cursor:pointer;transition:all var(--t-fast);background:#fff;}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--ambar-slate);color:#ffffff;display:grid;place-items:center;font-weight:600;font-size:.85rem;}
 
-.nav{flex:1;padding:14px 12px;overflow-y:auto}
-.nav-section{margin-top:18px}
-.nav-label{
-  padding:8px 12px; font-size:.65rem; font-weight:700;
-  text-transform:uppercase; letter-spacing:.14em;
-  color:var(--text-subtle);
-  font-family:'JetBrains Mono',monospace;
-}
-.nav-item{
-  display:flex;align-items:center;gap:12px;
-  padding:11px 14px;margin:3px 0;border-radius:10px;
-  color:#555555; cursor:pointer; font-size:var(--fs-sm);
-  font-weight:500;
-  transition:all var(--t-fast);
-  position:relative; overflow:hidden;
-  border:1px solid transparent;
-}
-.nav-item i{width:18px;text-align:center;color:var(--text-subtle);transition:all var(--t-fast)}
-.nav-item:hover{
-  background:var(--surface-3);color:#000000;
-  border-color:var(--border);
-}
-.nav-item:hover i{color:var(--neon-orange)}
-.nav-item.active{
-  background:linear-gradient(90deg,rgba(246,139,31,.15),rgba(246,139,31,.10));
-  color:#000000;font-weight:600;
-  border-color:rgba(246,139,31,.35);
-  box-shadow:inset 0 0 20px rgba(246,139,31,.08);
-}
-.nav-item.active::before{
-  content:""; position:absolute; left:0; top:8px; bottom:8px; width:3px;
-  background:var(--grad-primary); border-radius:0 4px 4px 0;
-  box-shadow:var(--glow-orange);
-}
-.nav-item.active i{color:var(--neon-orange);filter:drop-shadow(0 0 6px var(--neon-orange))}
-.side-footer{
-  padding:14px 18px;border-top:1px solid var(--border);
-  font-family:'JetBrains Mono',monospace;
-  font-size:.68rem;color:var(--text-subtle);
-  display:flex;align-items:center;gap:8px;
-}
-.side-footer .pulse{
-  width:8px;height:8px;border-radius:50%;background:var(--neon-green);
-  box-shadow:0 0 10px var(--neon-green);
-  animation:pulse 2s ease-in-out infinite;
-}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-/* ============================ MAIN ============================ */
-.main{display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative}
-.topbar{
-  height:68px;
-  background:#ffffff;
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 28px; gap:16px;
-  position:relative;
-}
-.topbar::after{
-  content:""; position:absolute; bottom:0; left:0; right:0; height:1px;
-  background:linear-gradient(90deg, transparent, var(--neon-orange), transparent);
-  opacity:.3;
-}
-.crumbs{display:flex;align-items:center;gap:10px;color:var(--text-muted);font-size:var(--fs-sm)}
-.crumbs strong{
-  color:#000000;font-weight:600;font-size:var(--fs-md);
-  font-family:'Space Grotesk',sans-serif;
-  letter-spacing:-.01em;
-}
-.crumbs i{font-size:.85em;color:var(--text-subtle)}
-.topbar-actions{display:flex;align-items:center;gap:10px}
-.search{
-  display:flex;align-items:center;gap:10px;
-  background:var(--surface-2);
-  border:1px solid var(--border); padding:9px 14px;border-radius:10px;
-  width:300px;transition:all var(--t-fast);
-}
-.search:focus-within{
-  border-color:var(--neon-orange);
-  box-shadow:var(--ring),var(--glow-orange);
-  background:var(--surface);
-}
-.search input{flex:1;border:0;background:transparent;outline:none;font-size:var(--fs-sm);color:var(--text)}
-.search input::placeholder{color:var(--text-subtle)}
-.search i{color:var(--text-muted)}
-.icon-btn{
-  width:40px;height:40px;border-radius:10px;border:1px solid var(--border);
-  background:var(--surface-2);display:grid;place-items:center;cursor:pointer;
-  color:var(--text-muted);
-  transition:all var(--t-fast);
-  position:relative;
-}
-.icon-btn:hover{
-  background:var(--surface);color:var(--neon-orange);
-  border-color:var(--border-glow);
-  box-shadow:var(--glow-orange);
-}
-.icon-btn .dot{
-  position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;
-  background:var(--neon-pink);box-shadow:0 0 8px var(--neon-pink);
-}
-.user-chip{
-  display:flex;align-items:center;gap:10px;padding:4px 12px 4px 4px;
-  border:1px solid var(--border);border-radius:var(--r-full);cursor:pointer;
-  background:var(--surface-2);
-  transition:all var(--t-fast);
-}
-.user-chip:hover{background:var(--surface);border-color:var(--border-glow)}
-.avatar{
-  width:32px;height:32px;border-radius:50%;
-  background:var(--grad-primary);
-  color:#0a0e1a;display:grid;place-items:center;font-weight:700;font-size:.85rem;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.3);
-}
-.user-meta{display:flex;flex-direction:column;line-height:1.15}
-.user-meta b{font-size:var(--fs-sm);color:#000000;font-weight:600}
-.user-meta span{font-size:.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
-
-.content{flex:1;overflow-y:auto;padding:30px 32px;position:relative;background:#ffffff;}
-[data-theme="light"] .content{background:#ffffff !important;}
-.content-inner{max-width:1480px;margin:0 auto}
-
-.page{display:none;animation:fade .35s cubic-bezier(.2,.8,.2,1) both}
+.content{flex:1;overflow-y:auto;padding:32px;background:#ffffff;}
+.content-inner{max-width:1400px;margin:0 auto}
+.page{display:none;animation:fadeIn .3s ease;}
 .page.active{display:block}
-@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 
-.page-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:24px;flex-wrap:wrap}
-.page-title{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:var(--fs-2xl);font-weight:700;letter-spacing:-.02em;
-  color:#000000;
-  display:flex;align-items:center;gap:14px;
-}
-.page-title::before{
-  content:""; width:4px; height:28px; border-radius:4px;
-  background:var(--grad-primary);
-  box-shadow:var(--glow-orange);
-}
-.page-desc{color:var(--text-muted);font-size:var(--fs-sm);margin-top:8px;max-width:60ch;padding-left:18px}
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:var(--fs-2xl);font-weight:700;color:var(--text-main);display:flex;align-items:center;gap:12px;}
+.page-title::before{content:"";width:4px;height:24px;border-radius:4px;background:var(--ambar-orange);}
+.page-desc{color:var(--text-muted);font-size:var(--fs-sm);margin-top:4px;padding-left:16px;}
 
-/* ============================ CARDS / FORMS ============================ */
-.card{
-  background:var(--surface);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
-  border:1px solid var(--border);
-  border-radius:var(--r-lg); padding:24px; margin-bottom:20px;
-  box-shadow:var(--shadow-sm);
-  position:relative;
-}
-.card::before{
-  content:""; position:absolute; top:0; left:24px; right:24px; height:1px;
-  background:linear-gradient(90deg, transparent, var(--neon-orange), var(--neon-orange-2), transparent);
-  opacity:.4;
-}
-.card-head{
-  display:flex;justify-content:space-between;align-items:center;gap:12px;
-  padding-bottom:16px;margin-bottom:20px;border-bottom:1px solid var(--border);
-}
-.card-title{
-  font-family:'Space Grotesk',sans-serif;
-  font-weight:600;font-size:var(--fs-lg);letter-spacing:-.01em;color:#000000;
-}
-.card-sub{color:var(--text-muted);font-size:var(--fs-sm);margin-top:3px}
+.card{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--r-lg);padding:24px;margin-bottom:24px;box-shadow:var(--shadow-sm);}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:16px;margin-bottom:20px;border-bottom:1px solid var(--border-color);}
+.card-title{font-size:var(--fs-lg);font-weight:600;color:var(--text-main);}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:var(--fs-sm);font-weight:600;color:var(--text-main);}
+.field .req{color:var(--danger)}
+.input,.select,.textarea{width:100%;padding:10px 14px;border:1px solid var(--border-color);border-radius:var(--r-md);background:#ffffff;font-size:var(--fs-sm);color:var(--text-main);transition:all var(--t-fast);}
+.input:focus,.select:focus,.textarea:focus{outline:none;border-color:var(--ambar-orange);box-shadow:0 0 0 3px var(--ambar-orange-light);}
 
-.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-.field{display:flex;flex-direction:column;gap:7px}
-.field label{
-  font-size:.75rem;font-weight:600;color:var(--text-muted);
-  text-transform:uppercase;letter-spacing:.08em;
-  font-family:'JetBrains Mono',monospace;
-}
-.field .hint{font-size:var(--fs-xs);color:var(--text-subtle)}
-.field .req{color:var(--neon-pink)}
-.input,.select,.textarea{
-  width:100%;padding:11px 14px;
-  border:1px solid var(--border-strong);
-  border-radius:10px;
-  background:var(--bg-1);
-  font-size:var(--fs-base);color:var(--text);
-  transition:all var(--t-fast);
-}
-.input::placeholder{color:var(--text-subtle)}
-.input:hover,.select:hover,.textarea:hover{border-color:var(--text-subtle)}
-.input:focus,.select:focus,.textarea:focus{
-  outline:none;border-color:var(--neon-orange);
-  box-shadow:var(--ring),0 0 16px rgba(0,229,255,.15);
-  background:var(--bg-2);
-}
-.select option{background:var(--bg-1);color:var(--text)}
-.textarea{min-height:108px;resize:vertical;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:var(--fs-sm)}
-
-/* ============================ BUTTONS ============================ */
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  padding:11px 18px;border-radius:10px;border:1px solid transparent;
-  font-weight:600;font-size:var(--fs-sm);cursor:pointer;
-  font-family:'Inter',sans-serif;letter-spacing:.01em;
-  transition:all var(--t-fast);
-  white-space:nowrap;
-  position:relative; overflow:hidden;
-}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;border-radius:var(--r-md);border:1px solid transparent;font-weight:500;font-size:var(--fs-sm);cursor:pointer;transition:all var(--t-fast);white-space:nowrap;}
 .btn:active{transform:translateY(1px)}
-.btn-primary{
-  background:var(--grad-primary);
-  color:#0a0e1a;font-weight:700;
-  box-shadow:0 4px 14px rgba(0,229,255,.3),inset 0 1px 0 rgba(255,255,255,.3);
-}
-.btn-primary:hover{
-  box-shadow:0 6px 20px rgba(0,229,255,.5),inset 0 1px 0 rgba(255,255,255,.3);
-  transform:translateY(-1px);
-}
-.btn-secondary{
-  background:var(--surface-2);color:var(--text);
-  border-color:var(--border-strong);
-  backdrop-filter:blur(10px);
-}
-.btn-secondary:hover{
-  background:var(--surface);
-  border-color:var(--border-glow);
-  color:#fff;
-  box-shadow:var(--glow-orange);
-}
-.btn-success{
-  background:var(--grad-success);
-  color:#0a0e1a;font-weight:700;
-  box-shadow:0 4px 14px rgba(34,211,164,.3),inset 0 1px 0 rgba(255,255,255,.3);
-}
-.btn-success:hover{box-shadow:0 6px 20px rgba(34,211,164,.5),inset 0 1px 0 rgba(255,255,255,.3);transform:translateY(-1px)}
-.btn-danger{background:var(--grad-danger);color:#fff;font-weight:700}
-.btn-ghost{background:transparent;color:var(--text-muted);border-color:transparent}
-.btn-ghost:hover{background:var(--surface-2);color:#fff}
-.btn-sm{padding:7px 12px;font-size:var(--fs-xs)}
-.btn-lg{padding:13px 22px;font-size:var(--fs-base)}
+.btn-primary{background:var(--ambar-orange);color:#ffffff;font-weight:600;}
+.btn-primary:hover{background:var(--ambar-orange-hover);}
+.btn-secondary{background:#ffffff;color:var(--text-main);border-color:var(--border-color);}
+.btn-secondary:hover{background:var(--bg-app);border-color:var(--ambar-slate-light);}
+.btn-success{background:var(--success);color:#fff;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-ghost{background:transparent;color:var(--text-muted);}
+.btn-ghost:hover{background:var(--bg-app);color:var(--ambar-slate);}
+.btn-sm{padding:6px 12px;font-size:var(--fs-xs);border-radius:var(--r-sm);}
 
-/* ============================ KPI ============================ */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-bottom:26px}
-.kpi{
-  background:var(--surface);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
-  border:1px solid var(--border);
-  border-radius:var(--r-lg); padding:22px;position:relative;overflow:hidden;
-  box-shadow:var(--shadow-sm);
-  transition:all var(--t-base);
-}
-.kpi::before{
-  content:""; position:absolute; top:0; left:0; right:0; height:2px;
-  background:var(--grad-primary);
-  opacity:.8;
-}
-.kpi::after{
-  content:""; position:absolute; top:-50%; right:-30%; width:200px; height:200px;
-  border-radius:50%; background:radial-gradient(circle, rgba(0,229,255,.10), transparent 70%);
-  pointer-events:none;
-}
-.kpi:hover{
-  transform:translateY(-3px);
-  box-shadow:var(--shadow-md),var(--glow-orange);
-  border-color:var(--border-glow);
-}
-.kpi-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:16px;position:relative;z-index:1}
-.kpi-label{
-  font-size:.7rem;font-weight:700;color:var(--text-muted);
-  text-transform:uppercase;letter-spacing:.1em;
-  font-family:'JetBrains Mono',monospace;
-}
-.kpi-icon{
-  width:42px;height:42px;border-radius:10px;display:grid;place-items:center;
-  background:rgba(0,229,255,.12);color:var(--neon-orange);font-size:1.15rem;
-  border:1px solid rgba(0,229,255,.2);
-  box-shadow:inset 0 0 20px rgba(0,229,255,.1);
-}
-.kpi-value{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:var(--fs-2xl);font-weight:700;letter-spacing:-.02em;
-  font-variant-numeric:tabular-nums;
-  color:#000000;
-  position:relative;z-index:1;
-}
-.kpi-foot{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:var(--fs-xs);color:var(--text-muted);position:relative;z-index:1}
-.kpi-foot .delta{font-weight:700;font-family:'JetBrains Mono',monospace}
-.delta.up{color:var(--neon-green);text-shadow:0 0 8px rgba(34,211,164,.4)}
-.delta.down{color:var(--neon-red);text-shadow:0 0 8px rgba(255,77,109,.4)}
-.kpi.success::before{background:var(--grad-success)}
-.kpi.success .kpi-icon{background:rgba(34,211,164,.12);color:var(--neon-green);border-color:rgba(34,211,164,.2)}
-.kpi.warning::before{background:var(--grad-warning)}
-.kpi.warning .kpi-icon{background:rgba(251,191,36,.12);color:var(--neon-amber);border-color:rgba(251,191,36,.2)}
-.kpi.info::before{background:linear-gradient(135deg,#ff9d3d,#ec4899)}
-.kpi.info .kpi-icon{background:rgba(168,85,247,.12);color:var(--neon-orange-2);border-color:rgba(168,85,247,.2)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;margin-bottom:32px}
+.kpi{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow-sm);border-top:4px solid var(--ambar-slate);}
+.kpi.success{border-top-color:var(--success);}
+.kpi.warning{border-top-color:var(--ambar-orange);}
+.kpi-label{font-size:var(--fs-sm);font-weight:600;color:var(--text-muted);}
+.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:var(--fs-2xl);font-weight:700;color:var(--text-main);margin-top:8px;}
 
-/* ============================ TABLES ============================ */
-.table-wrap{
-  overflow-x:auto;
-  border:1px solid var(--border);
-  border-radius:var(--r-md);
-  background:var(--bg-1);
-}
-.table{width:100%;border-collapse:separate;border-spacing:0;font-size:var(--fs-sm)}
-.table thead th{
-  position:sticky;top:0;
-  background:linear-gradient(135deg,#4a565d 0%,#3a424a 100%);
-  color:#ffffff;
-  text-align:left;font-weight:700;font-size:var(--fs-xs);
-  text-transform:uppercase;letter-spacing:.08em;
-  padding:14px 16px;border-bottom:2px solid var(--neon-orange);white-space:nowrap;
-  font-family:'JetBrains Mono',monospace;
-}
-[data-theme="light"] .table thead th{
-  background:linear-gradient(135deg,#4a565d 0%,#3a424a 100%);
-  color:#ffffff;
-}
-.table tbody td{padding:14px 16px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
-.table tbody tr:last-child td{border-bottom:0}
-.table tbody tr{transition:background var(--t-fast)}
-.table tbody tr:hover{background:var(--surface-2)}
-.empty{padding:54px 20px;text-align:center;color:var(--text-muted)}
-.empty i{font-size:2rem;display:block;margin-bottom:10px;color:var(--text-subtle)}
+.table-wrap{overflow-x:auto;border:1px solid var(--border-color);border-radius:var(--r-md);background:#ffffff;}
+.table{width:100%;border-collapse:collapse;font-size:var(--fs-sm);text-align:left;}
+.table thead th{background:var(--ambar-slate);color:#ffffff;font-weight:600;padding:12px 16px;white-space:nowrap;border-bottom:3px solid var(--ambar-orange);}
+.table tbody td{padding:12px 16px;border-bottom:1px solid var(--border-color);vertical-align:middle;}
+.table tbody tr:hover{background:var(--bg-surface-hover);}
+.empty{padding:40px 20px;text-align:center;color:var(--text-muted)}
 
-/* ============================ BADGES ============================ */
-.badge{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:4px 10px;border-radius:var(--r-full);
-  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
-  font-family:'JetBrains Mono',monospace;
-  border:1px solid;
-}
-.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 6px currentColor}
-.badge-success{background:rgba(34,211,164,.1);color:var(--neon-green);border-color:rgba(34,211,164,.3)}
-.badge-warning{background:rgba(251,191,36,.1);color:var(--neon-amber);border-color:rgba(251,191,36,.3)}
-.badge-danger {background:rgba(255,77,109,.1); color:var(--neon-red);  border-color:rgba(255,77,109,.3)}
-.badge-info   {background:rgba(0,229,255,.1);  color:var(--neon-orange); border-color:rgba(0,229,255,.3)}
-.badge-violet {background:rgba(168,85,247,.1); color:var(--neon-orange-2);border-color:rgba(168,85,247,.3)}
-.badge-neutral{background:var(--surface-3);    color:var(--text-muted);border-color:var(--border)}
+.badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:var(--r-sm);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.badge-success{background:var(--success-bg);color:#065f46;}
+.badge-danger{background:var(--danger-bg);color:#991b1b;}
+.badge-warning{background:var(--warning-bg);color:#92400e;}
+.badge-info{background:var(--info-bg);color:#1e40af;}
 
-/* ============================ EXCEL / EQUALIZAÇÃO ============================ */
-.eq-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
-.eq-meta{display:flex;align-items:center;gap:10px;font-size:var(--fs-sm);color:var(--text-muted);flex-wrap:wrap}
-.eq-meta b{color:#fff;font-family:'Space Grotesk',sans-serif}
-.excel-wrap{
-  width:100%;
-  border:1px solid var(--border-strong);
-  border-radius:var(--r-md);
-  background:var(--bg-1);
-  overflow:auto;
-}
-.excel{
-  width:100%;border-collapse:collapse;
-  font-family:'JetBrains Mono',ui-monospace,monospace;
-  font-size:.74rem;
-  color:var(--text);
-}
-.excel th,.excel td{
-  border:1px solid var(--border);
-  padding:9px 11px;white-space:normal;word-break:break-word;
-}
-.excel thead tr:nth-child(1) th{
-  background:linear-gradient(135deg,#4a565d 0%,#3a424a 100%);
-  color:#ffffff;font-weight:700;
-  text-transform:uppercase;letter-spacing:.06em;
-  position:sticky;top:0;z-index:11;text-align:center;
-  border-bottom:2px solid var(--neon-orange);
-}
-.excel thead tr:nth-child(2) th{
-  background:#4a565d;color:var(--neon-orange);
-  text-align:center;font-weight:600;
-  position:sticky;top:36px;z-index:10;
-  border-bottom:1px solid var(--border);
-}
-.excel thead tr:nth-child(3) th{
-  background:#4a565d;color:var(--neon-orange);
-  text-align:center;font-weight:600;
-  position:sticky;top:70px;z-index:10;
-  border-bottom:1px solid var(--border);
-}
-.excel thead tr:nth-child(4) th{
-  background:#4a565d;color:var(--neon-orange);
-  text-align:center;font-weight:700;
-  position:sticky;top:104px;z-index:10;
-  text-transform:uppercase;letter-spacing:.05em;
-  border-bottom:1px solid var(--border);
-}
-.excel .sticky-col{position:sticky;left:0;background:var(--bg-1);z-index:5}
-.excel thead .sticky-col{background:linear-gradient(135deg,#4a565d 0%,#3a424a 100%);color:#fff;z-index:12}
-.excel tbody tr:nth-child(even) td{background:rgba(245,246,248,1)}
-.excel tbody tr:hover td{background:rgba(246,139,31,.12)}
+/* Relatório Executivo */
+.relatorio-header{background:linear-gradient(135deg,var(--ambar-slate),var(--ambar-slate-dark));color:#fff;padding:40px;border-radius:var(--r-lg);margin-bottom:32px;text-align:center;}
+.relatorio-header h1{font-size:var(--fs-2xl);margin-bottom:8px;}
+.relatorio-header p{color:rgba(255,255,255,0.8);font-size:var(--fs-sm);}
 
-/* ============ Redimensionamento de Colunas ============ */
-.col-resizer{
-  position:absolute;right:0;top:0;width:6px;height:100%;
-  background:var(--neon-orange);cursor:col-resize;
-  opacity:0;transition:opacity var(--t-fast);
-  z-index:100;
-}
-.table th:hover .col-resizer{opacity:0.6}
-.table th .col-resizer:hover{opacity:1}
-.table-col{position:relative;overflow:hidden}
-.table{table-layout:auto}
-.excel tbody tr:hover .sticky-col{background:rgba(0,229,255,.10)}
-.cell-num{text-align:right;font-variant-numeric:tabular-nums}
-.cell-win{background:rgba(34,211,164,.18) !important;color:var(--neon-green);font-weight:700}
+.exec-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px;}
+.exec-card{background:var(--bg-surface);border:2px solid var(--border-color);border-radius:var(--r-lg);padding:20px;text-align:center;}
+.exec-card.highlight{border-color:var(--ambar-orange);background:var(--ambar-orange-light);}
+.exec-card .label{font-size:var(--fs-sm);color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;font-weight:600;}
+.exec-card .value{font-family:'Space Grotesk',sans-serif;font-size:var(--fs-2xl);font-weight:700;color:var(--text-main);}
+.exec-card.highlight .value{color:var(--ambar-orange);}
 
-/* ============================ MODAL ============================ */
-.modal{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.3);
-  backdrop-filter:blur(8px);
-  z-index:1000;padding:20px;
-  animation:fade .2s ease;
-}
+.risk-indicator{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--r-md);font-size:var(--fs-xs);font-weight:600;}
+.risk-low{background:#d1fae5;color:#065f46;}
+.risk-medium{background:var(--warning-bg);color:#92400e;}
+.risk-high{background:var(--danger-bg);color:#991b1b;}
+
+.parametros-globais{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px;}
+.param-item{background:var(--bg-app);padding:12px;border-radius:var(--r-md);border-left:3px solid var(--ambar-orange);}
+.param-label{font-size:var(--fs-xs);color:var(--text-muted);font-weight:600;text-transform:uppercase;}
+.param-value{font-size:var(--fs-sm);color:var(--text-main);font-weight:600;margin-top:4px;}
+
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);backdrop-filter:blur(4px);z-index:1000;padding:20px;}
 .modal.open{display:grid;place-items:center}
-.modal-content{
-  background:var(--surface);
-  backdrop-filter:blur(20px);
-  border:1px solid var(--border-glow);
-  border-radius:var(--r-lg);
-  max-width:520px;width:100%;
-  padding:28px;
-  box-shadow:var(--shadow-lg),var(--glow-orange);
-}
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.modal-head h2{
-  font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:700;color:#000000;
-  display:flex;align-items:center;gap:10px;
-}
-.modal-close{
-  width:36px;height:36px;border-radius:8px;
-  background:var(--surface-2);border:1px solid var(--border);
-  color:var(--text-muted);cursor:pointer;
-  display:grid;place-items:center;transition:all var(--t-fast);
-}
-.modal-close:hover{color:var(--neon-red);border-color:var(--neon-red)}
-.chk-row{
-  display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;
-  color:var(--text);font-size:var(--fs-sm);
-}
-.chk-row + .chk-row.divider{border-top:1px solid var(--border);padding-top:14px;margin-top:6px}
-.chk-row input[type=checkbox]{
-  appearance:none;-webkit-appearance:none;
-  width:18px;height:18px;border:1.5px solid var(--border-strong);
-  border-radius:5px;background:var(--bg-1);cursor:pointer;
-  display:grid;place-items:center;transition:all var(--t-fast);
-}
-.chk-row input[type=checkbox]:checked{
-  background:var(--grad-primary);border-color:transparent;
-  box-shadow:var(--glow-orange);
-}
-.chk-row input[type=checkbox]:checked::after{
-  content:"✓";color:#0a0e1a;font-weight:700;font-size:.85rem;
-}
+.modal-content{background:#ffffff;border-radius:var(--r-lg);max-width:600px;width:100%;padding:32px;box-shadow:var(--shadow-lg);}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.modal-head h2{font-size:var(--fs-lg);font-weight:700;color:var(--text-main);}
+.modal-close{width:32px;height:32px;border-radius:var(--r-sm);background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;}
+.modal-close:hover{background:var(--bg-app);color:var(--danger);}
 
-/* ============================ TOASTS ============================ */
-#toasts{position:fixed;top:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px}
-.toast{
-  min-width:300px;max-width:400px;
-  background:var(--surface);
-  backdrop-filter:blur(20px);
-  border:1px solid var(--border);
-  border-left:3px solid var(--neon-orange);
-  border-radius:12px;
-  padding:14px 16px;
-  box-shadow:var(--shadow-lg),var(--glow-orange);
-  display:flex;align-items:start;gap:12px;
-  animation:slideIn .3s cubic-bezier(.2,.8,.2,1) both;
-}
-.toast.success{border-left-color:var(--neon-green);box-shadow:var(--shadow-lg),var(--glow-green)}
-.toast.error  {border-left-color:var(--neon-red);box-shadow:var(--shadow-lg),0 0 24px rgba(255,77,109,.35)}
-.toast.warning{border-left-color:var(--neon-amber)}
-.toast i{font-size:1.1rem;color:var(--neon-orange)}
-.toast.success i{color:var(--neon-green)}
-.toast.error i{color:var(--neon-red)}
-.toast.warning i{color:var(--neon-amber)}
-.toast b{display:block;font-size:var(--fs-sm);color:#fff;font-weight:600;margin-bottom:2px}
+#toasts{position:fixed;top:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:12px}
+.toast{min-width:300px;background:#ffffff;border:1px solid var(--border-color);border-left:4px solid var(--ambar-orange);border-radius:var(--r-md);padding:16px;box-shadow:var(--shadow-md);display:flex;align-items:flex-start;gap:12px;animation:slideIn .3s cubic-bezier(.2,.8,.2,1) both;}
+.toast.success{border-left-color:var(--success);}
+.toast.error{border-left-color:var(--danger);}
+.toast i{font-size:1.2rem;color:var(--ambar-orange)}
+.toast.success i{color:var(--success)}
+.toast b{display:block;font-size:var(--fs-sm);color:var(--text-main);font-weight:600;}
 .toast span{font-size:var(--fs-xs);color:var(--text-muted)}
 @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
 
-/* Scrollbar */
-::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:10px;border:2px solid transparent;background-clip:padding-box}
-::-webkit-scrollbar-thumb:hover{background:var(--neon-orange);background-clip:padding-box}
+::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:4px;}
 
-/* Info card variant */
-.card.info-card{
-  background:linear-gradient(135deg,rgba(0,229,255,.06),rgba(168,85,247,.04));
-  border-color:rgba(0,229,255,.25);
-}
-.info-card .info-icon{color:var(--neon-orange);font-size:1.3rem;margin-top:2px;filter:drop-shadow(0 0 8px var(--neon-orange))}
-.info-card .info-text{font-size:var(--fs-sm);color:var(--text)}
-.info-card .info-text b{color:var(--neon-orange)}
-
-/* Resumo equalização (dark) */
-.resumo-box{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--r-md);padding:18px;margin-top:18px;
-}
-.resumo-box h3{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:1.05rem;font-weight:700;margin-bottom:14px;color:#000000;
-  display:flex;align-items:center;gap:8px;
-}
-.resumo-row{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:10px 12px;border-bottom:1px solid var(--border);font-size:var(--fs-sm);
-}
-.resumo-row:last-child{border:0}
-.resumo-row .left b{color:var(--neon-orange)}
-.resumo-row .right .forn{color:var(--neon-green);font-weight:700;font-size:.78rem;margin-bottom:2px}
-.resumo-row .right .val{color:#000000;font-weight:700;font-family:'JetBrains Mono',monospace}
-.resumo-total{
-  margin-top:12px;padding:14px;border-radius:10px;text-align:right;
-  background:linear-gradient(90deg,rgba(34,211,164,.10),rgba(0,229,255,.10));
-  border:1px solid rgba(34,211,164,.25);
-  font-family:'JetBrains Mono',monospace;font-weight:700;color:#000000;
-}
-.resumo-winner{
-  margin-top:14px;padding:18px;border-radius:12px;text-align:center;
-  background:linear-gradient(135deg,rgba(34,211,164,.10),rgba(0,229,255,.08));
-  border:1px solid rgba(34,211,164,.35);
-  box-shadow:var(--glow-green);
-}
-.resumo-winner h3{justify-content:center;color:var(--neon-green);margin-bottom:8px}
-.resumo-winner .name{font-size:1.3rem;font-weight:700;color:#000000;font-family:'Space Grotesk',sans-serif;margin-bottom:4px}
-.resumo-winner .val{color:var(--neon-orange);font-family:'JetBrains Mono',monospace}
-
-/* ============================ RESPONSIVE ============================ */
 @media (max-width:1024px){
-  .app{grid-template-columns:76px 1fr}
+  .app{grid-template-columns:70px 1fr}
   .brand-name,.brand-sub,.nav-label,.nav-item span,.side-footer span{display:none}
-  .nav-item{justify-content:center;padding:13px}
-  .nav-item.active::before{display:none}
-  .brand{justify-content:center;padding:18px 0}
-  .search{width:220px}
+  .nav-item{justify-content:center;padding:12px}
+  .search{width:200px}
 }
-@media (max-width:720px){
-  .app{grid-template-columns:1fr}
-  .sidebar{display:none}
-  .content{padding:18px}
-  .topbar{padding:0 16px} .search{display:none}
-  .user-meta{display:none}
-}
-@media (prefers-reduced-motion:reduce){
-  *{animation:none !important;transition:none !important}
+@media print{
+  .sidebar,.topbar,.nav-item,.btn{display:none !important}
+  .content{padding:0; background:#fff}
+  .page{display:block !important}
 }
 </style>
 </head>
 <body>
 
 <div class="app">
-  <!-- =================== SIDEBAR =================== -->
-  <aside class="sidebar" aria-label="Navegação principal">
+  <aside class="sidebar">
     <div class="brand">
-      <div class="brand-mark"><i class="lucide lucide-zap"></i></div>
-      <div>
-        <div class="brand-name">AmbarEnergia-AM</div>
-        <div class="brand-sub">CotaPro</div>
-      </div>
+      <div class="brand-mark">Â</div>
+      <div><div class="brand-name">Âmbar <span style="color:var(--ambar-orange)">Energia</span></div><div class="brand-sub">CotaPro v4</div></div>
     </div>
-
     <nav class="nav">
       <div class="nav-section">
         <div class="nav-label">Principal</div>
-        <div class="nav-item active" data-page="dashboard">
-          <i class="lucide lucide-layout-dashboard"></i><span>Visão Geral</span>
-        </div>
+        <div class="nav-item active" data-page="dashboard"><i class="lucide lucide-layout-dashboard"></i><span>Visão Geral</span></div>
       </div>
-
       <div class="nav-section">
         <div class="nav-label">Cadastros</div>
         <div class="nav-item" data-page="requisicoes"><i class="lucide lucide-clipboard-list"></i><span>Requisições</span></div>
         <div class="nav-item" data-page="fornecedores"><i class="lucide lucide-building-2"></i><span>Fornecedores</span></div>
       </div>
-
       <div class="nav-section">
-        <div class="nav-label">Processo Técnico</div>
+        <div class="nav-label">Técnico</div>
         <div class="nav-item" data-page="cotacoes"><i class="lucide lucide-file-text"></i><span>Cotações</span></div>
         <div class="nav-item" data-page="analise"><i class="lucide lucide-circle-check"></i><span>Análise Técnica</span></div>
-        <div class="nav-item" data-page="equalizacao"><i class="lucide lucide-scale"></i><span>Matriz Equalização</span></div>
+        <div class="nav-item" data-page="equalizacao"><i class="lucide lucide-scale"></i><span>Equalização</span></div>
       </div>
-
       <div class="nav-section">
-        <div class="nav-label">Resultados</div>
-        <div class="nav-item" data-page="resumo"><i class="lucide lucide-trending-up"></i><span>Resumo Financeiro</span></div>
+        <div class="nav-label">Resultado</div>
+        <div class="nav-item" data-page="apresentacao"><i class="lucide lucide-presentation"></i><span>Apresentação</span></div>
         <div class="nav-item" data-page="contratos"><i class="lucide lucide-file-signature"></i><span>Contratos</span></div>
       </div>
     </nav>
-
-    <div class="side-footer"><div class="pulse"></div><span>v3.0 · CotaPro Online</span></div>
+    <div class="side-footer"><div class="pulse"></div><span>v4.0 · CotaPro</span></div>
   </aside>
 
-  <!-- =================== MAIN =================== -->
   <main class="main">
     <header class="topbar">
-      <div class="crumbs">
-        <i class="lucide lucide-home"></i>
-        <span>Compras</span>
-        <i class="lucide lucide-chevron-right"></i>
-        <strong id="crumb-page">Visão Geral</strong>
-      </div>
+      <div class="crumbs"><i class="lucide lucide-home"></i><span>Compras</span><i class="lucide lucide-chevron-right"></i><strong id="crumb-page">Visão Geral</strong></div>
       <div class="topbar-actions">
-        <label class="search">
-          <i class="lucide lucide-search"></i>
-          <input type="search" id="search-global" placeholder="Buscar processo, fornecedor, contrato…" />
-        </label>
-        <button class="icon-btn" id="btn-notif" title="Notificações"><i class="lucide lucide-bell"></i><span class="dot"></span></button>
         <button class="icon-btn" id="btn-help" title="Ajuda"><i class="lucide lucide-circle-help"></i></button>
-        <div class="user-chip" id="user-chip" title="Comprador logado">
-          <div class="avatar">C</div>
-          <div class="user-meta"><b>Comprador</b><span>Dep. Compras</span></div>
-        </div>
+        <div class="user-chip"><div class="avatar">C</div><div style="display:flex;flex-direction:column;line-height:1.2"><b style="font-size:var(--fs-sm);color:var(--text-main);font-weight:600">Comprador</b><span style="font-size:.7rem;color:var(--text-muted)">Dep. Compras</span></div></div>
       </div>
     </header>
 
     <div class="content">
       <div class="content-inner">
 
-        <!-- ============ DASHBOARD ============ -->
+        <!-- DASHBOARD -->
         <section class="page active" id="dashboard">
-          <div class="page-head">
-            <div>
-              <h1 class="page-title">Visão Geral</h1>
-              <p class="page-desc">Monitore processos ativos, contratações e saving gerado em tempo real.</p>
-            </div>
-            <button class="btn btn-primary" id="btn-nova-req"><i class="lucide lucide-plus"></i> Nova Requisição</button>
-          </div>
-
+          <div class="page-head"><div><h1 class="page-title">Visão Geral</h1><p class="page-desc">Acompanhe processos de compra.</p></div><button class="btn btn-primary" id="btn-nova-req"><i class="lucide lucide-plus"></i> Nova Requisição</button></div>
           <div class="kpi-grid">
-            <div class="kpi">
-              <div class="kpi-top">
-                <span class="kpi-label">Processos em andamento</span>
-                <div class="kpi-icon"><i class="lucide lucide-activity"></i></div>
-              </div>
-              <div class="kpi-value" id="kpi-processos">0</div>
-              <div class="kpi-foot"><span class="delta up">▲ 0%</span> vs. mês anterior</div>
-            </div>
-            <div class="kpi success">
-              <div class="kpi-top">
-                <span class="kpi-label">Total contratado</span>
-                <div class="kpi-icon"><i class="lucide lucide-banknote"></i></div>
-              </div>
-              <div class="kpi-value" id="kpi-contratado">R$ 0</div>
-              <div class="kpi-foot"><span class="delta up">▲ 0%</span> YTD</div>
-            </div>
-            <div class="kpi warning">
-              <div class="kpi-top">
-                <span class="kpi-label">Saving gerado</span>
-                <div class="kpi-icon"><i class="lucide lucide-piggy-bank"></i></div>
-              </div>
-              <div class="kpi-value" id="kpi-saving">R$ 0</div>
-              <div class="kpi-foot"><span class="delta up">▲ 0%</span> economia média</div>
-            </div>
-            <div class="kpi info">
-              <div class="kpi-top">
-                <span class="kpi-label">Tempo médio (dias)</span>
-                <div class="kpi-icon"><i class="lucide lucide-timer"></i></div>
-              </div>
-              <div class="kpi-value">7,2</div>
-              <div class="kpi-foot"><span class="delta down">▼ 1,1d</span> ciclo de compra</div>
-            </div>
+            <div class="kpi"><div class="kpi-label">Processos ativos</div><div class="kpi-value" id="kpi-processos">0</div></div>
+            <div class="kpi success"><div class="kpi-label">Total contratado</div><div class="kpi-value" id="kpi-contratado">R$ 0</div></div>
+            <div class="kpi warning"><div class="kpi-label">Saving gerado</div><div class="kpi-value" id="kpi-saving">R$ 0</div></div>
           </div>
-
           <div class="card">
-            <div class="card-head">
-              <div>
-                <div class="card-title">Últimas requisições</div>
-                <div class="card-sub">Atualizado há instantes</div>
-              </div>
-              <button class="btn btn-secondary btn-sm" id="btn-ver-tudo"><i class="lucide lucide-external-link"></i> Ver tudo</button>
-            </div>
-            <div class="table-wrap">
-              <table class="table">
-                <thead><tr>
-                  <th>Processo</th><th>Departamento</th><th>Solicitante</th>
-                  <th>Itens</th><th>Status</th><th>Atualizado</th>
-                </tr></thead>
-                <tbody id="tabela-requisicoes">
-                  <tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma requisição cadastrada</div></td></tr>
-                </tbody>
-              </table>
-            </div>
+            <div class="card-head"><div class="card-title">Últimas requisições</div></div>
+            <div class="table-wrap"><table class="table"><thead><tr><th>Processo</th><th>Departamento</th><th>Solicitante</th><th>Status</th><th>Data</th></tr></thead><tbody id="tabela-requisicoes"><tr><td colspan="5"><div class="empty">Nenhuma requisição</div></td></tr></tbody></table></div>
           </div>
         </section>
 
-        <!-- ============ REQUISIÇÕES ============ -->
+        <!-- REQUISIÇÕES -->
         <section class="page" id="requisicoes">
-          <div class="page-head">
-            <div><h1 class="page-title">Requisições</h1><p class="page-desc">Cadastre e acompanhe as solicitações de compra.</p></div>
-          </div>
+          <div class="page-head"><div><h1 class="page-title">Requisições</h1></div></div>
           <div class="card">
-            <div class="card-head"><div class="card-title">Nova requisição de compra</div></div>
+            <div class="card-head"><div class="card-title">Nova requisição</div></div>
             <div class="form-grid">
-              <div class="field"><label>Departamento <span class="req">*</span></label><input class="input" id="req-depart" placeholder="Ex.: Manutenção"></div>
-              <div class="field"><label>Solicitante <span class="req">*</span></label><input class="input" id="req-solicitante" placeholder="Nome completo"></div>
-              <div class="field"><label>Número do processo <span class="req">*</span></label><input class="input" id="req-numero" placeholder="#2026-XXXX"></div>
-              <div class="field"><label>Prioridade</label>
-                <select class="select" id="req-prioridade"><option>Normal</option><option>Alta</option><option>Urgente</option></select>
-              </div>
+              <div class="field"><label>Departamento <span class="req">*</span></label><input class="input" id="req-depart"></div>
+              <div class="field"><label>Solicitante <span class="req">*</span></label><input class="input" id="req-solicitante"></div>
+              <div class="field"><label>Nº processo <span class="req">*</span></label><input class="input" id="req-numero" placeholder="#2026-XXXX"></div>
             </div>
-            <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
-              <button class="btn btn-secondary" data-action="cancel-form">Cancelar</button>
-              <button class="btn btn-primary" id="btn-criar-req"><i class="lucide lucide-plus"></i> Criar requisição</button>
-            </div>
+            <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-secondary" data-action="cancel-form">Cancelar</button><button class="btn btn-primary" id="btn-criar-req"><i class="lucide lucide-plus"></i> Criar</button></div>
           </div>
           <div class="card">
-            <div class="card-head"><div class="card-title">Requisições cadastradas</div></div>
-            <div class="table-wrap">
-              <table class="table">
-                <thead><tr>
-                  <th>Processo</th><th>Departamento</th><th>Solicitante</th>
-                  <th>Prioridade</th><th>Status</th><th>Data</th><th></th>
-                </tr></thead>
-                <tbody id="tabela-requisicoes-full">
-                  <tr><td colspan="7"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma requisição cadastrada</div></td></tr>
-                </tbody>
-              </table>
-            </div>
+            <div class="card-head"><div class="card-title">Cadastradas</div></div>
+            <div class="table-wrap"><table class="table"><thead><tr><th>Processo</th><th>Departamento</th><th>Solicitante</th><th>Status</th><th>Data</th><th></th></tr></thead><tbody id="tabela-requisicoes-full"><tr><td colspan="6"><div class="empty">Vazio</div></td></tr></tbody></table></div>
           </div>
         </section>
 
-        <!-- ============ FORNECEDORES ============ -->
+        <!-- FORNECEDORES -->
         <section class="page" id="fornecedores">
-          <div class="page-head"><div><h1 class="page-title">Fornecedores</h1><p class="page-desc">Base unificada de parceiros homologados.</p></div></div>
+          <div class="page-head"><div><h1 class="page-title">Fornecedores</h1></div></div>
           <div class="card">
             <div class="card-head"><div class="card-title">Novo fornecedor</div></div>
             <div class="form-grid">
-              <div class="field"><label>Classificação <span class="req">*</span></label>
-                <select class="select" id="forn-classif"><option value="">Selecione…</option><option>Fabricante</option><option>Distribuidor</option><option>Prestador de serviços</option></select>
-              </div>
-              <div class="field"><label>Razão social / Nome <span class="req">*</span></label><input class="input" id="forn-nome"></div>
-              <div class="field"><label>CNPJ <span class="req">*</span></label><input class="input" id="forn-cnpj" placeholder="00.000.000/0000-00"></div>
-              <div class="field"><label>E-mail corporativo <span class="req">*</span></label><input class="input" id="forn-email" type="email"></div>
-              <div class="field"><label>Telefone</label><input class="input" id="forn-tel" placeholder="(11) 0000-0000"></div>
-              <div class="field"><label>Estado (UF) <span class="req">*</span></label>
-                <select class="select" id="forn-uf"><option value="">--</option><option>SP</option><option>RJ</option><option>MG</option><option>RS</option><option>PR</option><option>SC</option><option>BA</option><option>AM</option></select>
-              </div>
-              <div class="field"><label>ICMS padrão (%)</label><input class="input" id="forn-icms" type="number" step="0.01" value="18"></div>
+              <div class="field"><label>Nome <span class="req">*</span></label><input class="input" id="forn-nome"></div>
+              <div class="field"><label>CNPJ <span class="req">*</span></label><input class="input" id="forn-cnpj"></div>
+              <div class="field"><label>E-mail <span class="req">*</span></label><input class="input" id="forn-email" type="email"></div>
+              <div class="field"><label>UF <span class="req">*</span></label><select class="select" id="forn-uf"><option value="">--</option><option>SP</option><option>RJ</option><option>MG</option><option>AM</option></select></div>
+              <div class="field"><label>ICMS (%)</label><input class="input" id="forn-icms" type="number" step="0.01" value="18"></div>
               <div class="field"><label>IPI (%)</label><input class="input" id="forn-ipi" type="number" step="0.01" value="0"></div>
-              <div class="field"><label>PIS / COFINS (%)</label><input class="input" id="forn-pis" type="number" step="0.01" value="0"></div>
             </div>
-            <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
-              <button class="btn btn-secondary" data-action="cancel-form">Cancelar</button>
-              <button class="btn btn-primary" id="btn-salvar-forn"><i class="lucide lucide-save"></i> Salvar fornecedor</button>
-            </div>
+            <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-secondary" data-action="cancel-form">Cancelar</button><button class="btn btn-primary" id="btn-salvar-forn"><i class="lucide lucide-save"></i> Salvar</button></div>
           </div>
           <div class="card">
-            <div class="card-head"><div class="card-title">Fornecedores cadastrados</div></div>
-            <div class="table-wrap">
-              <table class="table">
-                <thead><tr><th>Nome</th><th>CNPJ</th><th>UF</th><th>Classificação</th><th>E-mail</th><th></th></tr></thead>
-                <tbody id="tabela-fornecedores">
-                  <tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhum fornecedor cadastrado</div></td></tr>
-                </tbody>
-              </table>
-            </div>
+            <div class="card-head"><div class="card-title">Cadastrados</div></div>
+            <div class="table-wrap"><table class="table"><thead><tr><th>Nome</th><th>CNPJ</th><th>UF</th><th>E-mail</th><th></th></tr></thead><tbody id="tabela-fornecedores"><tr><td colspan="5"><div class="empty">Vazio</div></td></tr></tbody></table></div>
           </div>
         </section>
 
-        <!-- ============ COTAÇÕES ============ -->
+        <!-- COTAÇÕES -->
         <section class="page" id="cotacoes">
-          <div class="page-head"><div><h1 class="page-title">Cotações</h1><p class="page-desc">Cole dados do Excel em rodadas — o sistema identifica valor inicial e final.</p></div></div>
-
-          <div class="card info-card">
-            <div style="display:flex;gap:12px;align-items:start">
-              <i class="lucide lucide-info info-icon"></i>
-              <div class="info-text">
-                <b>Dica:</b> Cole os dados do Excel repetidas vezes para criar rodadas. A 1ª colagem é o <b>Valor Inicial</b>; a última, o <b>Valor Final</b> na Equalização.
-              </div>
-            </div>
-          </div>
-
+          <div class="page-head"><div><h1 class="page-title">Cotações</h1><p class="page-desc">Cole dados do Excel separados por tabulação.</p></div></div>
           <div class="card">
-            <div class="card-head"><div class="card-title">1. Selecionar processo ativo</div></div>
-            <div class="field"><label>Processo</label><select class="select" id="cot-processo"><option value="">Selecione…</option></select></div>
+            <div class="card-head"><div class="card-title">1. Selecione o processo</div></div>
+            <select class="select" id="cot-processo" style="max-width:400px"><option value="">Selecione…</option></select>
           </div>
-
           <div class="card">
-            <div class="card-head">
-              <div class="card-title">2. Inserção de dados (cole do Excel)</div>
-              <div style="display:flex;gap:8px">
-                <button class="btn btn-secondary btn-sm" id="btn-limpar"><i class="lucide lucide-eraser"></i> Limpar</button>
-                <button class="btn btn-primary btn-sm" id="btn-processar"><i class="lucide lucide-zap"></i> Processar tabela</button>
-              </div>
-            </div>
-            <textarea class="textarea" id="cot-textarea" placeholder="Fornecedor&#9;Entrega&#9;Pagamento&#9;Frete&#9;Garantia&#9;Vigência&#9;Nº Cot.&#9;Código&#9;Desc.&#9;UND&#9;Qtd&#9;V.Unit&#9;V.Total"></textarea>
+            <div class="card-head"><div class="card-title">2. Colar dados</div><div style="display:flex;gap:8px"><button class="btn btn-secondary btn-sm" id="btn-limpar"><i class="lucide lucide-eraser"></i> Limpar</button><button class="btn btn-primary btn-sm" id="btn-processar"><i class="lucide lucide-zap"></i> Processar</button></div></div>
+            <textarea class="textarea" id="cot-textarea" placeholder="Fornecedor	Entrega	Pagamento	Frete	Garantia	Vigência	Código	Desc.	UND	Qtd	V.Unit	V.Total" style="min-height:150px;"></textarea>
           </div>
-
           <div class="card">
-            <div class="card-head">
-              <div class="card-title">3. Validação e ajustes finais</div>
-              <div style="display:flex;gap:8px">
-                <button class="btn btn-secondary btn-sm" id="btn-add-linha"><i class="lucide lucide-plus"></i> Adicionar linha</button>
-                <button class="btn btn-success btn-sm" id="btn-salvar-cot"><i class="lucide lucide-check"></i> Salvar cotações</button>
-              </div>
-            </div>
-            <div class="table-wrap">
-              <table class="table">
-                <thead><tr>
-                  <th>Fornecedor</th><th>Entrega</th><th>Pagamento</th><th>Frete</th><th>Garantia</th>
-                  <th>Vigência</th><th>Nº Cot.</th><th>Código</th><th>Descrição</th>
-                  <th>UND</th><th>Qtd</th><th>V. Unit (R$)</th><th>V. Total</th>
-                </tr></thead>
-                <tbody id="tabela-cotacoes">
-                  <tr><td colspan="13"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma cotação processada ainda.</div></td></tr>
-                </tbody>
-              </table>
-            </div>
+            <div class="card-head"><div class="card-title">3. Validação</div><button class="btn btn-success btn-sm" id="btn-salvar-cot"><i class="lucide lucide-check"></i> Salvar cotações</button></div>
+            <div class="table-wrap"><table class="table"><thead><tr><th>Fornecedor</th><th>Entrega</th><th>Pgt.</th><th>Frete</th><th>Garantia</th><th>Vigência</th><th>Código</th><th>Desc.</th><th>UN</th><th>Qtd</th><th>V. Unit</th><th>V. Total</th></tr></thead><tbody id="tabela-cotacoes"><tr><td colspan="12"><div class="empty">Cole e processe acima.</div></td></tr></tbody></table></div>
           </div>
         </section>
 
-        <!-- ============ ANÁLISE TÉCNICA ============ -->
+        <!-- ANÁLISE TÉCNICA -->
         <section class="page" id="analise">
-          <div class="page-head"><div><h1 class="page-title">Análise técnica</h1><p class="page-desc">Pareceres dos engenheiros responsáveis por item cotado.</p></div></div>
+          <div class="page-head"><div><h1 class="page-title">Análise Técnica</h1><p class="page-desc">Aprove ou reprove cada item cotado.</p></div></div>
           <div class="card">
-            <div class="card-head"><div class="card-title">Lançar parecer técnico</div></div>
+            <div class="card-head"><div class="card-title">Lançar parecer</div></div>
             <div class="form-grid">
-              <div class="field"><label>Item cotado <span class="req">*</span></label><select class="select" id="ana-item"><option value="">Selecione…</option></select></div>
+              <div class="field"><label>Item <span class="req">*</span></label><select class="select" id="ana-item"><option value="">Selecione…</option></select></div>
               <div class="field"><label>Fornecedor</label><input class="input" id="ana-forn" readonly placeholder="—"></div>
-              <div class="field"><label>Engenheiro / Técnico responsável</label><input class="input" id="ana-eng"></div>
-              <div class="field"><label>Status final <span class="req">*</span></label>
-                <select class="select" id="ana-status"><option value="">— Avaliação —</option><option value="SIM">✓ Aprovado (SIM)</option><option value="NÃO">✗ Reprovado (NÃO)</option></select>
-              </div>
+              <div class="field"><label>Responsável</label><input class="input" id="ana-eng"></div>
+              <div class="field"><label>Status <span class="req">*</span></label><select class="select" id="ana-status"><option value="">— Avalie —</option><option value="SIM">✓ Aprovado</option><option value="NÃO">✗ Reprovado</option></select></div>
             </div>
-            <div class="field" style="margin-top:16px"><label>Descrição do material</label><textarea class="textarea" id="ana-desc"></textarea></div>
-            <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
-              <button class="btn btn-secondary" data-action="cancel-form">Cancelar</button>
-              <button class="btn btn-primary" id="btn-gravar-ana"><i class="lucide lucide-save"></i> Gravar avaliação</button>
-            </div>
+            <div class="field" style="margin-top:16px"><label>Observação</label><textarea class="textarea" id="ana-desc" style="min-height:80px;"></textarea></div>
+            <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-primary" id="btn-gravar-ana"><i class="lucide lucide-save"></i> Gravar parecer</button></div>
           </div>
         </section>
 
-        <!-- ============ EQUALIZAÇÃO ============ -->
+        <!-- EQUALIZAÇÃO -->
         <section class="page" id="equalizacao">
-          <div class="page-head">
-            <div><h1 class="page-title">Matriz de equalização</h1><p class="page-desc">Comparativo multifornecedor com rodadas, impostos e parecer técnico.</p></div>
-            <div style="display:flex;gap:8px">
-              <button class="btn btn-secondary" id="btn-imprimir"><i class="lucide lucide-printer"></i> Imprimir</button>
-              <button class="btn btn-secondary" id="btn-layout"><i class="lucide lucide-layout"></i> Layout</button>
-              <button class="btn btn-primary" id="btn-exportar"><i class="lucide lucide-download"></i> Exportar CSV</button>
-            </div>
-          </div>
-
+          <div class="page-head"><div><h1 class="page-title">Matriz de Equalização</h1><p class="page-desc">Comparativo de preços, impostos e parecer técnico.</p></div><button class="btn btn-primary" id="btn-definir-ganhador"><i class="lucide lucide-check-circle"></i> Definir Ganhador</button></div>
           <div class="card">
-            <div class="eq-toolbar">
-              <div class="eq-meta">
-                <i class="lucide lucide-folder-open"></i>
-                <span>Processo:</span> <b id="eq-processo">—</b>
-                <span class="badge badge-info" id="eq-fornecedores">0 fornecedores</span>
-                <span class="badge badge-violet" id="eq-rodadas">0 rodadas</span>
-              </div>
-              <select class="select" id="eq-select" style="max-width:300px"><option value="">Selecione um processo</option></select>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <div><span>Processo:</span> <b id="eq-processo">—</b></div>
+              <select class="select" id="eq-select" style="min-width:260px"><option value="">Selecione o processo...</option></select>
             </div>
-
-            <div class="excel-wrap" id="eq-tabela-container">
-              <div class="empty"><i class="lucide lucide-inbox"></i> Selecione um processo para visualizar a matriz</div>
-            </div>
+            <div id="eq-tabela-container" style="border:1px solid var(--border-color);border-radius:var(--r-md);overflow:auto;min-height:400px;background:var(--bg-app);padding:20px"><div class="empty"><i class="lucide lucide-inbox"></i> Selecione um processo</div></div>
           </div>
         </section>
 
-        <!-- ============ RESUMO ============ -->
-        <section class="page" id="resumo">
-          <div class="page-head"><div><h1 class="page-title">Resumo financeiro</h1><p class="page-desc">Consolidado sugerido para fechamento da contratação.</p></div></div>
-          <div class="card">
-            <div class="card-head"><div class="card-title">Selecione o processo</div></div>
-            <select class="select" id="res-processo"><option value="">Selecione…</option></select>
-          </div>
-          <div class="kpi-grid">
-            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Valor inicial</span><div class="kpi-icon"><i class="lucide lucide-arrow-up-from-line"></i></div></div><div class="kpi-value" id="res-inicial">R$ 0</div></div>
-            <div class="kpi success"><div class="kpi-top"><span class="kpi-label">Valor final sugerido</span><div class="kpi-icon"><i class="lucide lucide-check-check"></i></div></div><div class="kpi-value" id="res-final">R$ 0</div></div>
-            <div class="kpi warning"><div class="kpi-top"><span class="kpi-label">Saving</span><div class="kpi-icon"><i class="lucide lucide-trending-down"></i></div></div><div class="kpi-value" id="res-saving">R$ 0</div><div class="kpi-foot"><span class="delta up" id="res-percent">0%</span> de economia</div></div>
-          </div>
+        <!-- APRESENTAÇÃO (NOVO) -->
+        <section class="page" id="apresentacao">
+          <div id="relatorio-container"></div>
         </section>
 
-        <!-- ============ CONTRATOS ============ -->
+        <!-- CONTRATOS -->
         <section class="page" id="contratos">
-          <div class="page-head"><div><h1 class="page-title">Contratos</h1><p class="page-desc">Gere e registre o fechamento do processo.</p></div></div>
+          <div class="page-head"><div><h1 class="page-title">Contratos</h1></div><button class="btn btn-success" id="btn-efetivar"><i class="lucide lucide-lock"></i> Efetivar Contrato</button></div>
           <div class="card">
-            <div class="card-head"><div class="card-title">Gerar novo contrato (fechamento)</div></div>
+            <div class="card-head"><div class="card-title">Novo contrato</div></div>
             <div class="form-grid">
-              <div class="field"><label>Requisição origem <span class="req">*</span></label><select class="select" id="con-req"><option value="">Selecione…</option></select></div>
-              <div class="field"><label>Nº do pedido / contrato <span class="req">*</span></label><input class="input" id="con-numero"></div>
-              <div class="field"><label>Fornecedor vencedor <span class="req">*</span></label><select class="select" id="con-forn"><option value="">Selecione…</option></select></div>
-              <div class="field"><label>Data emissão</label><input class="input" id="con-data" type="date"></div>
-              <div class="field"><label>Valor final (R$)</label><input class="input" id="con-valor" type="number" step="0.01"></div>
-              <div class="field"><label>Prazo execução (dias)</label><input class="input" id="con-prazo" type="number"></div>
+              <div class="field"><label>Requisição <span class="req">*</span></label><select class="select" id="con-req"></select></div>
+              <div class="field"><label>Nº Pedido <span class="req">*</span></label><input class="input" id="con-numero"></div>
+              <div class="field"><label>Fornecedor <span class="req">*</span></label><select class="select" id="con-forn"></select></div>
+              <div class="field"><label>Valor Final (R$)</label><input class="input" id="con-valor" type="number" step="0.01"></div>
             </div>
-            <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px">
-              <button class="btn btn-secondary" data-action="cancel-form">Cancelar</button>
-              <button class="btn btn-success" id="btn-efetivar"><i class="lucide lucide-lock"></i> Efetivar contrato</button>
-            </div>
+            <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-secondary" data-action="cancel-form">Cancelar</button><button class="btn btn-success" onclick="efetivarContrato()"><i class="lucide lucide-lock"></i> Confirmar</button></div>
           </div>
           <div class="card">
-            <div class="card-head"><div class="card-title">Livro de contratos registrados</div></div>
-            <div class="table-wrap">
-              <table class="table">
-                <thead><tr><th>Nº Contrato</th><th>Requisição</th><th>Fornecedor</th><th>Data</th><th>Prazo</th><th>Valor</th></tr></thead>
-                <tbody id="tabela-contratos">
-                  <tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhum contrato registrado</div></td></tr>
-                </tbody>
-              </table>
-            </div>
+            <div class="table-wrap"><table class="table"><thead><tr><th>Nº Contrato</th><th>Processo</th><th>Fornecedor</th><th>Valor</th></tr></thead><tbody id="tabela-contratos"><tr><td colspan="4"><div class="empty">Vazio</div></td></tr></tbody></table></div>
           </div>
         </section>
-
       </div>
     </div>
   </main>
 </div>
 
-<!-- ===== MODAL: LAYOUT ===== -->
-<div class="modal" id="layout-modal">
+<!-- MODAL DEFINIR GANHADOR -->
+<div class="modal" id="ganhador-modal">
   <div class="modal-content">
-    <div class="modal-head">
-      <h2><i class="lucide lucide-sliders-horizontal" style="color:var(--neon-orange)"></i> Configurar Layout</h2>
-      <button class="modal-close" data-close-modal="layout-modal"><i class="lucide lucide-x"></i></button>
-    </div>
-    <p style="color:var(--text-muted);margin-bottom:16px;font-size:var(--fs-sm)">Escolha quais colunas exibir por fornecedor:</p>
-    <div style="display:flex;flex-direction:column">
-      <label class="chk-row"><input type="checkbox" id="chk-tecnico"> Técnico (status de aprovação)</label>
-      <label class="chk-row"><input type="checkbox" id="chk-vOriginal"> V. Original (preço inicial)</label>
-      <label class="chk-row"><input type="checkbox" id="chk-vEqualizado"> V. Equalizado (preço para comparação)</label>
-      <label class="chk-row divider"><input type="checkbox" id="chk-precoInicial"> <b>Preço Inicial</b> (1ª cotação)</label>
-      <label class="chk-row"><input type="checkbox" id="chk-precoFinal"> <b>Preço Final</b> (última cotação)</label>
-      <label class="chk-row divider"><input type="checkbox" id="chk-totalItem"> Total Item (valor total)</label>
-    </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:22px">
-      <button class="btn btn-secondary" data-close-modal="layout-modal">Cancelar</button>
-      <button class="btn btn-primary" id="btn-salvar-layout"><i class="lucide lucide-save"></i> Salvar Layout</button>
-    </div>
+    <div class="modal-head"><h2><i class="lucide lucide-trophy"></i> Definir Ganhador</h2><button class="modal-close" data-close-modal="ganhador-modal"><i class="lucide lucide-x"></i></button></div>
+    <div id="ganhador-options" style="display:flex;flex-direction:column;gap:12px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:24px"><button class="btn btn-secondary" data-close-modal="ganhador-modal">Cancelar</button><button class="btn btn-primary" id="btn-confirmar-ganhador"><i class="lucide lucide-check"></i> Confirmar Ganhador</button></div>
   </div>
 </div>
 
-<!-- ===== MODAL: NOTIFICAÇÕES ===== -->
-<div class="modal" id="notif-modal">
-  <div class="modal-content">
-    <div class="modal-head">
-      <h2><i class="lucide lucide-bell" style="color:var(--neon-orange)"></i> Notificações</h2>
-      <button class="modal-close" data-close-modal="notif-modal"><i class="lucide lucide-x"></i></button>
-    </div>
-    <div id="notif-list" style="display:flex;flex-direction:column;gap:10px"></div>
-  </div>
-</div>
-
-<!-- ===== MODAL: AJUDA ===== -->
+<!-- MODAL AJUDA -->
 <div class="modal" id="help-modal">
   <div class="modal-content">
-    <div class="modal-head">
-      <h2><i class="lucide lucide-circle-help" style="color:var(--neon-orange)"></i> Como usar o CotaPro</h2>
-      <button class="modal-close" data-close-modal="help-modal"><i class="lucide lucide-x"></i></button>
-    </div>
-    <ol style="color:var(--text);font-size:var(--fs-sm);line-height:1.8;padding-left:20px">
-      <li>Cadastre uma <b style="color:var(--neon-orange)">Requisição</b> em <i>Cadastros → Requisições</i>.</li>
-      <li>Registre seus <b style="color:var(--neon-orange)">Fornecedores</b> com CNPJ, UF e impostos.</li>
-      <li>Em <b style="color:var(--neon-orange)">Cotações</b>, selecione o processo e cole linhas do Excel (Tab-separated).</li>
-      <li>Cada nova colagem cria uma <b>rodada</b> de negociação.</li>
-      <li>Em <b style="color:var(--neon-orange)">Análise Técnica</b>, aprove ou reprove cada item.</li>
-      <li>Na <b style="color:var(--neon-orange)">Matriz de Equalização</b>, clique no preço para selecionar o vencedor.</li>
-      <li>Gere o <b style="color:var(--neon-orange)">Contrato</b> final em <i>Resultados → Contratos</i>.</li>
+    <div class="modal-head"><h2><i class="lucide lucide-circle-help"></i> Ajuda</h2><button class="modal-close" data-close-modal="help-modal"><i class="lucide lucide-x"></i></button></div>
+    <ol style="color:var(--text-main);font-size:var(--fs-sm);line-height:1.8;padding-left:20px">
+      <li>Cadastre <b>Requisições</b> e <b>Fornecedores</b></li>
+      <li>Em <b>Cotações</b>, cole os dados do Excel</li>
+      <li>Em <b>Análise Técnica</b>, aprove ou reprove itens</li>
+      <li>Na <b>Equalização</b>, veja o comparativo e clique em "Definir Ganhador"</li>
+      <li>Em <b>Apresentação</b>, gere o relatório e PDF para a diretoria</li>
     </ol>
-    <div style="display:flex;justify-content:flex-end;margin-top:22px">
-      <button class="btn btn-primary" data-close-modal="help-modal">Entendi</button>
-    </div>
   </div>
 </div>
 
 <div id="toasts" aria-live="polite"></div>
 
 <script>
-  // ===== STATE =====
-  let state = {
-    requisicoes: JSON.parse(localStorage.getItem('cp_requisicoes') || '[]'),
-    fornecedores: JSON.parse(localStorage.getItem('cp_fornecedores') || '[]'),
-    cotacoes: JSON.parse(localStorage.getItem('cp_cotacoes') || '[]'),
-    analises: JSON.parse(localStorage.getItem('cp_analises') || '[]'),
-    contratos: JSON.parse(localStorage.getItem('cp_contratos') || '[]'),
-  };
+let state = {
+  requisicoes: JSON.parse(localStorage.getItem('cp_requisicoes') || '[]'),
+  fornecedores: JSON.parse(localStorage.getItem('cp_fornecedores') || '[]'),
+  cotacoes: JSON.parse(localStorage.getItem('cp_cotacoes') || '[]'),
+  analises: JSON.parse(localStorage.getItem('cp_analises') || '[]'),
+  contratos: JSON.parse(localStorage.getItem('cp_contratos') || '[]'),
+  ganhadores: JSON.parse(localStorage.getItem('cp_ganhadores') || '{}'),
+};
 
-  function salvar() {
-    localStorage.setItem('cp_requisicoes', JSON.stringify(state.requisicoes));
-    localStorage.setItem('cp_fornecedores', JSON.stringify(state.fornecedores));
-    localStorage.setItem('cp_cotacoes', JSON.stringify(state.cotacoes));
-    localStorage.setItem('cp_analises', JSON.stringify(state.analises));
-    localStorage.setItem('cp_contratos', JSON.stringify(state.contratos));
+function salvar() {
+  localStorage.setItem('cp_requisicoes', JSON.stringify(state.requisicoes));
+  localStorage.setItem('cp_fornecedores', JSON.stringify(state.fornecedores));
+  localStorage.setItem('cp_cotacoes', JSON.stringify(state.cotacoes));
+  localStorage.setItem('cp_analises', JSON.stringify(state.analises));
+  localStorage.setItem('cp_contratos', JSON.stringify(state.contratos));
+  localStorage.setItem('cp_ganhadores', JSON.stringify(state.ganhadores));
+}
+
+function fmtBRL(v){ return 'R$ ' + (Number(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function toast(titulo, msg, tipo = 'success') {
+  const t = document.createElement('div'); t.className = `toast ${tipo}`;
+  const ico = tipo === 'success' ? 'check-circle' : tipo === 'error' ? 'alert-circle' : 'info';
+  t.innerHTML = `<i class="lucide lucide-${ico}"></i><div><b>${titulo}</b><span>${msg}</span></div>`;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('[data-close-modal]').forEach(b => b.addEventListener('click', () => closeModal(b.dataset.closeModal)));
+document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); }));
+
+const items = document.querySelectorAll('.nav-item');
+const pages = document.querySelectorAll('.page');
+const crumb = document.getElementById('crumb-page');
+
+function navigate(id){
+  items.forEach(i => i.classList.toggle('active', i.dataset.page === id));
+  pages.forEach(p => p.classList.toggle('active', p.id === id));
+  const it = document.querySelector(`.nav-item[data-page="${id}"]`);
+  if(it) crumb.textContent = it.querySelector('span').textContent;
+  document.querySelector('.content').scrollTo({top:0,behavior:'smooth'});
+
+  if(id === 'dashboard') atualizarKPIs();
+  if(id === 'requisicoes') renderRequisicoesFull();
+  if(id === 'fornecedores') renderFornecedores();
+  if(id === 'cotacoes') atualizarSelectProcesso();
+  if(id === 'analise') atualizarSelectAnalise();
+  if(id === 'equalizacao') atualizarSelectEqualizacao();
+  if(id === 'apresentacao') gerarRelatorio();
+  if(id === 'contratos') { atualizarSelectContratos(); renderContratos(); }
+}
+
+items.forEach(it => it.addEventListener('click', () => navigate(it.dataset.page)));
+
+function atualizarKPIs(){
+  document.getElementById('kpi-processos').textContent = state.requisicoes.filter(r=>r.status!=='Concluído').length;
+  document.getElementById('kpi-contratado').textContent = fmtBRL(state.contratos.reduce((s,c)=>s+(Number(c.valor)||0),0));
+  let saving = 0;
+  state.requisicoes.forEach(r => {
+    const cot = state.cotacoes.filter(c => c.processoId == r.id);
+    saving += cot.reduce((s,c)=>s+(c.qtd*c.vunit),0) * 0.05;
+  });
+  document.getElementById('kpi-saving').textContent = fmtBRL(saving);
+}
+
+document.getElementById('btn-help').addEventListener('click', () => openModal('help-modal'));
+document.getElementById('btn-nova-req').addEventListener('click', () => navigate('requisicoes'));
+
+document.querySelectorAll('[data-action="cancel-form"]').forEach(b => {
+  b.addEventListener('click', () => {
+    const card = b.closest('.card');
+    card.querySelectorAll('input, textarea').forEach(i => { if(i.type !== 'number') i.value = ''; });
+    card.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+  });
+});
+
+// ===== REQUISIÇÕES =====
+document.getElementById('btn-criar-req').addEventListener('click', () => {
+  const d=document.getElementById('req-depart').value.trim(), s=document.getElementById('req-solicitante').value.trim(), n=document.getElementById('req-numero').value.trim();
+  if(!d||!s||!n){ toast('Erro','Preencha obrigatórios','error'); return; }
+  state.requisicoes.push({id:Date.now(), depart:d, solicitante:s, numero:n, status:'Em cotação', data:new Date().toLocaleDateString('pt-BR')});
+  salvar(); toast('Sucesso','Requisição criada'); ['req-depart','req-solicitante','req-numero'].forEach(id=>document.getElementById(id).value='');
+  renderRequisicoesFull();
+});
+
+function renderRequisicoes() {
+  const tbody = document.getElementById('tabela-requisicoes');
+  if(!state.requisicoes.length) return tbody.innerHTML='<tr><td colspan="5"><div class="empty">Vazio</div></td></tr>';
+  tbody.innerHTML = state.requisicoes.slice(-6).reverse().map(r => `<tr><td><b>${r.numero}</b></td><td>${r.depart}</td><td>${r.solicitante}</td><td><span class="badge badge-info">${r.status}</span></td><td>${r.data}</td></tr>`).join('');
+}
+
+function renderRequisicoesFull() {
+  const tbody = document.getElementById('tabela-requisicoes-full');
+  if(!state.requisicoes.length) return tbody.innerHTML='<tr><td colspan="6"><div class="empty">Vazio</div></td></tr>';
+  tbody.innerHTML = state.requisicoes.slice().reverse().map(r => `<tr><td><b>${r.numero}</b></td><td>${r.depart}</td><td>${r.solicitante}</td><td><span class="badge badge-info">${r.status}</span></td><td>${r.data}</td><td><button class="btn btn-ghost btn-sm" onclick="deletarReq(${r.id})"><i class="lucide lucide-trash-2"></i></button></td></tr>`).join('');
+}
+
+window.deletarReq = (id) => { if(confirm('Excluir?')){ state.requisicoes = state.requisicoes.filter(r=>r.id!=id); salvar(); renderRequisicoesFull(); }};
+
+// ===== FORNECEDORES =====
+document.getElementById('btn-salvar-forn').addEventListener('click', () => {
+  const nome=document.getElementById('forn-nome').value.trim(), cnpj=document.getElementById('forn-cnpj').value.trim(), email=document.getElementById('forn-email').value.trim(), uf=document.getElementById('forn-uf').value;
+  if(!nome||!cnpj||!email||!uf){ toast('Erro','Preencha obrigatórios','error'); return; }
+  state.fornecedores.push({id:Date.now(), nome, cnpj, email, uf, icms:parseFloat(document.getElementById('forn-icms').value)||18, ipi:parseFloat(document.getElementById('forn-ipi').value)||0});
+  salvar(); toast('Sucesso','Fornecedor salvo'); renderFornecedores();
+});
+
+function renderFornecedores(){
+  const tbody = document.getElementById('tabela-fornecedores');
+  if(!state.fornecedores.length) return tbody.innerHTML='<tr><td colspan="5"><div class="empty">Vazio</div></td></tr>';
+  tbody.innerHTML = state.fornecedores.slice().reverse().map(f => `<tr><td><b>${f.nome}</b></td><td>${f.cnpj}</td><td><span class="badge badge-info">${f.uf}</span></td><td>${f.email}</td><td><button class="btn btn-ghost btn-sm" onclick="deletarForn(${f.id})"><i class="lucide lucide-trash-2"></i></button></td></tr>`).join('');
+}
+
+window.deletarForn = (id) => { if(confirm('Excluir?')){ state.fornecedores = state.fornecedores.filter(f=>f.id!=id); salvar(); renderFornecedores(); }};
+
+// ===== COTAÇÕES =====
+function atualizarSelectProcesso() { document.getElementById('cot-processo').innerHTML = '<option value="">Selecione…</option>' + state.requisicoes.map(r => `<option value="${r.id}">${r.numero}</option>`).join(''); }
+
+function limparNumero(valor) {
+  if (!valor) return 0; let str = String(valor).replace(/R\$/g, '').trim();
+  const temPonto = str.includes('.'), temVirgula = str.includes(',');
+  if (temPonto && temVirgula) str = str.replace(/\./g, '').replace(',', '.');
+  else if (temVirgula) { const ap = str.split(',')[1]?.length || 0; str = ap === 3 ? str.replace(',', '') : str.replace(',', '.'); }
+  else if (temPonto) { const ap = str.split('.').pop().length; if (ap === 3) str = str.replace(/\./g, ''); }
+  return parseFloat(str) || 0;
+}
+
+document.getElementById('btn-processar').addEventListener('click', () => {
+  const texto = document.getElementById('cot-textarea').value.trim();
+  if(!texto) return toast('Erro', 'Cole dados', 'error');
+  const linhas = texto.split('\n').filter(l => l.trim());
+  document.getElementById('tabela-cotacoes').innerHTML = linhas.map(linha => {
+    const [f,e,p,fr,g,v,c,d,un,q,vu] = linha.split('\t');
+    const qNum=limparNumero(q), vuNum=limparNumero(vu);
+    return `<tr><td>${f||''}</td><td>${e||''}</td><td>${p||''}</td><td>${fr||''}</td><td>${g||''}</td><td>${v||''}</td><td>${c||''}</td><td>${d||''}</td><td>${un||''}</td><td>${qNum}</td><td>${fmtBRL(vuNum)}</td><td>${fmtBRL(qNum*vuNum)}</td></tr>`;
+  }).join('');
+  toast('Processado', `${linhas.length} linhas`);
+});
+
+document.getElementById('btn-limpar').addEventListener('click', () => {
+  document.getElementById('cot-textarea').value = '';
+  document.getElementById('tabela-cotacoes').innerHTML = '<tr><td colspan="12"><div class="empty">Cole acima</div></td></tr>';
+});
+
+document.getElementById('btn-salvar-cot').addEventListener('click', () => {
+  const pid = document.getElementById('cot-processo').value; const r = state.requisicoes.find(x=>x.id==pid);
+  if(!pid || !r) return toast('Erro','Selecione o processo','error');
+  let c = 0;
+  document.getElementById('tabela-cotacoes').querySelectorAll('tr').forEach(tr => {
+    const td = tr.querySelectorAll('td');
+    if(td.length===12){ state.cotacoes.push({ id:Date.now()+Math.random(), processoId:parseInt(pid), fornecedor:td[0].textContent.trim(), entrega:td[1].textContent.trim(), pagamento:td[2].textContent.trim(), frete:td[3].textContent.trim(), garantia:td[4].textContent.trim(), vigencia:td[5].textContent.trim(), codigo:td[6].textContent.trim(), descricao:td[7].textContent.trim(), unidade:td[8].textContent.trim(), qtd:limparNumero(td[9].textContent), vunit:limparNumero(td[10].textContent) }); c++; }
+  });
+  if(!c) return toast('Aviso','Processe a tabela','warning');
+  r.status='Análise técnica'; salvar(); toast('Salvo',`${c} cotações`);
+  document.getElementById('tabela-cotacoes').innerHTML='<tr><td colspan="12"><div class="empty">Limpo</div></td></tr>'; document.getElementById('cot-textarea').value='';
+});
+
+// ===== ANÁLISE TÉCNICA =====
+function atualizarSelectAnalise(){
+  const sel = document.getElementById('ana-item');
+  sel.innerHTML = '<option value="">Selecione…</option>' + state.cotacoes.map(c => `<option value="${c.id}">${c.codigo} — ${c.descricao}</option>`).join('');
+  sel.onchange = () => { const cot = state.cotacoes.find(c => c.id == sel.value); document.getElementById('ana-forn').value = cot?cot.fornecedor:''; };
+}
+
+document.getElementById('btn-gravar-ana').addEventListener('click', () => {
+  const i=document.getElementById('ana-item').value, s=document.getElementById('ana-status').value;
+  if(!i||!s) return toast('Erro','Preencha obrigatórios','error');
+  state.analises.push({ id:Date.now(), cotacaoId:parseFloat(i), engenheiro:document.getElementById('ana-eng').value, status:s, descricao:document.getElementById('ana-desc').value });
+  salvar(); toast('Sucesso','Análise gravada');
+});
+
+// ===== EQUALIZAÇÃO =====
+let itensPorCod = {};
+let fornecedoresList = [];
+
+function atualizarSelectEqualizacao() {
+  const sel = document.getElementById('eq-select');
+  sel.innerHTML = '<option value="">Selecione…</option>' + state.requisicoes.map(r => `<option value="${r.id}">${r.numero}</option>`).join('');
+  sel.onchange = () => renderEqualizacao(sel.value);
+}
+
+function renderEqualizacao(processoId){
+  if(!processoId) return;
+  const processo = state.requisicoes.find(r => r.id == processoId);
+  const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
+  fornecedoresList = [...new Set(cotProc.map(c => c.fornecedor))];
+
+  document.getElementById('eq-processo').textContent = processo.numero;
+
+  if(!fornecedoresList.length){
+    document.getElementById('eq-tabela-container').innerHTML = '<div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma cotação</div>';
+    return;
   }
 
-  function fmtBRL(v){ return 'R$ ' + (Number(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-
-  function toast(titulo, msg, tipo = 'success') {
-    const t = document.createElement('div');
-    t.className = `toast ${tipo}`;
-    const ico = tipo === 'success' ? 'check-circle' : tipo === 'error' ? 'alert-circle' : tipo === 'warning' ? 'alert-triangle' : 'info';
-    t.innerHTML = `<i class="lucide lucide-${ico}"></i>
-                   <div><b>${titulo}</b><span>${msg}</span></div>`;
-    document.getElementById('toasts').appendChild(t);
-    setTimeout(() => t.remove(), 4000);
-  }
-
-  // ===== SISTEMA DE TEMAS - SIMPLES E FUNCIONA =====
-  function mudarTemaClick(tema) {
-    // 1. Aplicar tema
-    document.documentElement.setAttribute('data-theme', tema);
-
-    // 2. Salvar no localStorage
-    localStorage.setItem('cp_tema', tema);
-
-    // 3. Marcar radio
-    document.querySelectorAll('input[name="theme"]').forEach(r => {
-      r.checked = (r.value === tema);
-    });
-
-    // 4. Fechar menu
-    const menu = document.getElementById('theme-menu');
-    if (menu) menu.style.display = 'none';
-  }
-
-  function carregarTemaSalvo() {
-    const tema = localStorage.getItem('cp_tema') || 'dark';
-
-    // Aplicar tema
-    document.documentElement.setAttribute('data-theme', tema);
-
-    // Marcar radio correto
-    const radio = document.querySelector(`input[name="theme"][value="${tema}"]`);
-    if (radio) radio.checked = true;
-  }
-
-  // Botão de tema - abrir/fechar menu
-  document.addEventListener('DOMContentLoaded', function() {
-    const btnTheme = document.getElementById('btn-theme');
-    if (btnTheme) {
-      btnTheme.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const menu = document.getElementById('theme-menu');
-        if (menu) {
-          menu.style.display = (menu.style.display === 'none' || !menu.style.display) ? 'block' : 'none';
-        }
-      });
-    }
-
-    // Fechar menu ao clicar fora
-    document.addEventListener('click', function(e) {
-      const menu = document.getElementById('theme-menu');
-      const btnTheme = document.getElementById('btn-theme');
-      if (menu && !menu.contains(e.target) && !btnTheme.contains(e.target)) {
-        menu.style.display = 'none';
-      }
-    });
+  itensPorCod = {};
+  cotProc.forEach(c => {
+    if(!itensPorCod[c.codigo]) itensPorCod[c.codigo] = { desc:c.descricao, qtd:c.qtd, un:c.unidade, entrega:c.entrega, pagamento:c.pagamento, frete:c.frete, garantia:c.garantia, vigencia:c.vigencia, cotacoes:{} };
+    if(!itensPorCod[c.codigo].cotacoes[c.fornecedor]) itensPorCod[c.codigo].cotacoes[c.fornecedor] = [];
+    itensPorCod[c.codigo].cotacoes[c.fornecedor].push(c);
   });
 
-  // ===== REDIMENSIONAMENTO DE COLUNAS =====
-  let colResizing = null;
-  let startX = 0;
-  let startWidth = 0;
+  let html = '<table class="table" style="width:100%"><thead><tr><th style="width:80px">Cód</th><th style="width:150px">Descrição</th><th style="width:60px">Qtd</th>';
+  fornecedoresList.forEach(f => { const forn = state.fornecedores.find(x=>x.nome===f); html += `<th style="width:180px">${f}<br><span style="font-size:11px">${forn?.uf} | ICMS: ${forn?.icms}%</span></th>`; });
+  html += '</tr></thead><tbody>';
 
-  function ativarResizeColuna(th, e) {
-    e.preventDefault();
-    colResizing = th;
-    startX = e.clientX;
-    startWidth = th.offsetWidth;
-
-    const move = (moveE) => {
-      const diff = moveE.clientX - startX;
-      colResizing.style.width = (startWidth + diff) + 'px';
-      localStorage.setItem('cp_col_widths', JSON.stringify(obterLargurasColunas()));
-    };
-
-    const stop = () => {
-      document.removeEventListener('mousemove', move);
-      document.removeEventListener('mouseup', stop);
-      colResizing = null;
-    };
-
-    document.addEventListener('mousemove', move);
-    document.addEventListener('mouseup', stop);
-  }
-
-  function salvarLargurasColunas() {
-    const widths = obterLargurasColunas();
-    localStorage.setItem('cp_col_widths', JSON.stringify(widths));
-  }
-
-  function obterLargurasColunas() {
-    const widths = {};
-    document.querySelectorAll('table th').forEach((th, i) => {
-      if (th.textContent.trim()) {
-        widths[th.textContent.trim()] = th.offsetWidth;
-      }
-    });
-    return widths;
-  }
-
-  function restaurarLargurasColunas() {
-    const widths = JSON.parse(localStorage.getItem('cp_col_widths') || '{}');
-    document.querySelectorAll('table th').forEach((th) => {
-      const title = th.textContent.trim();
-      if (widths[title]) {
-        th.style.width = widths[title] + 'px';
-      }
-    });
-  }
-
-  // Inicializar redimensionamento
-  setTimeout(() => {
-    document.querySelectorAll('table').forEach((table) => {
-      restaurarLargurasColunas();
-      table.querySelectorAll('th').forEach((th) => {
-        const resizer = document.createElement('div');
-        resizer.className = 'col-resizer';
-        resizer.addEventListener('mousedown', (e) => ativarResizeColuna(th, e));
-        th.style.position = 'relative';
-        th.appendChild(resizer);
-      });
-    });
-  }, 500);
-
-  // ===== MODAL HELPERS =====
-  function openModal(id){ document.getElementById(id).classList.add('open'); }
-  function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-  document.querySelectorAll('[data-close-modal]').forEach(b => {
-    b.addEventListener('click', () => closeModal(b.dataset.closeModal));
-  });
-  document.querySelectorAll('.modal').forEach(m => {
-    m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
-  });
-
-  // ===== NAVEGAÇÃO SPA =====
-  const items = document.querySelectorAll('.nav-item');
-  const pages = document.querySelectorAll('.page');
-  const crumb = document.getElementById('crumb-page');
-
-  function navigate(id){
-    items.forEach(i => i.classList.toggle('active', i.dataset.page === id));
-    pages.forEach(p => p.classList.toggle('active', p.id === id));
-    const it = document.querySelector(`.nav-item[data-page="${id}"]`);
-    if(it) crumb.textContent = it.querySelector('span').textContent;
-    document.querySelector('.content').scrollTo({top:0,behavior:'smooth'});
-
-    if (id === 'dashboard') { renderRequisicoes(); atualizarKPIs(); }
-    if (id === 'requisicoes') renderRequisicoesFull();
-    if (id === 'fornecedores') renderFornecedores();
-    if (id === 'cotacoes') atualizarSelectProcesso();
-    if (id === 'analise') atualizarSelectAnalise();
-    if (id === 'equalizacao') atualizarSelectEqualizacao();
-    if (id === 'resumo') atualizarSelectResumo();
-    if (id === 'contratos') { atualizarSelectContratos(); renderContratos(); }
-  }
-  items.forEach(it => it.addEventListener('click', () => navigate(it.dataset.page)));
-
-  // ===== KPIs =====
-  function atualizarKPIs(){
-    document.getElementById('kpi-processos').textContent = state.requisicoes.filter(r=>r.status!=='Concluído').length;
-    const totalContrat = state.contratos.reduce((s,c)=>s+(Number(c.valor)||0),0);
-    document.getElementById('kpi-contratado').textContent = fmtBRL(totalContrat);
-    // Saving estimado: inicial - final por processo
-    let saving = 0;
-    state.requisicoes.forEach(r => {
-      const cot = state.cotacoes.filter(c => c.processoId == r.id);
-      const ini = cot.reduce((s,c)=>s+(c.qtd*c.vunit),0);
-      saving += ini * 0.05;
-    });
-    document.getElementById('kpi-saving').textContent = fmtBRL(saving);
-  }
-
-  // ===== TOPBAR =====
-  document.getElementById('btn-notif').addEventListener('click', () => {
-    const list = document.getElementById('notif-list');
-    const notifs = [
-      `<b style="color:#fff">${state.requisicoes.length}</b> requisições no sistema`,
-      `<b style="color:#fff">${state.cotacoes.length}</b> cotações lançadas`,
-      `<b style="color:#fff">${state.contratos.length}</b> contratos efetivados`,
-    ];
-    list.innerHTML = notifs.map(n => `<div style="padding:12px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;font-size:var(--fs-sm);color:var(--text-muted)"><i class="lucide lucide-bell" style="color:var(--neon-orange);margin-right:8px"></i>${n}</div>`).join('');
-    openModal('notif-modal');
-  });
-  document.getElementById('btn-help').addEventListener('click', () => openModal('help-modal'));
-  document.getElementById('user-chip').addEventListener('click', () => toast('Usuário','Comprador · Departamento Compras','info'));
-
-  // ===== BUSCA GLOBAL =====
-  document.getElementById('search-global').addEventListener('keydown', (e) => {
-    if(e.key === 'Enter'){
-      const q = e.target.value.trim().toLowerCase();
-      if(!q){ toast('Busca','Digite um termo','warning'); return; }
-      const hits = [
-        ...state.requisicoes.filter(r => (r.numero+r.depart+r.solicitante).toLowerCase().includes(q)).map(()=>'requisição'),
-        ...state.fornecedores.filter(f => (f.nome+f.cnpj).toLowerCase().includes(q)).map(()=>'fornecedor'),
-        ...state.contratos.filter(c => String(c.numero).toLowerCase().includes(q)).map(()=>'contrato'),
-      ];
-      toast('Busca', `${hits.length} resultado(s) para "${q}"`, hits.length ? 'success' : 'warning');
-    }
-  });
-
-  // ===== CANCEL FORMS =====
-  document.querySelectorAll('[data-action="cancel-form"]').forEach(b => {
-    b.addEventListener('click', () => {
-      const card = b.closest('.card');
-      card.querySelectorAll('input, textarea').forEach(i => { if(i.type !== 'number') i.value = ''; });
-      card.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
-      toast('Cancelado','Campos limpos','info');
-    });
-  });
-
-  // ===== REQUISIÇÕES =====
-  document.getElementById('btn-criar-req').addEventListener('click', () => {
-    const depart = document.getElementById('req-depart').value.trim();
-    const solicitante = document.getElementById('req-solicitante').value.trim();
-    const numero = document.getElementById('req-numero').value.trim();
-    const prioridade = document.getElementById('req-prioridade').value;
-
-    if (!depart || !solicitante || !numero) {
-      toast('Erro', 'Preencha todos os campos obrigatórios', 'error');
-      return;
-    }
-    state.requisicoes.push({
-      id: Date.now(), depart, solicitante, numero, prioridade,
-      status: 'Em cotação',
-      data: new Date().toLocaleDateString('pt-BR')
-    });
-    salvar();
-    toast('Sucesso', 'Requisição criada');
-    document.getElementById('req-depart').value = '';
-    document.getElementById('req-solicitante').value = '';
-    document.getElementById('req-numero').value = '';
-    renderRequisicoes();
-    renderRequisicoesFull();
-    atualizarKPIs();
-  });
-
-  document.getElementById('btn-nova-req').addEventListener('click', () => navigate('requisicoes'));
-  document.getElementById('btn-ver-tudo').addEventListener('click', () => navigate('requisicoes'));
-
-  function badgeStatus(s){
-    const map = {
-      'Em cotação':'badge-info','Análise técnica':'badge-violet',
-      'Equalização':'badge-warning','Concluído':'badge-success'
-    };
-    return `<span class="badge ${map[s]||'badge-neutral'}">${s}</span>`;
-  }
-  function badgePrior(p){
-    const map = {'Normal':'badge-info','Alta':'badge-warning','Urgente':'badge-danger'};
-    return `<span class="badge ${map[p]||'badge-neutral'}">${p||'Normal'}</span>`;
-  }
-
-  function renderRequisicoes() {
-    const tbody = document.getElementById('tabela-requisicoes');
-    if (!state.requisicoes.length) {
-      tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma requisição cadastrada</div></td></tr>';
-      return;
-    }
-    tbody.innerHTML = state.requisicoes.slice(-6).reverse().map(r => {
-      const itens = state.cotacoes.filter(c=>c.processoId==r.id).length;
-      return `<tr>
-        <td><b class="mono" style="color:var(--neon-orange)">${r.numero}</b></td>
-        <td>${r.depart}</td>
-        <td>${r.solicitante}</td>
-        <td>${itens}</td>
-        <td>${badgeStatus(r.status)}</td>
-        <td class="mono" style="color:var(--text-muted)">${r.data}</td>
-      </tr>`;
-    }).join('');
-  }
-  function renderRequisicoesFull() {
-    const tbody = document.getElementById('tabela-requisicoes-full');
-    if (!state.requisicoes.length) {
-      tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma requisição cadastrada</div></td></tr>';
-      return;
-    }
-    tbody.innerHTML = state.requisicoes.slice().reverse().map(r => `
-      <tr>
-        <td><b class="mono" style="color:var(--neon-orange)">${r.numero}</b></td>
-        <td>${r.depart}</td>
-        <td>${r.solicitante}</td>
-        <td>${badgePrior(r.prioridade)}</td>
-        <td>${badgeStatus(r.status)}</td>
-        <td class="mono" style="color:var(--text-muted)">${r.data}</td>
-        <td><button class="btn btn-ghost btn-sm" data-del-req="${r.id}"><i class="lucide lucide-trash-2"></i></button></td>
-      </tr>
-    `).join('');
-    tbody.querySelectorAll('[data-del-req]').forEach(b => b.addEventListener('click', () => {
-      if(!confirm('Excluir esta requisição?')) return;
-      state.requisicoes = state.requisicoes.filter(r => r.id != b.dataset.delReq);
-      salvar(); renderRequisicoesFull(); renderRequisicoes(); atualizarKPIs();
-      toast('Excluído','Requisição removida','warning');
-    }));
-  }
-
-  // ===== FORNECEDORES =====
-  document.getElementById('btn-salvar-forn').addEventListener('click', () => {
-    const classif = document.getElementById('forn-classif').value;
-    const nome = document.getElementById('forn-nome').value.trim();
-    const cnpj = document.getElementById('forn-cnpj').value.trim();
-    const email = document.getElementById('forn-email').value.trim();
-    if (!classif || !nome || !cnpj || !email) {
-      toast('Erro', 'Preencha todos os campos obrigatórios', 'error'); return;
-    }
-    state.fornecedores.push({
-      id: Date.now(), classif, nome, cnpj, email,
-      tel: document.getElementById('forn-tel').value,
-      uf: document.getElementById('forn-uf').value,
-      icms: parseFloat(document.getElementById('forn-icms').value) || 18,
-      ipi: parseFloat(document.getElementById('forn-ipi').value) || 0,
-      pis: parseFloat(document.getElementById('forn-pis').value) || 0
-    });
-    salvar();
-    toast('Sucesso', 'Fornecedor cadastrado');
-    ['forn-nome','forn-cnpj','forn-email','forn-tel'].forEach(id=>document.getElementById(id).value='');
-    renderFornecedores();
-  });
-  function renderFornecedores(){
-    const tbody = document.getElementById('tabela-fornecedores');
-    if(!state.fornecedores.length){
-      tbody.innerHTML='<tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhum fornecedor cadastrado</div></td></tr>';
-      return;
-    }
-    tbody.innerHTML = state.fornecedores.slice().reverse().map(f => `
-      <tr>
-        <td><b>${f.nome}</b></td>
-        <td class="mono">${f.cnpj}</td>
-        <td><span class="badge badge-info">${f.uf||'—'}</span></td>
-        <td>${f.classif}</td>
-        <td style="color:var(--text-muted)">${f.email}</td>
-        <td><button class="btn btn-ghost btn-sm" data-del-forn="${f.id}"><i class="lucide lucide-trash-2"></i></button></td>
-      </tr>`).join('');
-    tbody.querySelectorAll('[data-del-forn]').forEach(b => b.addEventListener('click', () => {
-      if(!confirm('Excluir fornecedor?')) return;
-      state.fornecedores = state.fornecedores.filter(f => f.id != b.dataset.delForn);
-      salvar(); renderFornecedores(); toast('Excluído','Fornecedor removido','warning');
-    }));
-  }
-
-  // ===== COTAÇÕES =====
-  function atualizarSelectProcesso() {
-    const sel = document.getElementById('cot-processo');
-    sel.innerHTML = '<option value="">Selecione…</option>' +
-      state.requisicoes.map(r => `<option value="${r.id}">${r.numero} — ${r.depart}</option>`).join('');
-  }
-
-  function limparNumero(valor) {
-    if (!valor) return 0;
-    let str = String(valor).replace(/R\$/g, '').trim();
-    const temPonto = str.includes('.');
-    const temVirgula = str.includes(',');
-    if (temPonto && temVirgula) str = str.replace(/\./g, '').replace(',', '.');
-    else if (temVirgula) {
-      const ap = str.split(',')[1]?.length || 0;
-      str = ap === 3 ? str.replace(',', '') : str.replace(',', '.');
-    } else if (temPonto) {
-      const ap = str.split('.').pop().length;
-      if (ap === 3) str = str.replace(/\./g, '');
-    }
-    return parseFloat(str) || 0;
-  }
-
-  document.getElementById('btn-processar').addEventListener('click', () => {
-    const texto = document.getElementById('cot-textarea').value.trim();
-    if (!texto) { toast('Erro', 'Cole dados do Excel primeiro', 'error'); return; }
-    const linhas = texto.split('\n').filter(l => l.trim());
-    const tbody = document.getElementById('tabela-cotacoes');
-    tbody.innerHTML = linhas.map(linha => {
-      const [forn,entreg,pagto,frete,garantia,vigencia,nroCot,cod,desc,und,qtd,vunit] = linha.split('\t');
-      const qtdNum = limparNumero(qtd);
-      const vunitNum = limparNumero(vunit);
-      const vtotal = qtdNum * vunitNum;
-      return `<tr>
-        <td>${forn || ''}</td><td>${entreg || ''}</td><td>${pagto || ''}</td>
-        <td>${frete || ''}</td><td>${garantia || ''}</td><td>${vigencia || ''}</td>
-        <td>${nroCot || ''}</td><td><b class="mono" style="color:var(--neon-orange)">${cod || ''}</b></td>
-        <td>${desc || ''}</td><td>${und || ''}</td>
-        <td class="mono">${qtdNum.toLocaleString('pt-BR')}</td>
-        <td class="mono">${fmtBRL(vunitNum)}</td>
-        <td class="mono" style="color:var(--neon-green);font-weight:700">${fmtBRL(vtotal)}</td>
-      </tr>`;
-    }).join('');
-    toast('Sucesso', `${linhas.length} linha(s) processada(s)`);
-  });
-
-  document.getElementById('btn-limpar').addEventListener('click', () => {
-    document.getElementById('cot-textarea').value = '';
-    document.getElementById('tabela-cotacoes').innerHTML = '<tr><td colspan="13"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma cotação processada ainda.</div></td></tr>';
-    toast('Limpo','Área de cotação resetada','info');
-  });
-
-  document.getElementById('btn-add-linha').addEventListener('click', () => {
-    const ta = document.getElementById('cot-textarea');
-    ta.value += (ta.value && !ta.value.endsWith('\n') ? '\n' : '') + 'Fornecedor\t30 dias\tBoleto\tCIF\t12m\t30d\t1\tCOD-001\tDescrição\tUN\t1\t0,00';
-    ta.focus();
-    toast('Linha adicionada','Edite e clique em Processar','info');
-  });
-
-  document.getElementById('btn-salvar-cot').addEventListener('click', () => {
-    const processoId = document.getElementById('cot-processo').value;
-    const processo = state.requisicoes.find(r => r.id == processoId);
-    if (!processoId || !processo) { toast('Erro', 'Selecione um processo', 'error'); return; }
-    const tbody = document.getElementById('tabela-cotacoes');
-    const linhas = tbody.querySelectorAll('tr');
-    let count = 0;
-    linhas.forEach(tr => {
-      const tds = tr.querySelectorAll('td');
-      if (tds.length === 13) {
-        state.cotacoes.push({
-          id: Date.now() + Math.random(),
-          processoId: parseInt(processoId),
-          fornecedor: tds[0].textContent.trim(),
-          codigo: tds[7].textContent.trim(),
-          descricao: tds[8].textContent.trim(),
-          unidade: tds[9].textContent.trim(),
-          qtd: limparNumero(tds[10].textContent),
-          vunit: limparNumero(tds[11].textContent),
-          vtotal: limparNumero(tds[12].textContent),
-          entrega: tds[1].textContent.trim(),
-          pagamento: tds[2].textContent.trim(),
-          frete: tds[3].textContent.trim(),
-          garantia: tds[4].textContent.trim(),
-          vigencia: tds[5].textContent.trim(),
-          nroCot: tds[6].textContent.trim()
-        });
-        count++;
-      }
-    });
-    if(!count){ toast('Aviso','Nada para salvar — processe a tabela primeiro','warning'); return; }
-    processo.status = 'Análise técnica';
-    salvar();
-    toast('Sucesso', `${count} cotação(ões) salva(s)`);
-    document.getElementById('tabela-cotacoes').innerHTML = '<tr><td colspan="13"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma cotação processada ainda.</div></td></tr>';
-    document.getElementById('cot-textarea').value = '';
-  });
-
-  // ===== ANÁLISE TÉCNICA =====
-  function atualizarSelectAnalise(){
-    const sel = document.getElementById('ana-item');
-    sel.innerHTML = '<option value="">Selecione…</option>' +
-      state.cotacoes.map(c => `<option value="${c.id}">${c.codigo} — ${c.descricao} (${c.fornecedor})</option>`).join('');
-    sel.onchange = () => {
-      const cot = state.cotacoes.find(c => c.id == sel.value);
-      document.getElementById('ana-forn').value = cot ? cot.fornecedor : '';
-      document.getElementById('ana-desc').value = cot ? cot.descricao : '';
-    };
-  }
-  document.getElementById('btn-gravar-ana').addEventListener('click', () => {
-    const item = document.getElementById('ana-item').value;
-    const status = document.getElementById('ana-status').value;
-    if (!item || !status) { toast('Erro', 'Preencha os campos obrigatórios', 'error'); return; }
-    state.analises.push({
-      id: Date.now(), cotacaoId: parseFloat(item),
-      engenheiro: document.getElementById('ana-eng').value,
-      status, descricao: document.getElementById('ana-desc').value,
-      data: new Date().toLocaleDateString('pt-BR')
-    });
-    salvar();
-    toast('Sucesso', 'Avaliação gravada');
-    document.getElementById('ana-item').value = '';
-    document.getElementById('ana-status').value = '';
-    document.getElementById('ana-desc').value = '';
-    document.getElementById('ana-forn').value = '';
-    document.getElementById('ana-eng').value = '';
-  });
-
-  // ===== EQUALIZAÇÃO =====
-  let ganhadores = {};
-  let itensPorCod = {};
-  let fornecedoresList = [];
-  let colunasVisiveis = {
-    tecnico:true, vOriginal:false, vEqualizado:true,
-    precoInicial:true, precoFinal:true, totalItem:false
-  };
-  function carregarLayoutSalvo(){
-    const l = localStorage.getItem('cp_layout_colunas');
-    if(l) colunasVisiveis = JSON.parse(l);
-  }
-  function aplicarChecks(){
-    document.getElementById('chk-tecnico').checked = colunasVisiveis.tecnico;
-    document.getElementById('chk-vOriginal').checked = colunasVisiveis.vOriginal;
-    document.getElementById('chk-vEqualizado').checked = colunasVisiveis.vEqualizado;
-    document.getElementById('chk-precoInicial').checked = colunasVisiveis.precoInicial;
-    document.getElementById('chk-precoFinal').checked = colunasVisiveis.precoFinal;
-    document.getElementById('chk-totalItem').checked = colunasVisiveis.totalItem;
-  }
-  document.getElementById('btn-salvar-layout').addEventListener('click', () => {
-    colunasVisiveis = {
-      tecnico: document.getElementById('chk-tecnico').checked,
-      vOriginal: document.getElementById('chk-vOriginal').checked,
-      vEqualizado: document.getElementById('chk-vEqualizado').checked,
-      precoInicial: document.getElementById('chk-precoInicial').checked,
-      precoFinal: document.getElementById('chk-precoFinal').checked,
-      totalItem: document.getElementById('chk-totalItem').checked,
-    };
-    localStorage.setItem('cp_layout_colunas', JSON.stringify(colunasVisiveis));
-    toast('Layout', 'Preferências salvas');
-    closeModal('layout-modal');
-    const sel = document.getElementById('eq-select');
-    if(sel.value) renderEqualizacao(sel.value);
-  });
-
-  function atualizarSelectEqualizacao() {
-    const sel = document.getElementById('eq-select');
-    sel.innerHTML = '<option value="">Selecione um processo</option>' +
-      state.requisicoes.map(r => `<option value="${r.id}">${r.numero} — ${r.depart}</option>`).join('');
-    sel.onchange = () => renderEqualizacao(sel.value);
-  }
-
-  function renderEqualizacao(processoId){
-    if(!processoId) return;
-    const processo = state.requisicoes.find(r => r.id == processoId);
-    const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
-    fornecedoresList = [...new Set(cotProc.map(c => c.fornecedor))];
-
-    document.getElementById('eq-processo').textContent = processo.numero + ' — ' + processo.depart;
-    document.getElementById('eq-fornecedores').textContent = fornecedoresList.length + ' fornecedor(es)';
-
-    const rodasPorItem = {};
-    cotProc.forEach(c => { const k = `${c.codigo}-${c.fornecedor}`; rodasPorItem[k]=(rodasPorItem[k]||0)+1; });
-    const maxRodas = Math.max(...Object.values(rodasPorItem), 1);
-    document.getElementById('eq-rodadas').textContent = `${maxRodas} rodada(s)`;
-
-    if(!fornecedoresList.length){
-      document.getElementById('eq-tabela-container').innerHTML = '<div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma cotação para este processo</div>';
-      return;
-    }
-
-    let html = '<table class="excel"><thead>';
-    html += '<tr><th class="sticky-col" colspan="3">Item</th>';
-    fornecedoresList.forEach(nomeForn => {
-      const forn = state.fornecedores.find(f => f.nome === nomeForn);
-      const uf = forn ? forn.uf : '—';
-      const colCount = Object.values(colunasVisiveis).filter(Boolean).length || 1;
-      html += `<th colspan="${colCount}"><b>${nomeForn}</b><br/><span style="font-size:.7rem;font-weight:400;opacity:.8">${uf||'—'}</span></th>`;
-    });
-    html += '</tr>';
-
-    html += '<tr><th class="sticky-col" colspan="3"></th>';
-    fornecedoresList.forEach(nomeForn => {
-      const forn = state.fornecedores.find(f => f.nome === nomeForn);
-      const icms = forn ? forn.icms||18 : 18;
-      const ipi = forn ? forn.ipi||0 : 0;
-      const pis = forn ? forn.pis||0 : 0;
-      const colCount = Object.values(colunasVisiveis).filter(Boolean).length || 1;
-      const isento = icms === 0 ? '✓ ISENTO' : icms + '%';
-      html += `<th colspan="${colCount}">ICMS: ${isento} | IPI: ${ipi}% | PIS: ${pis}%</th>`;
-    });
-    html += '</tr>';
-
-    html += '<tr><th class="sticky-col" colspan="3"></th>';
-    fornecedoresList.forEach(nomeForn => {
-      const c = cotProc.find(c => c.fornecedor === nomeForn) || {};
-      const colCount = Object.values(colunasVisiveis).filter(Boolean).length || 1;
-      html += `<th colspan="${colCount}">Ent: ${c.entrega||'—'} | Pgt: ${c.pagamento||'—'} | Frt: ${c.frete||'—'} | Gar: ${c.garantia||'—'}</th>`;
-    });
-    html += '</tr>';
-
-    html += '<tr><th class="sticky-col">Cód.</th><th class="sticky-col" style="left:60px">Descrição</th><th class="sticky-col" style="left:240px">Qtd</th>';
-    fornecedoresList.forEach(() => {
-      if (colunasVisiveis.tecnico) html += '<th>Técnico</th>';
-      if (colunasVisiveis.vOriginal) html += '<th>V. Original</th>';
-      if (colunasVisiveis.vEqualizado) html += '<th>V. Equalizado</th>';
-      if (colunasVisiveis.precoInicial) html += '<th>Preço Inicial</th>';
-      if (colunasVisiveis.precoFinal) html += '<th>Preço Final</th>';
-      if (colunasVisiveis.totalItem) html += '<th>Total Item</th>';
-    });
-    html += '</tr></thead><tbody>';
-
-    itensPorCod = {};
-    cotProc.forEach(c => {
-      const k = c.codigo;
-      if(!itensPorCod[k]) itensPorCod[k] = { desc:c.descricao, qtd:c.qtd, unidade:c.unidade, cotacoes:{} };
-      if(!itensPorCod[k].cotacoes[c.fornecedor]) itensPorCod[k].cotacoes[c.fornecedor] = [];
-      itensPorCod[k].cotacoes[c.fornecedor].push({ vunit:c.vunit, vtotal:c.qtd*c.vunit, id:c.id });
-    });
-    const precosMinimos = {};
-    Object.entries(itensPorCod).forEach(([cod,item]) => {
-      let m = Infinity;
-      Object.values(item.cotacoes).forEach(cs => cs.forEach(c => { if(c.vunit < m) m = c.vunit; }));
-      precosMinimos[cod] = m;
-    });
-
-    Object.entries(itensPorCod).forEach(([cod,item]) => {
-      html += `<tr><td class="sticky-col"><b style="color:var(--neon-orange)">${cod}</b></td><td class="sticky-col" style="left:60px">${item.desc}</td><td class="sticky-col cell-num" style="left:240px">${item.qtd.toLocaleString('pt-BR')} ${item.unidade||''}</td>`;
-      fornecedoresList.forEach(f => {
-        const cs = item.cotacoes[f] || [];
-        const pri = cs[0] || {vunit:0};
-        const ult = cs[cs.length-1] || {vunit:0};
-        const vTotal = ult.vunit * item.qtd;
-        const ehSel = ganhadores[cod] === f;
-        const ehMin = ult.vunit === precosMinimos[cod] && ult.vunit > 0;
-        const ana = state.analises.find(a => a.cotacaoId === ult.id);
-        const stT = ana ? ana.status : 'Pendente';
-        const stStyle = stT === 'SIM' ? 'background:rgba(34,211,164,.18);color:var(--neon-green)' :
-                       stT === 'NÃO' ? 'background:rgba(255,77,109,.18);color:var(--neon-red)' :
-                       'background:rgba(251,191,36,.18);color:var(--neon-amber)';
-        const bgSel = ehSel ? 'background:rgba(34,211,164,.25);color:var(--neon-green);font-weight:700;border:1.5px solid var(--neon-green)' :
-                     ehMin ? 'background:rgba(34,211,164,.08);color:var(--neon-green)' : '';
-
-        if (colunasVisiveis.tecnico)
-          html += `<td style="${stStyle};text-align:center;font-weight:700;font-size:.7rem">${stT}</td>`;
-        if (colunasVisiveis.vOriginal)
-          html += `<td class="cell-num">${fmtBRL(pri.vunit)}</td>`;
-        if (colunasVisiveis.vEqualizado)
-          html += `<td class="cell-num" style="${bgSel};cursor:pointer" data-codigo="${cod}" data-fornecedor="${f}" onclick="selecionarPorPreco('${cod}','${f}')" title="Clique para selecionar como ganhador">${fmtBRL(ult.vunit*0.98)}</td>`;
-        if (colunasVisiveis.precoInicial)
-          html += `<td class="cell-num" style="color:var(--text-muted)">${fmtBRL(pri.vunit)}</td>`;
-        if (colunasVisiveis.precoFinal)
-          html += `<td class="cell-num" style="color:var(--neon-green);font-weight:600">${fmtBRL(ult.vunit)}</td>`;
-        if (colunasVisiveis.totalItem)
-          html += `<td class="cell-num">${fmtBRL(vTotal)}</td>`;
-      });
-      html += '</tr>';
-    });
-    html += '</tbody></table>';
-    document.getElementById('eq-tabela-container').innerHTML = html;
-
-    let resumo = document.getElementById('eq-resumo-container');
-    if(!resumo){
-      resumo = document.createElement('div'); resumo.id = 'eq-resumo-container';
-      document.getElementById('eq-tabela-container').parentNode.appendChild(resumo);
-    }
-    atualizarResumoVisual();
-  }
-
-  window.selecionarPorPreco = function(codigo, fornecedor){
-    if(ganhadores[codigo] === fornecedor){ delete ganhadores[codigo]; toast('Removido', codigo, 'warning'); }
-    else {
-      ganhadores[codigo] = fornecedor;
-      const u = itensPorCod[codigo].cotacoes[fornecedor].slice(-1)[0];
-      toast(fornecedor, `${codigo} · ${fmtBRL(u.vunit * itensPorCod[codigo].qtd)}`, 'success');
-    }
-    const sel = document.getElementById('eq-select');
-    if(sel.value) renderEqualizacao(sel.value);
-  };
-
-  function atualizarResumoVisual() {
-    const c = document.getElementById('eq-resumo-container');
-    if(!c) return;
-    const tot = {};
+  Object.entries(itensPorCod).forEach(([cod,item]) => {
+    html += `<tr><td><b>${cod}</b></td><td>${item.desc}</td><td>${item.qtd} ${item.un}</td>`;
     fornecedoresList.forEach(f => {
-      let s = 0;
-      Object.values(itensPorCod).forEach(it => {
-        const cs = it.cotacoes[f] || [];
-        const u = cs.slice(-1)[0] || {vunit:0};
-        s += u.vunit * it.qtd;
-      });
-      tot[f] = s;
+      const arr = item.cotacoes[f];
+      if(!arr || !arr.length) { html += `<td style="text-align:center;color:var(--text-muted)">—</td>`; return; }
+      const lastCot = arr[arr.length-1];
+      const analise = state.analises.find(a => a.cotacaoId === lastCot.id);
+      const statusClass = analise?.status === 'SIM' ? 'badge-success' : analise?.status === 'NÃO' ? 'badge-danger' : 'badge-warning';
+      const statusText = analise?.status === 'SIM' ? '✓ OK' : analise?.status === 'NÃO' ? '✗ REP' : 'Pendente';
+      html += `<td style="padding:8px"><div style="text-align:center;margin-bottom:4px"><span class="badge ${statusClass}">${statusText}</span></div><div style="font-weight:700;color:var(--ambar-orange)">${fmtBRL(lastCot.vunit)}</div><div style="font-size:11px;color:var(--text-muted)">Total: ${fmtBRL(lastCot.vunit*item.qtd)}</div></td>`;
     });
+    html += '</tr>';
+  });
 
-    let html = '<div class="resumo-box"><h3>📋 Ganhadores selecionados por item</h3>';
-    let totalSel = 0, has = false;
-    Object.entries(itensPorCod).forEach(([cod,it]) => {
-      const g = ganhadores[cod];
-      if(g){
-        has = true;
-        const u = (it.cotacoes[g]||[]).slice(-1)[0] || {vunit:0};
-        const v = u.vunit * it.qtd;
-        totalSel += v;
-        html += `<div class="resumo-row"><div class="left"><b>${cod}</b> — ${it.desc} <span style="color:var(--text-muted)">(${it.qtd} un.)</span></div><div class="right"><div class="forn">${g}</div><div class="val">${fmtBRL(v)}</div></div></div>`;
-      }
+  html += '</tbody></table>';
+  document.getElementById('eq-tabela-container').innerHTML = html;
+}
+
+// ===== DEFINIR GANHADOR =====
+document.getElementById('btn-definir-ganhador').addEventListener('click', () => {
+  if(!fornecedoresList.length) return toast('Erro','Selecione um processo','error');
+  let html = '';
+  Object.entries(itensPorCod).forEach(([cod,item]) => {
+    html += `<div style="padding:12px;border:1px solid var(--border-color);border-radius:var(--r-md)"><b>${cod}</b> — ${item.desc}<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:8px;">`;
+    fornecedoresList.forEach(f => {
+      const arr = item.cotacoes[f];
+      const analise = arr ? state.analises.find(a => a.cotacaoId === arr[arr.length-1]?.id) : null;
+      const disabled = analise?.status === 'NÃO';
+      html += `<label style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:var(--r-sm);background:var(--bg-app);cursor:${disabled?'not-allowed':'pointer'};opacity:${disabled?'0.5':'1'}"><input type="radio" name="item_${cod}" value="${f}" ${disabled?'disabled':''}> ${f}</label>`;
     });
-    if(!has) html += '<div style="padding:18px;text-align:center;color:var(--text-muted);font-style:italic">Nenhum ganhador selecionado — clique no <b>V. Equalizado</b> para escolher.</div>';
-    else html += `<div class="resumo-total">TOTAL SELECIONADO: ${fmtBRL(totalSel)}</div>`;
-    html += '</div>';
+    html += `</div></div>`;
+  });
+  document.getElementById('ganhador-options').innerHTML = html;
+  openModal('ganhador-modal');
+});
 
-    let menorF = null, menorV = Infinity;
-    Object.entries(tot).forEach(([f,v]) => { if(v>0 && v<menorV){ menorV=v; menorF=f; }});
-    if(menorF){
-      html += `<div class="resumo-winner"><h3><i class="lucide lucide-trophy"></i> Fornecedor com menor custo geral</h3><div class="name">${menorF}</div><div class="val">Valor Total: <b>${fmtBRL(menorV)}</b></div></div>`;
+document.getElementById('btn-confirmar-ganhador').addEventListener('click', () => {
+  const radios = document.querySelectorAll('input[type="radio"]');
+  radios.forEach(r => {
+    if(r.checked) {
+      const cod = r.name.replace('item_','');
+      state.ganhadores[cod] = r.value;
     }
-    c.innerHTML = html;
+  });
+  salvar();
+  toast('Sucesso','Ganhadores definidos');
+  closeModal('ganhador-modal');
+});
+
+// ===== RELATÓRIO / APRESENTAÇÃO =====
+function gerarRelatorio(){
+  const processoId = Object.keys(state.ganhadores).length > 0 ? state.requisicoes[0]?.id : null;
+  if(!processoId) {
+    document.getElementById('relatorio-container').innerHTML = '<div class="empty"><i class="lucide lucide-inbox"></i> Nenhum ganhador definido ainda. Vá para Equalização.</div>';
+    return;
   }
 
-  // ===== RESUMO =====
-  function atualizarSelectResumo() {
-    const sel = document.getElementById('res-processo');
-    sel.innerHTML = '<option value="">Selecione…</option>' +
-      state.requisicoes.map(r => `<option value="${r.id}">${r.numero}</option>`).join('');
-    sel.onchange = () => {
-      const id = sel.value;
-      if(!id) return;
-      const cot = state.cotacoes.filter(c => c.processoId == id);
-      const ini = cot.reduce((s,c) => s + c.qtd*c.vunit, 0);
-      const fim = ini * 0.95;
-      const sav = ini - fim;
-      document.getElementById('res-inicial').textContent = fmtBRL(ini);
-      document.getElementById('res-final').textContent = fmtBRL(fim);
-      document.getElementById('res-saving').textContent = fmtBRL(sav);
-      document.getElementById('res-percent').textContent = ini ? (sav/ini*100).toFixed(1)+'%' : '0%';
-    };
-  }
+  const processo = state.requisicoes.find(r => r.id == processoId);
+  const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
 
-  // ===== CONTRATOS =====
-  function atualizarSelectContratos() {
-    document.getElementById('con-req').innerHTML = '<option value="">Selecione…</option>' +
-      state.requisicoes.map(r => `<option value="${r.id}">${r.numero}</option>`).join('');
-    document.getElementById('con-forn').innerHTML = '<option value="">Selecione…</option>' +
-      state.fornecedores.map(f => `<option value="${f.id}">${f.nome}</option>`).join('');
-  }
-  function renderContratos(){
-    const tbody = document.getElementById('tabela-contratos');
-    if(!state.contratos.length){
-      tbody.innerHTML='<tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhum contrato registrado</div></td></tr>';
-      return;
+  let totalOrcado = cotProc.reduce((s,c)=>s+(c.qtd*c.vunit),0);
+  let totalSelecionado = 0;
+
+  itensPorCod = {};
+  cotProc.forEach(c => {
+    if(!itensPorCod[c.codigo]) itensPorCod[c.codigo] = { desc:c.descricao, qtd:c.qtd, un:c.unidade, entrega:c.entrega, pagamento:c.pagamento, frete:c.frete, garantia:c.garantia, vigencia:c.vigencia, cotacoes:{} };
+    if(!itensPorCod[c.codigo].cotacoes[c.fornecedor]) itensPorCod[c.codigo].cotacoes[c.fornecedor] = [];
+    itensPorCod[c.codigo].cotacoes[c.fornecedor].push(c);
+  });
+
+  let itemsHtml = '';
+  Object.entries(itensPorCod).forEach(([cod,item]) => {
+    const ganhador = state.ganhadores[cod];
+    if(ganhador && item.cotacoes[ganhador]) {
+      const lastCot = item.cotacoes[ganhador][item.cotacoes[ganhador].length-1];
+      const valor = lastCot.vunit * item.qtd;
+      totalSelecionado += valor;
+      const forn = state.fornecedores.find(f=>f.nome===ganhador);
+      const analise = state.analises.find(a=>a.cotacaoId===lastCot.id);
+      const risco = analise?.status === 'SIM' ? 'BAIXO' : analise?.status === 'NÃO' ? 'ALTO' : 'MÉDIO';
+      itemsHtml += `<tr><td><b>${cod}</b></td><td>${item.desc}</td><td>${item.qtd} ${item.un}</td><td>${ganhador}</td><td>${forn?.uf}</td><td>${fmtBRL(lastCot.vunit)}</td><td>${fmtBRL(valor)}</td><td><span class="risk-indicator risk-${risco.toLowerCase()}">${risco}</span></td></tr>`;
     }
-    tbody.innerHTML = state.contratos.slice().reverse().map(c => {
-      const r = state.requisicoes.find(x => x.id == c.requisicaoId);
-      const f = state.fornecedores.find(x => x.id == c.fornecedorId);
-      return `<tr>
-        <td><b class="mono" style="color:var(--neon-orange)">${c.numero}</b></td>
-        <td>${r?r.numero:'—'}</td>
-        <td>${f?f.nome:'—'}</td>
-        <td class="mono">${c.data||'—'}</td>
-        <td>${c.prazo||0} dias</td>
-        <td class="mono" style="color:var(--neon-green);font-weight:700">${fmtBRL(c.valor)}</td>
-      </tr>`;
-    }).join('');
+  });
+
+  const saving = totalOrcado - totalSelecionado;
+  const savingPercent = ((saving / totalOrcado) * 100).toFixed(1);
+
+  let html = `
+    <div class="relatorio-header">
+      <h1>RELATÓRIO DE EQUALIZAÇÃO</h1>
+      <p>Processo ${processo.numero} | ${new Date().toLocaleDateString('pt-BR')}</p>
+    </div>
+
+    <div class="exec-summary">
+      <div class="exec-card">
+        <div class="label">Orçado</div>
+        <div class="value">${fmtBRL(totalOrcado)}</div>
+      </div>
+      <div class="exec-card">
+        <div class="label">Proposto</div>
+        <div class="value">${fmtBRL(totalSelecionado)}</div>
+      </div>
+      <div class="exec-card highlight">
+        <div class="label">Saving</div>
+        <div class="value">${fmtBRL(saving)} (${savingPercent}%)</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title">Resumo Executivo</div></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>Código</th><th>Descrição</th><th>Qtd</th><th>Fornecedor</th><th>UF</th><th>V. Unit</th><th>Total</th><th>Risco</th></tr>
+          </thead>
+          <tbody>${itemsHtml}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title">Parâmetros Globais Selecionados</div></div>
+      <div class="parametros-globais" id="params-globais"></div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:24px">
+      <button class="btn btn-primary" id="btn-download-pdf"><i class="lucide lucide-download"></i> Download PDF</button>
+      <button class="btn btn-secondary" onclick="window.print()"><i class="lucide lucide-printer"></i> Imprimir</button>
+    </div>
+  `;
+
+  document.getElementById('relatorio-container').innerHTML = html;
+
+  // Preencher parâmetros globais
+  if(itensPorCod && Object.keys(itensPorCod).length > 0) {
+    const firstItem = Object.values(itensPorCod)[0];
+    const paramsHtml = `
+      <div class="param-item"><div class="param-label">Entrega</div><div class="param-value">${firstItem.entrega}</div></div>
+      <div class="param-item"><div class="param-label">Pagamento</div><div class="param-value">${firstItem.pagamento}</div></div>
+      <div class="param-item"><div class="param-label">Frete</div><div class="param-value">${firstItem.frete}</div></div>
+      <div class="param-item"><div class="param-label">Garantia</div><div class="param-value">${firstItem.garantia}</div></div>
+      <div class="param-item"><div class="param-label">Vigência</div><div class="param-value">${firstItem.vigencia}</div></div>
+    `;
+    document.getElementById('params-globais').innerHTML = paramsHtml;
   }
-  document.getElementById('btn-efetivar').addEventListener('click', () => {
-    const req = document.getElementById('con-req').value;
-    const numero = document.getElementById('con-numero').value.trim();
-    const forn = document.getElementById('con-forn').value;
-    const valor = limparNumero(document.getElementById('con-valor').value);
-    if (!req || !numero || !forn || !valor) { toast('Erro', 'Preencha todos os campos', 'error'); return; }
-    state.contratos.push({
-      id: Date.now(), requisicaoId: parseInt(req), numero,
-      fornecedorId: parseInt(forn),
-      data: document.getElementById('con-data').value,
-      valor, prazo: parseInt(document.getElementById('con-prazo').value) || 0
-    });
-    const r = state.requisicoes.find(x => x.id == req); if(r) r.status = 'Concluído';
-    salvar();
-    toast('Sucesso', 'Contrato efetivado');
-    ['con-numero','con-valor','con-prazo','con-data'].forEach(id=>document.getElementById(id).value='');
-    renderContratos(); atualizarKPIs();
-  });
 
-  // ===== IMPRESSÃO / EXPORTAÇÃO =====
-  document.getElementById('btn-imprimir').addEventListener('click', () => {
-    window.print();
-    toast('Impressão','Janela aberta','info');
+  document.getElementById('btn-download-pdf').addEventListener('click', () => {
+    const element = document.getElementById('relatorio-container');
+    const opt = { margin: 10, filename: `Relatorio_Equalizacao_${processo.numero}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' } };
+    html2pdf().set(opt).from(element).save();
+    toast('PDF Gerado','Verifique seus downloads');
   });
-  document.getElementById('btn-layout').addEventListener('click', () => { aplicarChecks(); openModal('layout-modal'); });
+}
 
-  document.getElementById('btn-exportar').addEventListener('click', () => {
-    const id = document.getElementById('eq-select').value;
-    if (!id) { toast('Erro', 'Selecione um processo', 'error'); return; }
-    const cot = state.cotacoes.filter(c => c.processoId == id);
-    if(!cot.length){ toast('Aviso','Sem cotações para exportar','warning'); return; }
-    let csv = 'Codigo,Descricao,Fornecedor,Quantidade,V.Unit,V.Total\n';
-    cot.forEach(c => { csv += `"${c.codigo}","${c.descricao}","${c.fornecedor}",${c.qtd},${c.vunit},${c.qtd*c.vunit}\n`; });
-    const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = `equalizacao_${id}.csv`; a.click();
-    toast('Sucesso','CSV exportado');
-  });
+// ===== CONTRATOS =====
+function atualizarSelectContratos() {
+  document.getElementById('con-req').innerHTML = '<option value="">Selecione…</option>' + state.requisicoes.map(r => `<option value="${r.id}">${r.numero}</option>`).join('');
+  document.getElementById('con-forn').innerHTML = '<option value="">Selecione…</option>' + state.fornecedores.map(f => `<option value="${f.id}">${f.nome}</option>`).join('');
+}
 
-  // ===== INICIALIZAR =====
-  setTimeout(() => {
-    carregarTemaSalvo();
-    carregarLayoutSalvo();
-    renderRequisicoes();
-    atualizarKPIs();
-  }, 100);
+function renderContratos(){
+  const tbody = document.getElementById('tabela-contratos');
+  if(!state.contratos.length) return tbody.innerHTML='<tr><td colspan="4"><div class="empty">Vazio</div></td></tr>';
+  tbody.innerHTML = state.contratos.slice().reverse().map(c => {
+    const r = state.requisicoes.find(x => x.id == c.requisicaoId);
+    const f = state.fornecedores.find(x => x.id == c.fornecedorId);
+    return `<tr><td><b>${c.numero}</b></td><td>${r?r.numero:'-'}</td><td>${f?f.nome:'-'}</td><td>${fmtBRL(c.valor)}</td></tr>`;
+  }).join('');
+}
+
+window.efetivarContrato = () => {
+  const req = document.getElementById('con-req').value, numero = document.getElementById('con-numero').value.trim(), forn = document.getElementById('con-forn').value, valor = limparNumero(document.getElementById('con-valor').value);
+  if (!req || !numero || !forn || !valor) { toast('Erro', 'Preencha todos os campos', 'error'); return; }
+  state.contratos.push({ id: Date.now(), requisicaoId: parseInt(req), numero, fornecedorId: parseInt(forn), valor });
+  const r = state.requisicoes.find(x => x.id == req); if(r) r.status = 'Concluído';
+  salvar(); toast('Sucesso', 'Contrato efetivado'); renderContratos(); atualizarKPIs();
+};
+
+// Inicializar
+setTimeout(() => { renderRequisicoes(); atualizarKPIs(); }, 100);
 </script>
 </body>
 </html>
