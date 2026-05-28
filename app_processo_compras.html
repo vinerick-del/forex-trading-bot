@@ -733,16 +733,39 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
     if(linhas.length < 2) throw new Error('Dados inválidos. Certifique-se de incluir cabeçalho');
 
-    // Detectar separador (tab ou vírgula)
+    // Detectar separador (tab, vírgula, ou espaços múltiplos)
     const primeiraLinha = linhas[0];
-    const temTab = primeiraLinha.includes('\t');
-    const temVirgula = primeiraLinha.includes(',');
-    const separador = temTab ? '\t' : temVirgula ? ',' : '\t'; // Default to tab
 
-    console.log(`Parse: separador detectado = ${temTab ? 'TAB' : temVirgula ? ',' : 'TAB (padrão)'}`);
+    let separador = '\t';
+    let temTab = primeiraLinha.includes('\t');
+    let temVirgula = primeiraLinha.includes(',');
 
-    const colunas = primeiraLinha.split(separador).map(c => c.trim().replace(/^"|"$/g, ''));
+    // Se não tem tab, tenta vírgula
+    if(!temTab) {
+      if(temVirgula) {
+        separador = ',';
+      } else {
+        // Tenta detectar espaços múltiplos como separador
+        // Procura por 2+ espaços em sequência
+        if(/  +/.test(primeiraLinha)) {
+          separador = /  +/; // Regex para 2+ espaços
+          console.log('Parse: detectado separador de espaços múltiplos');
+        }
+      }
+    }
+
+    console.log(`Parse: separador detectado =`, separador === '\t' ? 'TAB' : separador === ',' ? 'VIRGULA' : 'ESPAÇOS MÚLTIPLOS');
+    console.log('Parse: primeira linha (primeiros 200 chars):', primeiraLinha.substring(0, 200));
+
+    let colunas;
+    if(separador instanceof RegExp) {
+      colunas = primeiraLinha.split(separador).map(c => c.trim().replace(/^"|"$/g, '')).filter(c => c.length > 0);
+    } else {
+      colunas = primeiraLinha.split(separador).map(c => c.trim().replace(/^"|"$/g, ''));
+    }
+
     console.log('Parse: colunas =', colunas);
+    console.log('Parse: quantidade de colunas =', colunas.length);
 
     if(!colunas.length) throw new Error('Nenhuma coluna detectada');
 
@@ -752,7 +775,13 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       const linha = linhas[i];
       if(!linha.trim()) continue;
 
-      const valores = linha.split(separador).map(v => v.trim().replace(/^"|"$/g, ''));
+      let valores;
+      if(separador instanceof RegExp) {
+        valores = linha.split(separador).map(v => v.trim().replace(/^"|"$/g, '')).filter(v => v.length > 0 || true);
+      } else {
+        valores = linha.split(separador).map(v => v.trim().replace(/^"|"$/g, ''));
+      }
+
       const row = {};
       colunas.forEach((col, idx) => {
         row[col] = valores[idx] || '';
@@ -766,6 +795,12 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
     console.log(`Parse: registros válidos = ${jsonData.length}`);
     if(!jsonData.length) throw new Error('Nenhum dado válido encontrado');
+
+    // Log do primeiro registro para debug
+    if(jsonData.length > 0) {
+      console.log('Parse: PRIMEIRO REGISTRO PARSEADO:', jsonData[0]);
+      console.log('Parse: CHAVES DO PRIMEIRO REGISTRO:', Object.keys(jsonData[0]));
+    }
 
     return jsonData;
   }
