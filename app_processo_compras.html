@@ -756,17 +756,61 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       return;
     }
 
-    const colunas = Object.keys(dados[0]);
-    let html = '<table class="table"><thead><tr>';
-    colunas.slice(0, 5).forEach(col => html += `<th>${col}</th>`);
+    // Extrair departamentos e programas para mostrar estatísticas
+    const deptos = new Set();
+    const progs = new Set();
+    const materiais = new Set();
+
+    dados.forEach(row => {
+      if(row.DEPARTAMENTO) deptos.add(row.DEPARTAMENTO);
+      if(row['PROGRAMA ORÇAMENTÁRIO']) progs.add(row['PROGRAMA ORÇAMENTÁRIO']);
+      if(row.CÓDIGO) materiais.add(row.CÓDIGO);
+    });
+
+    let html = `
+      <div style="padding:16px;background:var(--bg-app);border-radius:var(--r-md);margin-bottom:16px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+          <div style="text-align:center">
+            <div style="font-size:24px;font-weight:700;color:var(--ambar-orange)">${dados.length.toLocaleString('pt-BR')}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Registros (material-mês)</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:24px;font-weight:700;color:var(--success)">${deptos.size}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Departamentos</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:24px;font-weight:700;color:var(--info)">${progs.size}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Programas</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:24px;font-weight:700;color:var(--warning)">${materiais.size}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Materiais</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Tabela com dados de amostra
+    const colunas = ['PROGRAMA ORÇAMENTÁRIO', 'DEPARTAMENTO', 'CÓDIGO', 'Descrição', 'MÊS', 'Qtd'];
+    html += '<table class="table"><thead><tr>';
+    colunas.forEach(col => html += `<th>${col}</th>`);
     html += '</tr></thead><tbody>';
-    dados.slice(0, 10).forEach(row => {
+
+    dados.slice(0, 20).forEach(row => {
       html += '<tr>';
-      colunas.slice(0, 5).forEach(col => html += `<td>${row[col] || '—'}</td>`);
+      colunas.forEach(col => {
+        let val = row[col] || '—';
+        if(col === 'MÊS' && val !== '—') {
+          val = new Date(val).toLocaleDateString('pt-BR', {year: 'numeric', month: '2-digit'});
+        }
+        html += `<td style="font-size:11px">${val}</td>`;
+      });
       html += '</tr>';
     });
+
     html += '</tbody></table>';
-    if(dados.length > 10) html += `<div style="padding:12px;text-align:center;font-size:12px;color:var(--text-muted)">+${dados.length - 10} linhas</div>`;
+    if(dados.length > 20) html += `<div style="padding:12px;text-align:center;font-size:12px;color:var(--text-muted)">... e mais ${dados.length - 20} registros</div>`;
+
     preview.innerHTML = html;
   }
 
@@ -968,10 +1012,25 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   }
 
   function extrairDepartamentosPrograma(){
-    if(!demandaAtiva || !demandaAtiva.dados) return { departamentos: [], programas: new Set() };
-    const departamentos = [...new Set(demandaAtiva.dados.map(d => d.Departamento || d.DEPARTAMENTO || d.departamento).filter(Boolean))];
-    const programas = new Set(demandaAtiva.dados.map(d => d.Programa || d.PROGRAMA || d.programa).filter(Boolean));
-    return { departamentos, programas: Array.from(programas) };
+    if(!demandaAtiva || !demandaAtiva.dados) return { departamentos: [], programas: [] };
+
+    // Extrair nomes exatos das colunas (com base na estrutura real)
+    const deptos = new Set();
+    const progs = new Set();
+
+    demandaAtiva.dados.forEach(row => {
+      // Tentar múltiplas variações de nomes de coluna
+      const depto = row.DEPARTAMENTO || row['Departamento'] || row.Departamento;
+      const prog = row['PROGRAMA ORÇAMENTÁRIO'] || row['Programa Orçamentário'] || row.PROGRAMA || row.Programa;
+
+      if(depto) deptos.add(String(depto).trim());
+      if(prog) progs.add(String(prog).trim());
+    });
+
+    return {
+      departamentos: Array.from(deptos).sort(),
+      programas: Array.from(progs).sort()
+    };
   }
 
   function renderApresentacao(processoId){
