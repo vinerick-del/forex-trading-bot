@@ -835,14 +835,29 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         });
       }
 
-      // Procurar colunas com diferentes variações de nomes
-      const depto = row.DEPARTAMENTO || row.departamento || row['DEPARTAMENTO'] || '';
-      const prog = row['PROGRAMA ORÇAMENTÁRIO'] || row['PROGRAMA ORÇAMENTARIA'] || row.programa || row['PROGRAMA'] || '';
-      const qtdStr = row.Qtd || row.qtd || row.QTD || row['Qtd'] || '0';
+      // Procurar colunas com busca flexível (ignora encoding)
+      // Procura por DEPARTAMENTO
+      let depto = '';
+      const colDepto = Object.keys(row).find(k => k.includes('DEPARTAMENTO'));
+      if(colDepto) {
+        depto = row[colDepto] || '';
+      }
+
+      // Procura por PROGRAMA (ignora acentos/encoding)
+      let prog = '';
+      const colProg = Object.keys(row).find(k => k.includes('PROGRAMA'));
+      if(colProg) {
+        prog = row[colProg] || '';
+      }
+
+      // Procura por QTD
+      const colQtd = Object.keys(row).find(k => k.toUpperCase().includes('QTD'));
+      const qtdStr = colQtd ? (row[colQtd] || '0') : '0';
       const qtd = parseFloat(qtdStr) || 0;
 
       if(idx === 0) {
-        console.log('Processamento: amostra do primeiro registro:', { depto, prog, qtd });
+        console.log('Processamento: colunas encontradas:', { colDepto, colProg, colQtd });
+        console.log('Processamento: valores extraídos:', { depto, prog, qtd });
       }
 
       if(depto) {
