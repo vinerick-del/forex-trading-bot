@@ -939,6 +939,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
   function atualizarSelectEqualizacao() {
     const sel = document.getElementById('eq-select');
+    if(!sel) return;
     sel.innerHTML = '<option value="">Selecione um processo...</option>' + state.requisicoes.map(r => `<option value="${r.id}">${r.numero} — ${r.depart}</option>`).join('');
     sel.onchange = () => { ganhadores = {}; renderEqualizacao(sel.value); }; // Reset ganhadores ao mudar
   }
@@ -1023,7 +1024,9 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
          const firstCot = arr[0];
          const lastCot = arr[arr.length - 1]; // ÚLTIMA RODADA
          const analise = state.analises.find(a => a.cotacaoId === lastCot.id);
-         
+         const fornData = state.fornecedores.find(x => x.nome === f);
+         const precoComDifal = calcularPrecoComDIFAL(lastCot.vunit, fornData?.icms || 18, true);
+
          const isRejected = analise && analise.status === 'NÃO';
          const isApproved = analise && analise.status === 'SIM';
          const isSelected = ganhadores[cod] === f;
@@ -1055,8 +1058,6 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
          html += `</div>`;
 
          // Linha Principal (Radio + Preço Final com DIFAL)
-         const fornData = state.fornecedores.find(x => x.nome === f);
-         const precoComDifal = calcularPrecoComDIFAL(lastCot.vunit, fornData?.icms || 18, true);
          html += `<div class="eq-main">
                     <div class="radio-custom"></div>
                     <div class="eq-price">${fmtBRL(precoComDifal)}</div>
