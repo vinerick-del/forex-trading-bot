@@ -495,6 +495,11 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
             <div class="excel-wrap" id="eq-tabela-container">
               <div class="empty"><i class="lucide lucide-mouse-pointer-click"></i> Selecione um processo para carregar a matriz</div>
             </div>
+
+            <!-- Legenda de DIFAL -->
+            <div style="margin-top:16px;padding:12px;background:var(--info-bg);border-radius:var(--r-md);font-size:12px;color:var(--text-main);border-left:3px solid var(--info)">
+              <strong style="color:var(--info)">📌 Preços com DIFAL aplicado:</strong> Os valores exibidos nos cards incluem o DIFAL (Diferencial de Alíquota do ICMS). O valor entre parênteses ao final de cada card mostra o preço <b>sem DIFAL</b> para comparação.
+            </div>
           </div>
         </section>
 
@@ -778,7 +783,16 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     tbody.innerHTML = state.contratos.map(c => `<tr><td><b>${c.numero}</b></td><td>${c.requisicaoId}</td><td>${c.fornecedor}</td><td>${c.data}</td><td>${c.prazo} dias</td><td>${fmtBRL(c.valor)}</td></tr>`).join('');
   }
 
-  function obterStatusRisco(processoId){
+  function calcularPrecoComDIFAL(precoBase, icms, aplicarDifal = true){
+    // DIFAL: Diferencial de Alíquota do ICMS
+    // Simulação: Assume ICMS destino de 7% (padrão para maioria dos estados)
+    // DIFAL = (ICMS origem - ICMS destino) / (1 + ICMS destino)
+    if(!aplicarDifal) return precoBase;
+    const icmsDestino = 0.07; // 7% padrão
+    const icmsOrigem = icms / 100;
+    const difal = (icmsOrigem - icmsDestino) / (1 + icmsDestino);
+    return precoBase * (1 + difal);
+  }
     const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
     let totalAprovado = 0, totalReprovado = 0, totalPendente = 0;
     cotProc.forEach(c => {
@@ -805,7 +819,9 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       const g = ganhadores[cod];
       if(g && itensPorCod[cod].cotacoes[g]){
         const u = itensPorCod[cod].cotacoes[g][itensPorCod[cod].cotacoes[g].length - 1];
-        proposto += (u.vunit * itensPorCod[cod].qtd);
+        const fornData = state.fornecedores.find(f => f.nome === g);
+        const precoComDifal = calcularPrecoComDIFAL(u.vunit, fornData?.icms || 18, true);
+        proposto += (precoComDifal * itensPorCod[cod].qtd);
       }
     });
 
@@ -863,9 +879,10 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       const fornData = state.fornecedores.find(f => f.nome === g);
       if(g && item.cotacoes[g]){
         const u = item.cotacoes[g][item.cotacoes[g].length - 1];
+        const precoComDifal = calcularPrecoComDIFAL(u.vunit, fornData?.icms || 18, true);
         const analise = state.analises.find(a => a.cotacaoId === u.id);
         const riscoCot = analise && analise.status === 'SIM' ? '<span class="risk-low">BAIXO</span>' : analise && analise.status === 'NÃO' ? '<span class="risk-high">ALTO</span>' : '<span class="risk-medium">MÉDIO</span>';
-        html += `<tr><td><b>${cod}</b></td><td>${item.desc}</td><td>${item.qtd} ${item.un}</td><td>${g}</td><td>${fornData?.uf || '—'}</td><td>${fmtBRL(u.vunit)}</td><td>${fmtBRL(u.vunit * item.qtd)}</td><td>${riscoCot}</td></tr>`;
+        html += `<tr><td><b>${cod}</b></td><td>${item.desc}</td><td>${item.qtd} ${item.un}</td><td>${g}</td><td>${fornData?.uf || '—'}</td><td>${fmtBRL(precoComDifal)}</td><td>${fmtBRL(precoComDifal * item.qtd)}</td><td>${riscoCot}</td></tr>`;
       }
     });
 
@@ -931,15 +948,17 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       itensPorCod[c.codigo].cotacoes[c.fornecedor].push(c); // Pode ter várias rodadas, salva array
     });
 
-    // Encontrar o menor preço VÁLIDO por item para calcular o % delta
+    // Encontrar o menor preço VÁLIDO (com DIFAL) por item para calcular o % delta
     const minPrecos = {};
     Object.entries(itensPorCod).forEach(([cod, item]) => {
       let min = Infinity;
       Object.entries(item.cotacoes).forEach(([f, arr]) => {
          const lastCot = arr[arr.length - 1];
          const analise = state.analises.find(a => a.cotacaoId === lastCot.id);
+         const fornData = state.fornecedores.find(x => x.nome === f);
+         const precoComDifal = calcularPrecoComDIFAL(lastCot.vunit, fornData?.icms || 18, true);
          if (!analise || analise.status !== 'NÃO') { // Só considera quem NÃO foi reprovado
-             if(lastCot.vunit < min && lastCot.vunit > 0) min = lastCot.vunit;
+             if(precoComDifal < min && precoComDifal > 0) min = precoComDifal;
          }
       });
       minPrecos[cod] = min;
@@ -992,13 +1011,13 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
          const isApproved = analise && analise.status === 'SIM';
          const isSelected = ganhadores[cod] === f;
          
-         // Cálculo do Delta
+         // Cálculo do Delta (usando preço com DIFAL)
          let deltaHtml = '';
          if (!isRejected && minPrecos[cod] !== Infinity) {
-            if (lastCot.vunit === minPrecos[cod]) {
+            if (precoComDifal === minPrecos[cod]) {
                deltaHtml = `<span class="eq-delta good">Melhor Preço</span>`;
             } else {
-               const perc = ((lastCot.vunit - minPrecos[cod]) / minPrecos[cod]) * 100;
+               const perc = ((precoComDifal - minPrecos[cod]) / minPrecos[cod]) * 100;
                deltaHtml = `<span class="eq-delta bad">+${perc.toFixed(1)}%</span>`;
             }
          }
@@ -1018,17 +1037,20 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
          html += deltaHtml;
          html += `</div>`;
 
-         // Linha Principal (Radio + Preço Final)
+         // Linha Principal (Radio + Preço Final com DIFAL)
+         const fornData = state.fornecedores.find(x => x.nome === f);
+         const precoComDifal = calcularPrecoComDIFAL(lastCot.vunit, fornData?.icms || 18, true);
          html += `<div class="eq-main">
                     <div class="radio-custom"></div>
-                    <div class="eq-price">${fmtBRL(lastCot.vunit)}</div>
+                    <div class="eq-price">${fmtBRL(precoComDifal)}</div>
                   </div>`;
          
-         // Linha Extra (Opcionais do Layout)
-         if (colVis.vOriginal || colVis.totalItem) {
+         // Linha Extra (Opcionais do Layout + DIFAL)
+         if (colVis.vOriginal || colVis.totalItem || true) {
              html += `<div class="eq-extra">`;
+             html += `<div style="font-size:10px;color:var(--text-light);margin-bottom:4px"><i>Preço sem DIFAL:</i> ${fmtBRL(lastCot.vunit)}</div>`;
              if(colVis.vOriginal) html += `<div><span>Valor Inicial (1ª rodada)</span> <span>${fmtBRL(firstCot.vunit)}</span></div>`;
-             if(colVis.totalItem) html += `<div><b>Total do Item</b> <b>${fmtBRL(lastCot.vunit * item.qtd)}</b></div>`;
+             if(colVis.totalItem) html += `<div><b>Total do Item</b> <b>${fmtBRL(precoComDifal * item.qtd)}</b></div>`;
              html += `</div>`;
          }
          
@@ -1057,7 +1079,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   // BOTÕES MÁGICOS (Automação de Seleção)
   // ==========================================
 
-  // 1. Menor Preço por Item
+  // 1. Menor Preço por Item (com DIFAL)
   document.getElementById('btn-auto-item').addEventListener('click', () => {
      if(!fornecedoresList.length) return;
      ganhadores = {}; // Reseta
@@ -1070,21 +1092,23 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
            if(arr && arr.length) {
               const u = arr[arr.length - 1];
               const ana = state.analises.find(a => a.cotacaoId === u.id);
+              const fornData = state.fornecedores.find(x => x.nome === f);
+              const precoComDifal = calcularPrecoComDIFAL(u.vunit, fornData?.icms || 18, true);
               if(!ana || ana.status !== 'NÃO') { // Só válidos
-                 if(u.vunit < min && u.vunit > 0) { min = u.vunit; bestF = f; }
+                 if(precoComDifal < min && precoComDifal > 0) { min = precoComDifal; bestF = f; }
               }
            }
         });
         if(bestF) { ganhadores[cod] = bestF; selecionouAlgo = true; }
      });
 
-     if(selecionouAlgo) toast('Mágica!', 'O sistema selecionou os melhores preços unitários.', 'success');
+     if(selecionouAlgo) toast('Mágica!', 'O sistema selecionou os melhores preços (com DIFAL).', 'success');
      else toast('Atenção', 'Nenhum item válido para seleção.', 'warning');
-     
+
      renderEqualizacao(document.getElementById('eq-select').value);
   });
 
-  // 2. Melhor Fornecedor Global
+  // 2. Melhor Fornecedor Global (com DIFAL)
   document.getElementById('btn-auto-global').addEventListener('click', () => {
      if(!fornecedoresList.length) return;
      let bestGlobalForn = null, minGlobalSum = Infinity;
@@ -1094,12 +1118,14 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         Object.values(itensPorCod).forEach(item => {
            const arr = item.cotacoes[f];
            if(!arr || !arr.length) { isValid = false; return; } // Falhou: Não cotou este item
-           
+
            const u = arr[arr.length - 1];
            const ana = state.analises.find(a => a.cotacaoId === u.id);
+           const fornData = state.fornecedores.find(x => x.nome === f);
+           const precoComDifal = calcularPrecoComDIFAL(u.vunit, fornData?.icms || 18, true);
            if(ana && ana.status === 'NÃO') { isValid = false; return; } // Falhou: Item reprovado
-           
-           sum += (u.vunit * item.qtd);
+
+           sum += (precoComDifal * item.qtd);
         });
 
         if(isValid && sum < minGlobalSum) { minGlobalSum = sum; bestGlobalForn = f; }
@@ -1108,11 +1134,11 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
      if(bestGlobalForn) {
         ganhadores = {}; // Reseta
         Object.keys(itensPorCod).forEach(cod => ganhadores[cod] = bestGlobalForn); // Marca tudo pra ele
-        toast('Fechamento Global', `${bestGlobalForn} ganhou o pacote completo.`, 'success');
+        toast('Fechamento Global', `${bestGlobalForn} ganhou o pacote completo (com DIFAL).`, 'success');
      } else {
         toast('Bloqueado', 'Nenhum fornecedor cotou 100% dos itens COM aprovação técnica.', 'error');
      }
-     
+
      renderEqualizacao(document.getElementById('eq-select').value);
   });
 
@@ -1130,7 +1156,9 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       const g = ganhadores[cod];
       if(g){
         const u = it.cotacoes[g][it.cotacoes[g].length - 1];
-        const valTotal = u.vunit * it.qtd;
+        const fornData = state.fornecedores.find(x => x.nome === g);
+        const precoComDifal = calcularPrecoComDIFAL(u.vunit, fornData?.icms || 18, true);
+        const valTotal = precoComDifal * it.qtd;
         totalSelected += valTotal;
         htmlLines += `<div class="resumo-row">
                         <div><b>${cod}</b> <span style="color:var(--text-muted);font-size:11px">(${it.qtd} un)</span></div>
@@ -1144,13 +1172,15 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     if(totalSelected === 0) {
        html += `<div style="text-align:center; padding: 20px; color:var(--text-muted)">Nenhum item selecionado. Clique nos cards acima ou use os botões automáticos.</div></div>`;
     } else {
-       // Calcular Total Pior Cenário (Se comprasse os mais caros) para Gamificar o Saving
+       // Calcular Total Pior Cenário (Se comprasse os mais caros com DIFAL) para Gamificar o Saving
        let worstTotal = 0;
        Object.entries(itensPorCod).forEach(([cod, item]) => {
           let max = 0;
-          Object.values(item.cotacoes).forEach(arr => {
-             const v = arr[arr.length - 1].vunit;
-             if(v > max) max = v;
+          Object.entries(item.cotacoes).forEach(([f, arr]) => {
+             const u = arr[arr.length - 1];
+             const fornData = state.fornecedores.find(x => x.nome === f);
+             const precoComDifal = calcularPrecoComDIFAL(u.vunit, fornData?.icms || 18, true);
+             if(precoComDifal > max) max = precoComDifal;
           });
           worstTotal += (max * item.qtd);
        });
