@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.460.0/font/lucide.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
 <style>
 /* ============================================================
    CotaPro — Âmbar Energia (Enterprise Clean Theme + Smart UI)
@@ -712,6 +711,18 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
+        // Verificar se XLSX está disponível
+        if(typeof XLSX === 'undefined') {
+          console.error('XLSX não está carregado. Tentando carregar novamente...');
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js';
+          script.onload = () => {
+            toast('Aviso', 'Biblioteca XLSX carregada. Tente novamente.', 'warning');
+          };
+          document.head.appendChild(script);
+          return toast('Erro', 'Biblioteca XLSX carregando. Tente novamente em alguns segundos.', 'error');
+        }
+
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, {type: 'array'});
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -1557,5 +1568,9 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   setTimeout(() => { carregarLayoutSalvo(); renderRequisicoes(); atualizarKPIs(); }, 100);
 
 </script>
+
+<!-- XLSX Library for Excel import -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+
 </body>
 </html>
