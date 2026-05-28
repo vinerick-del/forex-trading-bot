@@ -386,27 +386,29 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
         <!-- DEMANDA DE MATERIAIS (Novo) -->
         <section class="page" id="demanda">
-          <div class="page-head"><div><h1 class="page-title">Demanda de Materiais</h1><p class="page-desc">Importar planilha de consumo mensal por departamento e programa orçamentário.</p></div></div>
+          <div class="page-head"><div><h1 class="page-title">Demanda de Materiais</h1><p class="page-desc">Importar dados de consumo por departamento e programa orçamentário.</p></div></div>
 
           <div class="card">
-            <div class="card-head"><div class="card-title">Importar Planilha</div></div>
+            <div class="card-head"><div class="card-title">Método 1: Copiar dados da planilha</div></div>
             <div style="padding: 20px;">
-              <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 10px; font-weight: 600; color: var(--text-main);">Selecione arquivo Excel (.xlsx)</label>
-                <input type="file" id="demanda-file-input" accept=".xlsx,.xls" style="padding: 10px; border: 1px solid var(--border-color); border-radius: var(--r-md); width: 100%; cursor: pointer;">
-                <div style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">📄 Arquivo esperado: DEMANDA DE MATERIAIS [DATA].xlsx</div>
-              </div>
-              <button class="btn btn-primary" id="btn-importar-demanda"><i class="lucide lucide-upload"></i> Importar Dados</button>
+              <p style="margin-bottom: 15px; color: var(--text-muted); font-size: 13px;">
+                📋 <strong>Instruções:</strong><br>
+                1. Abra a planilha "DEMANDA DE MATERIAIS 28MAI26.xlsx"<br>
+                2. Selecione e copie todos os dados (Ctrl+C ou Cmd+C)<br>
+                3. Cole aqui no campo abaixo (Ctrl+V ou Cmd+V)
+              </p>
+              <textarea class="textarea" id="demanda-textarea" placeholder="Cole aqui os dados da planilha..." style="height:150px;font-family:monospace;font-size:11px"></textarea>
+              <button class="btn btn-primary" id="btn-colar-demanda" style="margin-top:12px"><i class="lucide lucide-clipboard-paste"></i> Processar Dados Colados</button>
             </div>
           </div>
 
           <div class="card">
-            <div class="card-head"><div class="card-title">Histórico de Revisões</div></div>
+            <div class="card-head"><div class="card-title">Histórico de Importações</div></div>
             <div class="table-wrap">
               <table class="table">
-                <thead><tr><th>Data/Hora</th><th>Nome do Arquivo</th><th>Linhas</th><th>Status</th><th></th></tr></thead>
+                <thead><tr><th>Data/Hora</th><th>Registros</th><th>Departamentos</th><th>Programas</th><th>Status</th><th></th></tr></thead>
                 <tbody id="demanda-historico">
-                  <tr><td colspan="5"><div class="empty">Nenhuma planilha importada</div></td></tr>
+                  <tr><td colspan="6"><div class="empty">Nenhuma planilha importada</div></td></tr>
                 </tbody>
               </table>
             </div>
@@ -415,7 +417,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           <div class="card">
             <div class="card-head"><div class="card-title">Prévia dos Dados</div></div>
             <div class="table-wrap" id="demanda-preview">
-              <div style="padding: 20px; text-align: center; color: var(--text-muted);">Importe uma planilha para visualizar os dados</div>
+              <div style="padding: 20px; text-align: center; color: var(--text-muted);">Importe dados para visualizar</div>
             </div>
           </div>
         </section>
@@ -680,18 +682,26 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   function renderDemandaHistorico(){
     const tbody = document.getElementById('demanda-historico');
     if(!demandaRevisions.length) {
-      tbody.innerHTML = '<tr><td colspan="5"><div class="empty">Nenhuma planilha importada</div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty">Nenhuma planilha importada</div></td></tr>';
       return;
     }
-    tbody.innerHTML = demandaRevisions.map((rev, idx) => `
+    tbody.innerHTML = demandaRevisions.map((rev, idx) => {
+      const deptos = new Set();
+      const progs = new Set();
+      rev.dados.forEach(d => {
+        if(d.DEPARTAMENTO) deptos.add(d.DEPARTAMENTO);
+        if(d['PROGRAMA ORÇAMENTÁRIO']) progs.add(d['PROGRAMA ORÇAMENTÁRIO']);
+      });
+      return `
       <tr>
         <td><b>${rev.dataHora}</b></td>
-        <td>${rev.nomeArquivo}</td>
-        <td>${rev.linhas}</td>
-        <td><span class="badge ${rev.id === demandaAtiva?.id ? 'badge-success' : 'badge-neutral'}">${rev.id === demandaAtiva?.id ? '✓ Ativa' : 'Arquivo'}</span></td>
+        <td>${rev.linhas.toLocaleString('pt-BR')}</td>
+        <td>${deptos.size}</td>
+        <td>${progs.size}</td>
+        <td><span class="badge ${rev.id === demandaAtiva?.id ? 'badge-success' : 'badge-neutral'}">${rev.id === demandaAtiva?.id ? '✓ Ativa' : 'Histórico'}</span></td>
         <td><button class="btn btn-ghost btn-sm" onclick="deletarDemandaRevision('${rev.id}')"><i class="lucide lucide-trash-2"></i></button></td>
       </tr>
-    `).join('');
+    `}).join('');
   }
 
   window.deletarDemandaRevision = function(revId){
@@ -703,61 +713,58 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     toast('Deletado', 'Revisão removida');
   };
 
-  document.getElementById('btn-importar-demanda').addEventListener('click', () => {
-    const fileInput = document.getElementById('demanda-file-input');
-    const file = fileInput.files[0];
-    if(!file) return toast('Erro', 'Selecione um arquivo', 'error');
+  document.getElementById('btn-colar-demanda').addEventListener('click', () => {
+    const texto = document.getElementById('demanda-textarea').value.trim();
+    if(!texto) return toast('Erro', 'Cole os dados da planilha primeiro', 'error');
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        // Verificar se XLSX está disponível
-        if(typeof XLSX === 'undefined') {
-          console.error('XLSX não está carregado. Tentando carregar novamente...');
-          const script = document.createElement('script');
-          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js';
-          script.onload = () => {
-            toast('Aviso', 'Biblioteca XLSX carregada. Tente novamente.', 'warning');
-          };
-          document.head.appendChild(script);
-          return toast('Erro', 'Biblioteca XLSX carregando. Tente novamente em alguns segundos.', 'error');
+    try {
+      // Fazer parse dos dados colados (tab-separated)
+      const linhas = texto.split('\n').filter(l => l.trim());
+      if(linhas.length < 2) return toast('Erro', 'Dados inválidos. Certifique-se de colar com cabeçalho', 'error');
+
+      // Primeira linha é o cabeçalho
+      const colunas = linhas[0].split('\t').map(c => c.trim());
+      const jsonData = [];
+
+      // Processar dados
+      for(let i = 1; i < linhas.length; i++) {
+        const valores = linhas[i].split('\t');
+        const row = {};
+        colunas.forEach((col, idx) => {
+          row[col] = valores[idx]?.trim() || '';
+        });
+        if(Object.values(row).some(v => v)) { // Ignora linhas vazias
+          jsonData.push(row);
         }
-
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, {type: 'array'});
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-        if(!jsonData.length) return toast('Erro', 'Nenhum dado encontrado na planilha', 'error');
-
-        const dataHora = formatarDataHora();
-        const nomeArquivo = file.name;
-        const revId = 'demanda_' + dataHora.completo;
-
-        const revision = {
-          id: revId,
-          nomeArquivo: nomeArquivo,
-          dataHora: dataHora.completo,
-          linhas: jsonData.length,
-          dados: jsonData,
-          importadoEm: new Date().toISOString()
-        };
-
-        demandaRevisions.unshift(revision);
-        demandaAtiva = revision;
-        salvar();
-
-        renderDemandaHistorico();
-        mostrarDemandaPreview(jsonData);
-        fileInput.value = '';
-
-        toast('Sucesso', `${jsonData.length} linhas importadas de ${file.name}`);
-      } catch(err) {
-        console.error('Erro ao processar arquivo:', err);
-        toast('Erro', 'Falha ao ler arquivo Excel: ' + err.message, 'error');
       }
-    };
-    reader.readAsArrayBuffer(file);
+
+      if(!jsonData.length) return toast('Erro', 'Nenhum dado válido encontrado', 'error');
+
+      const dataHora = formatarDataHora();
+      const revId = 'demanda_' + dataHora.completo;
+
+      const revision = {
+        id: revId,
+        nomeArquivo: `Demanda_de_materiais_${dataHora.completo}.txt`,
+        dataHora: dataHora.completo,
+        linhas: jsonData.length,
+        dados: jsonData,
+        importadoEm: new Date().toISOString()
+      };
+
+      demandaRevisions.unshift(revision);
+      demandaAtiva = revision;
+      salvar();
+
+      renderDemandaHistorico();
+      mostrarDemandaPreview(jsonData);
+      document.getElementById('demanda-textarea').value = '';
+
+      toast('Sucesso', `${jsonData.length} registros importados com sucesso`);
+    } catch(err) {
+      console.error('Erro ao processar dados:', err);
+      toast('Erro', 'Falha ao processar dados: ' + err.message, 'error');
+    }
   });
 
   function mostrarDemandaPreview(dados){
@@ -1568,9 +1575,5 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   setTimeout(() => { carregarLayoutSalvo(); renderRequisicoes(); atualizarKPIs(); }, 100);
 
 </script>
-
-<!-- XLSX Library for Excel import -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
-
 </body>
 </html>
