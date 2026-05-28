@@ -729,26 +729,44 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   // Parser CSV/TSV genérico
   function parseCSVOrTSV(texto) {
     const linhas = texto.split('\n').filter(l => l.trim());
+    console.log('Parse: linhas totais =', linhas.length);
+
     if(linhas.length < 2) throw new Error('Dados inválidos. Certifique-se de incluir cabeçalho');
 
     // Detectar separador (tab ou vírgula)
     const primeiraLinha = linhas[0];
-    const ehTab = primeiraLinha.includes('\t');
-    const separador = ehTab ? '\t' : ',';
+    const temTab = primeiraLinha.includes('\t');
+    const temVirgula = primeiraLinha.includes(',');
+    const separador = temTab ? '\t' : temVirgula ? ',' : '\t'; // Default to tab
+
+    console.log(`Parse: separador detectado = ${temTab ? 'TAB' : temVirgula ? ',' : 'TAB (padrão)'}`);
 
     const colunas = primeiraLinha.split(separador).map(c => c.trim().replace(/^"|"$/g, ''));
+    console.log('Parse: colunas =', colunas);
+
+    if(!colunas.length) throw new Error('Nenhuma coluna detectada');
+
     const jsonData = [];
 
     for(let i = 1; i < linhas.length; i++) {
-      const valores = linhas[i].split(separador).map(v => v.trim().replace(/^"|"$/g, ''));
+      const linha = linhas[i];
+      if(!linha.trim()) continue;
+
+      const valores = linha.split(separador).map(v => v.trim().replace(/^"|"$/g, ''));
       const row = {};
       colunas.forEach((col, idx) => {
         row[col] = valores[idx] || '';
       });
-      if(Object.values(row).some(v => v)) jsonData.push(row);
+
+      // Validar que a linha tem pelo menos um valor preenchido
+      if(Object.values(row).some(v => v && v.length > 0)) {
+        jsonData.push(row);
+      }
     }
 
+    console.log(`Parse: registros válidos = ${jsonData.length}`);
     if(!jsonData.length) throw new Error('Nenhum dado válido encontrado');
+
     return jsonData;
   }
 
@@ -759,10 +777,14 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     const consumoPorDepto = {};
     const consumoPorProg = {};
 
-    jsonData.forEach(row => {
-      const depto = row.DEPARTAMENTO || '';
-      const prog = row['PROGRAMA ORÇAMENTÁRIO'] || '';
-      const qtd = parseFloat(row.Qtd) || 0;
+    console.log('Processamento: iniciando extração de dados...');
+
+    jsonData.forEach((row, idx) => {
+      // Procurar colunas com diferentes variações de nomes
+      const depto = row.DEPARTAMENTO || row.departamento || '';
+      const prog = row['PROGRAMA ORÇAMENTÁRIO'] || row['PROGRAMA ORÇAMENTARIA'] || row.programa || '';
+      const qtdStr = row.Qtd || row.qtd || row.QTD || '0';
+      const qtd = parseFloat(qtdStr) || 0;
 
       if(depto) {
         deptos.add(depto);
@@ -772,7 +794,14 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         progs.add(prog);
         consumoPorProg[prog] = (consumoPorProg[prog] || 0) + qtd;
       }
+
+      if(idx === 0) {
+        console.log('Processamento: amostra do primeiro registro:', { depto, prog, qtd });
+      }
     });
+
+    console.log('Processamento: departamentos extraídos =', deptos.size, Array.from(deptos));
+    console.log('Processamento: programas extraídos =', progs.size, Array.from(progs));
 
     const dataHora = formatarDataHora();
     const revId = 'demanda_' + dataHora.completo;
@@ -790,26 +819,36 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       importadoEm: new Date().toISOString()
     };
 
+    console.log('Processamento: revisão criada =', revId);
+
     // Dados completos em memória (não salva em localStorage)
     demandaDadosCompletos[revId] = jsonData;
+    console.log('Processamento: dados completos em memória =', jsonData.length, 'registros');
 
     demandaRevisions.unshift(revision);
     demandaAtiva = revision;
 
     // Limitar histórico a 5 revisões
     if(demandaRevisions.length > 5) {
+      const removidas = demandaRevisions.slice(5).map(r => r.id);
       demandaRevisions = demandaRevisions.slice(0, 5);
       // Limpar dados em memória das revisões removidas
-      Object.keys(demandaDadosCompletos).forEach(id => {
-        if(!demandaRevisions.find(r => r.id === id)) {
-          delete demandaDadosCompletos[id];
-        }
-      });
+      removidas.forEach(id => delete demandaDadosCompletos[id]);
+      console.log('Processamento: histórico limitado a 5, removidas:', removidas);
     }
 
-    salvar();
+    try {
+      salvar();
+      console.log('Processamento: localStorage salvo com sucesso');
+    } catch(err) {
+      console.error('Processamento: erro ao salvar localStorage:', err.message);
+      throw new Error(`Erro ao salvar: ${err.message}`);
+    }
+
     renderDemandaHistorico();
     mostrarDemandaPreviewResumo(revision);
+    console.log('Processamento: concluído com sucesso!');
+
     return jsonData.length;
   }
 
@@ -819,22 +858,40 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     if(!fileInput?.files?.length) return toast('Erro', 'Selecione um arquivo CSV primeiro', 'error');
 
     const file = fileInput.files[0];
+    console.log('📁 Upload iniciado:', file.name, `(${(file.size / 1024).toFixed(2)} KB)`);
+
     const reader = new FileReader();
 
     reader.onload = (e) => {
       try {
         const texto = e.target.result;
+        console.log('📖 Arquivo lido:', texto.split('\n').length, 'linhas');
+
         const jsonData = parseCSVOrTSV(texto);
+        console.log('✓ Parse sucesso:', jsonData.length, 'registros');
+
         const count = processarDemandaData(jsonData, file.name);
+        console.log('✓ Processamento sucesso:', count, 'registros');
+
         toast('Sucesso', `${count.toLocaleString('pt-BR')} registros importados`);
         fileInput.value = '';
       } catch(err) {
+        console.error('❌ Erro ao processar:', err);
         toast('Erro', `Falha: ${err.message}`, 'error');
       }
     };
 
-    reader.onerror = () => toast('Erro', 'Não foi possível ler o arquivo', 'error');
-    reader.readAsText(file);
+    reader.onerror = () => {
+      console.error('❌ Erro ao ler arquivo');
+      toast('Erro', 'Não foi possível ler o arquivo', 'error');
+    };
+
+    try {
+      reader.readAsText(file, 'utf-8');
+    } catch(err) {
+      console.error('❌ Erro ao iniciar leitura:', err);
+      toast('Erro', 'Erro ao iniciar leitura do arquivo', 'error');
+    }
   });
 
   document.getElementById('btn-limpar-arquivo')?.addEventListener('click', () => {
