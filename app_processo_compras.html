@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.460.0/font/lucide.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
 <style>
 /* ============================================================
    CotaPro — Âmbar Energia (Enterprise Clean Theme + Smart UI)
@@ -329,6 +330,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       </div>
       <div class="nav-section">
         <div class="nav-label">Cadastros</div>
+        <div class="nav-item" data-page="demanda"><i class="lucide lucide-upload"></i><span>Demanda Materiais</span></div>
         <div class="nav-item" data-page="requisicoes"><i class="lucide lucide-clipboard-list"></i><span>Requisições</span></div>
         <div class="nav-item" data-page="fornecedores"><i class="lucide lucide-building-2"></i><span>Fornecedores</span></div>
       </div>
@@ -380,6 +382,42 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           <div class="card">
             <div class="card-head"><div><div class="card-title">Últimas requisições</div><div class="card-sub">Atualizado agora</div></div><button class="btn btn-secondary btn-sm" id="btn-ver-tudo"><i class="lucide lucide-external-link"></i> Ver tudo</button></div>
             <div class="table-wrap"><table class="table"><thead><tr><th>Processo</th><th>Departamento</th><th>Solicitante</th><th>Itens</th><th>Status</th><th>Data</th></tr></thead><tbody id="tabela-requisicoes"><tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma requisição</div></td></tr></tbody></table></div>
+          </div>
+        </section>
+
+        <!-- DEMANDA DE MATERIAIS (Novo) -->
+        <section class="page" id="demanda">
+          <div class="page-head"><div><h1 class="page-title">Demanda de Materiais</h1><p class="page-desc">Importar planilha de consumo mensal por departamento e programa orçamentário.</p></div></div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-title">Importar Planilha</div></div>
+            <div style="padding: 20px;">
+              <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 10px; font-weight: 600; color: var(--text-main);">Selecione arquivo Excel (.xlsx)</label>
+                <input type="file" id="demanda-file-input" accept=".xlsx,.xls" style="padding: 10px; border: 1px solid var(--border-color); border-radius: var(--r-md); width: 100%; cursor: pointer;">
+                <div style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">📄 Arquivo esperado: DEMANDA DE MATERIAIS [DATA].xlsx</div>
+              </div>
+              <button class="btn btn-primary" id="btn-importar-demanda"><i class="lucide lucide-upload"></i> Importar Dados</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-title">Histórico de Revisões</div></div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>Data/Hora</th><th>Nome do Arquivo</th><th>Linhas</th><th>Status</th><th></th></tr></thead>
+                <tbody id="demanda-historico">
+                  <tr><td colspan="5"><div class="empty">Nenhuma planilha importada</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-title">Prévia dos Dados</div></div>
+            <div class="table-wrap" id="demanda-preview">
+              <div style="padding: 20px; text-align: center; color: var(--text-muted);">Importe uma planilha para visualizar os dados</div>
+            </div>
           </div>
         </section>
 
@@ -602,6 +640,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     contratos: JSON.parse(localStorage.getItem('cp_contratos') || '[]'),
   };
   let ganhadores = JSON.parse(localStorage.getItem('cp_ganhadores') || '{}');
+  let demandaRevisions = JSON.parse(localStorage.getItem('cp_demanda_revisions') || '[]');
+  let demandaAtiva = JSON.parse(localStorage.getItem('cp_demanda_ativa') || 'null');
   function salvar() {
     localStorage.setItem('cp_requisicoes', JSON.stringify(state.requisicoes));
     localStorage.setItem('cp_fornecedores', JSON.stringify(state.fornecedores));
@@ -609,6 +649,18 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     localStorage.setItem('cp_analises', JSON.stringify(state.analises));
     localStorage.setItem('cp_contratos', JSON.stringify(state.contratos));
     localStorage.setItem('cp_ganhadores', JSON.stringify(ganhadores));
+    localStorage.setItem('cp_demanda_revisions', JSON.stringify(demandaRevisions));
+    localStorage.setItem('cp_demanda_ativa', JSON.stringify(demandaAtiva));
+  }
+
+  function formatarDataHora(){
+    const agora = new Date();
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const ano = String(agora.getFullYear()).slice(-2);
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    return { data: `${dia}${mes}${ano}`, hora: `${horas}${minutos}`, completo: `${dia}${mes}${ano}_${horas}${minutos}` };
   }
   function fmtBRL(v){ return 'R$ ' + (Number(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
   function toast(titulo, msg, tipo = 'success') {
@@ -625,6 +677,99 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   document.querySelectorAll('[data-close-modal]').forEach(b => b.addEventListener('click', () => closeModal(b.dataset.closeModal)));
   document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); }));
 
+  // ===== DEMANDA DE MATERIAIS =====
+  function renderDemandaHistorico(){
+    const tbody = document.getElementById('demanda-historico');
+    if(!demandaRevisions.length) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty">Nenhuma planilha importada</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = demandaRevisions.map((rev, idx) => `
+      <tr>
+        <td><b>${rev.dataHora}</b></td>
+        <td>${rev.nomeArquivo}</td>
+        <td>${rev.linhas}</td>
+        <td><span class="badge ${rev.id === demandaAtiva?.id ? 'badge-success' : 'badge-neutral'}">${rev.id === demandaAtiva?.id ? '✓ Ativa' : 'Arquivo'}</span></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="deletarDemandaRevision('${rev.id}')"><i class="lucide lucide-trash-2"></i></button></td>
+      </tr>
+    `).join('');
+  }
+
+  window.deletarDemandaRevision = function(revId){
+    if(!confirm('Deletar esta revisão?')) return;
+    demandaRevisions = demandaRevisions.filter(r => r.id !== revId);
+    if(demandaAtiva?.id === revId) demandaAtiva = demandaRevisions.length ? demandaRevisions[0] : null;
+    salvar();
+    renderDemandaHistorico();
+    toast('Deletado', 'Revisão removida');
+  };
+
+  document.getElementById('btn-importar-demanda').addEventListener('click', () => {
+    const fileInput = document.getElementById('demanda-file-input');
+    const file = fileInput.files[0];
+    if(!file) return toast('Erro', 'Selecione um arquivo', 'error');
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type: 'array'});
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+        if(!jsonData.length) return toast('Erro', 'Nenhum dado encontrado na planilha', 'error');
+
+        const dataHora = formatarDataHora();
+        const nomeArquivo = file.name;
+        const revId = 'demanda_' + dataHora.completo;
+
+        const revision = {
+          id: revId,
+          nomeArquivo: nomeArquivo,
+          dataHora: dataHora.completo,
+          linhas: jsonData.length,
+          dados: jsonData,
+          importadoEm: new Date().toISOString()
+        };
+
+        demandaRevisions.unshift(revision);
+        demandaAtiva = revision;
+        salvar();
+
+        renderDemandaHistorico();
+        mostrarDemandaPreview(jsonData);
+        fileInput.value = '';
+
+        toast('Sucesso', `${jsonData.length} linhas importadas de ${file.name}`);
+      } catch(err) {
+        console.error('Erro ao processar arquivo:', err);
+        toast('Erro', 'Falha ao ler arquivo Excel: ' + err.message, 'error');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  });
+
+  function mostrarDemandaPreview(dados){
+    const preview = document.getElementById('demanda-preview');
+    if(!dados.length) {
+      preview.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted)">Nenhum dado</div>';
+      return;
+    }
+
+    const colunas = Object.keys(dados[0]);
+    let html = '<table class="table"><thead><tr>';
+    colunas.slice(0, 5).forEach(col => html += `<th>${col}</th>`);
+    html += '</tr></thead><tbody>';
+    dados.slice(0, 10).forEach(row => {
+      html += '<tr>';
+      colunas.slice(0, 5).forEach(col => html += `<td>${row[col] || '—'}</td>`);
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    if(dados.length > 10) html += `<div style="padding:12px;text-align:center;font-size:12px;color:var(--text-muted)">+${dados.length - 10} linhas</div>`;
+    preview.innerHTML = html;
+  }
+
   // ===== NAVEGAÇÃO =====
   const items = document.querySelectorAll('.nav-item');
   const pages = document.querySelectorAll('.page');
@@ -638,6 +783,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       document.querySelector('.content').scrollTo({top:0,behavior:'smooth'});
 
       if (id === 'dashboard') { renderRequisicoes(); atualizarKPIs(); }
+      if (id === 'demanda') renderDemandaHistorico();
       if (id === 'requisicoes') renderRequisicoesFull();
       if (id === 'fornecedores') renderFornecedores();
       if (id === 'cotacoes') atualizarSelectProcesso();
@@ -821,6 +967,13 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     else return { nivel: 'ALTO', classe: 'risk-high', cor: '#ef4444' };
   }
 
+  function extrairDepartamentosPrograma(){
+    if(!demandaAtiva || !demandaAtiva.dados) return { departamentos: [], programas: new Set() };
+    const departamentos = [...new Set(demandaAtiva.dados.map(d => d.Departamento || d.DEPARTAMENTO || d.departamento).filter(Boolean))];
+    const programas = new Set(demandaAtiva.dados.map(d => d.Programa || d.PROGRAMA || d.programa).filter(Boolean));
+    return { departamentos, programas: Array.from(programas) };
+  }
+
   function renderApresentacao(processoId){
     const apresContent = document.getElementById('apres-content');
     if(!apresContent) return;
@@ -833,6 +986,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     const processo = state.requisicoes.find(r => r.id == processoId);
     const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
     const risco = obterStatusRisco(processoId);
+    const { departamentos, programas } = extrairDepartamentosPrograma();
 
     let orçado = 0, proposto = 0;
     cotProc.forEach(c => { orçado += (c.qtd * c.vunit); });
@@ -871,6 +1025,27 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         <span style="color:var(--text-muted);font-size:14px">Nível de risco da contratação baseado na aprovação técnica dos itens</span>
       </div>
     </div>
+
+    ${demandaAtiva ? `<div class="card">
+      <div class="card-title" style="margin-bottom:16px">Departamentos e Programas Atendidos</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <div style="font-weight:600;color:var(--ambar-orange);margin-bottom:10px;font-size:12px;text-transform:uppercase">Departamentos</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${departamentos.length ? departamentos.map(d => `<span class="badge badge-info">${d}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhum departamento mapeado</span>'}
+          </div>
+        </div>
+        <div>
+          <div style="font-weight:600;color:var(--ambar-orange);margin-bottom:10px;font-size:12px;text-transform:uppercase">Programas Orçamentários</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${programas.length ? programas.map(p => `<span class="badge badge-violet">${p}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhum programa mapeado</span>'}
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color);font-size:11px;color:var(--text-muted)">
+        📄 Demanda importada: <b>${demandaAtiva.nomeArquivo}</b> em ${demandaAtiva.dataHora}
+      </div>
+    </div>` : ''}
 
     <div class="card">
       <div class="card-title" style="margin-bottom:16px">Parâmetros Globais</div>
