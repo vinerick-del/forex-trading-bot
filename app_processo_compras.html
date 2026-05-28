@@ -751,6 +751,13 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     document.getElementById('tabela-cotacoes').innerHTML='<tr><td colspan="13" class="empty">Limpo</td></tr>'; document.getElementById('cot-textarea').value='';
   });
 
+  // =========================================================================
+  // VARIÁVEIS GLOBAIS DA MATRIZ DE EQUALIZAÇÃO
+  // =========================================================================
+  let itensPorCod = {}; // Estrutura de fácil acesso
+  let fornecedoresList = [];
+  let colVis = { tecnico: true, vOriginal: false, totalItem: false }; // Layout interno do card
+
   function atualizarSelectAnalise(){
     const sel = document.getElementById('ana-item');
     sel.innerHTML = '<option value="">Selecione…</option>' + state.cotacoes.map(c => `<option value="${c.id}">${c.codigo} — ${c.descricao} (${c.fornecedor})</option>`).join('');
@@ -793,6 +800,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     const difal = (icmsOrigem - icmsDestino) / (1 + icmsDestino);
     return precoBase * (1 + difal);
   }
+
+  function obterStatusRisco(processoId){
     const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
     let totalAprovado = 0, totalReprovado = 0, totalPendente = 0;
     cotProc.forEach(c => {
@@ -899,10 +908,6 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   // =========================================================================
   // NOVA LÓGICA DA MATRIZ DE EQUALIZAÇÃO (SMART UI)
   // =========================================================================
-
-  let itensPorCod = {}; // Estrutura de fácil acesso
-  let fornecedoresList = [];
-  let colVis = { tecnico: true, vOriginal: false, totalItem: false }; // Layout interno do card
 
   function carregarLayoutSalvo(){ const l = localStorage.getItem('cp_layout_cards'); if(l) colVis = JSON.parse(l); }
   
