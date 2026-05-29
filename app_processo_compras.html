@@ -1534,6 +1534,21 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   let fornecedoresList = [];
   let colVis = { tecnico: true, vOriginal: false, totalItem: false }; // Layout interno do card
 
+  // Função helper para popular itensPorCod e fornecedoresList para um processo específico
+  function populateItemsForProcess(processoId) {
+    const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
+    fornecedoresList = [...new Set(cotProc.map(c => c.fornecedor))];
+
+    itensPorCod = {};
+    cotProc.forEach(c => {
+      if(!itensPorCod[c.codigo]) itensPorCod[c.codigo] = { desc:c.descricao, qtd:c.qtd, un:c.unidade, cotacoes:{} };
+      if(!itensPorCod[c.codigo].cotacoes[c.fornecedor]) itensPorCod[c.codigo].cotacoes[c.fornecedor] = [];
+      itensPorCod[c.codigo].cotacoes[c.fornecedor].push(c);
+    });
+
+    return { fornecedoresList, itensPorCod };
+  }
+
   function atualizarSelectAnalise(){
     const sel = document.getElementById('ana-item');
     sel.innerHTML = '<option value="">Selecione…</option>' + state.cotacoes.map(c => `<option value="${c.id}">${c.codigo} — ${c.descricao} (${c.fornecedor})</option>`).join('');
@@ -1640,6 +1655,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       apresContent.innerHTML = '<div class="card"><div style="text-align:center;padding:40px;color:var(--text-muted)"><i class="lucide lucide-mouse-pointer-click" style="font-size:2rem;margin-bottom:8px;display:block"></i> Selecione um processo</div></div>';
       return;
     }
+
+    populateItemsForProcess(processoId);
 
     const processo = state.requisicoes.find(r => r.id == processoId);
     const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
@@ -2121,7 +2138,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     if(!processoId) return;
     const processo = state.requisicoes.find(r => r.id == processoId);
     const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
-    fornecedoresList = [...new Set(cotProc.map(c => c.fornecedor))]; // Array único de nomes
+
+    populateItemsForProcess(processoId);
 
     document.getElementById('eq-processo').textContent = processo.numero;
     document.getElementById('eq-fornecedores').textContent = fornecedoresList.length + ' fornecedores';
@@ -2130,14 +2148,6 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       document.getElementById('eq-tabela-container').innerHTML = '<div class="empty"><i class="lucide lucide-inbox"></i> Nenhuma cotação para este processo</div>';
       return;
     }
-
-    // 1. Organizar os dados
-    itensPorCod = {};
-    cotProc.forEach(c => {
-      if(!itensPorCod[c.codigo]) itensPorCod[c.codigo] = { desc:c.descricao, qtd:c.qtd, un:c.unidade, cotacoes:{} };
-      if(!itensPorCod[c.codigo].cotacoes[c.fornecedor]) itensPorCod[c.codigo].cotacoes[c.fornecedor] = [];
-      itensPorCod[c.codigo].cotacoes[c.fornecedor].push(c); // Pode ter várias rodadas, salva array
-    });
 
     // Encontrar o menor preço VÁLIDO (com DIFAL) por item para calcular o % delta
     const minPrecos = {};
