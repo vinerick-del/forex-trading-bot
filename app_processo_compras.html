@@ -335,6 +335,10 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         <div class="nav-item" data-page="fornecedores"><i class="lucide lucide-building-2"></i><span>Fornecedores</span></div>
       </div>
       <div class="nav-section">
+        <div class="nav-label">Planejamento</div>
+        <div class="nav-item" data-page="planejamento"><i class="lucide lucide-package"></i><span>Planej. Materiais</span></div>
+      </div>
+      <div class="nav-section">
         <div class="nav-label">Processo Técnico</div>
         <div class="nav-item" data-page="cotacoes"><i class="lucide lucide-file-text"></i><span>Cotações</span></div>
         <div class="nav-item" data-page="analise"><i class="lucide lucide-circle-check"></i><span>Análise Técnica</span></div>
@@ -480,6 +484,89 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           <div class="card">
             <div class="card-head"><div class="card-title">Cadastrados</div></div>
             <div class="table-wrap"><table class="table" style="font-size:12px"><thead><tr><th>Nome</th><th>CNPJ</th><th>UF</th><th>Classificação</th><th>E-mail</th><th style="text-align:center">Ações</th></tr></thead><tbody id="tabela-fornecedores"><tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Vazio</div></td></tr></tbody></table></div>
+          </div>
+        </section>
+
+        <!-- PLANEJAMENTO DE MATERIAIS -->
+        <section class="page" id="planejamento">
+          <div class="page-head"><div><h1 class="page-title">Planejamento de Materiais</h1><p class="page-desc">Analise consumo real vs demanda prevista para decisões de compra.</p></div></div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-title">1. Upload do Relatório de Consumo</div></div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="field">
+                <label>Selecionar arquivo MB51 (CSV)</label>
+                <input type="file" id="plan-upload-csv" class="input" accept=".csv" style="cursor:pointer">
+              </div>
+              <div style="font-size:var(--fs-sm);color:var(--text-muted);padding:12px;background:var(--bg-app);border-radius:var(--r-md)">
+                <b>Formato esperado:</b> CSV com colunas: Material, Qtd. UM registro, Montante em MI, Departamento, Mês<br/>
+                <b>Período:</b> Jan-Mai/2026 (consumo real)
+              </div>
+              <button class="btn btn-primary" id="btn-processar-consumo"><i class="lucide lucide-upload"></i> Processar CSV</button>
+            </div>
+          </div>
+
+          <div class="card" id="plan-analise-section" style="display:none">
+            <div class="card-head"><div class="card-title">2. Análise de Consumo Real</div><div style="display:flex;gap:8px"><button class="btn btn-secondary btn-sm" id="btn-plan-exportar"><i class="lucide lucide-download"></i> Exportar</button></div></div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
+              <div class="kpi info">
+                <div class="kpi-top"><span class="kpi-label">Materiais Consumidos</span><div class="kpi-icon"><i class="lucide lucide-package"></i></div></div>
+                <div class="kpi-value" id="plan-kpi-materiais">0</div>
+              </div>
+              <div class="kpi success">
+                <div class="kpi-top"><span class="kpi-label">Valor Total Consumido</span><div class="kpi-icon"><i class="lucide lucide-trending-up"></i></div></div>
+                <div class="kpi-value" id="plan-kpi-valor">R$ 0,00</div>
+              </div>
+              <div class="kpi warning">
+                <div class="kpi-top"><span class="kpi-label">Departamentos Ativos</span><div class="kpi-icon"><i class="lucide lucide-users"></i></div></div>
+                <div class="kpi-value" id="plan-kpi-deps">0</div>
+              </div>
+            </div>
+
+            <div class="table-wrap" style="margin-bottom:24px">
+              <table class="table" style="font-size:12px">
+                <thead>
+                  <tr>
+                    <th>Material</th>
+                    <th>Descrição</th>
+                    <th>Jan</th>
+                    <th>Fev</th>
+                    <th>Mar</th>
+                    <th>Abr</th>
+                    <th>Mai</th>
+                    <th>Total (Qtd)</th>
+                    <th>Total (Valor)</th>
+                    <th>Taxa Mensal</th>
+                    <th>Departamentos</th>
+                  </tr>
+                </thead>
+                <tbody id="plan-tabela-materiais">
+                  <tr><td colspan="11"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhum dado carregado</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="table-wrap">
+              <table class="table" style="font-size:12px">
+                <thead>
+                  <tr>
+                    <th>Departamento</th>
+                    <th>Jan</th>
+                    <th>Fev</th>
+                    <th>Mar</th>
+                    <th>Abr</th>
+                    <th>Mai</th>
+                    <th>Total</th>
+                    <th>% do Total</th>
+                    <th>Materiais Uniq.</th>
+                  </tr>
+                </thead>
+                <tbody id="plan-tabela-departamentos">
+                  <tr><td colspan="9"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhum dado carregado</div></td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -3062,6 +3149,163 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     closeModal('modal-designar-comprador');
     toast('Sucesso', `Comprador designado para ${req.numero}`, 'success');
   });
+
+  // =========================================================================
+  // PLANEJAMENTO DE MATERIAIS
+  // =========================================================================
+  let consumoData = {};
+  let consumoMeses = { '01': [], '02': [], '03': [], '04': [], '05': [] };
+
+  window.processarConsumoCSV = function() {
+    const file = document.getElementById('plan-upload-csv').files[0];
+    if(!file) return toast('Erro', 'Selecione um arquivo CSV', 'error');
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const csv = e.target.result;
+        const linhas = csv.split('\n').filter(l => l.trim());
+
+        if(linhas.length < 2) return toast('Erro', 'CSV vazio ou inválido', 'error');
+
+        const headers = linhas[0].split(';').map(h => h.trim().toLowerCase());
+        const idxMaterial = headers.findIndex(h => h.includes('material') && !h.includes('doc'));
+        const idxQtd = headers.findIndex(h => h.includes('qtd') && h.includes('um'));
+        const idxValor = headers.findIndex(h => h.includes('montante') || h.includes('valor'));
+        const idxDep = headers.findIndex(h => h.includes('departamento'));
+        const idxMes = headers.findIndex(h => h === 'mês' || h.includes('mês'));
+        const idxDesc = headers.findIndex(h => h.includes('texto breve') || h.includes('descrição'));
+
+        if(idxMaterial === -1 || idxQtd === -1 || idxValor === -1 || idxDep === -1 || idxMes === -1) {
+          return toast('Erro', 'Colunas esperadas não encontradas', 'error');
+        }
+
+        consumoData = {};
+        consumoMeses = { '01': [], '02': [], '03': [], '04': [], '05': [] };
+
+        for(let i = 1; i < linhas.length; i++) {
+          const cols = linhas[i].split(';').map(c => c.trim());
+          const cod = cols[idxMaterial];
+          const qtd = parseFloat(cols[idxQtd]?.replace(/[^\d,.]/g, '').replace(',', '.')) || 0;
+          const val = parseFloat(cols[idxValor]?.replace(/[^\d,.]/g, '').replace(',', '.')) || 0;
+          const dep = cols[idxDep] || 'Sem Depto';
+          const mesStr = cols[idxMes];
+          const desc = cols[idxDesc] || 'Sem descrição';
+
+          // Extrair mês (DD/MM/YYYY ou MM)
+          let mes = '00';
+          if(mesStr?.includes('/')) {
+            const parts = mesStr.split('/');
+            mes = parts[1] || '00';
+          } else if(mesStr?.length === 2) {
+            mes = mesStr;
+          }
+
+          if(!consumoData[cod]) {
+            consumoData[cod] = {
+              desc: desc,
+              meses: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
+              valoresMeses: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
+              deps: new Set(),
+              totalQtd: 0,
+              totalVal: 0
+            };
+          }
+
+          if(consumoData[cod].meses[mes] !== undefined) {
+            consumoData[cod].meses[mes] += qtd;
+            consumoData[cod].valoresMeses[mes] += val;
+          }
+          consumoData[cod].deps.add(dep);
+          consumoData[cod].totalQtd += qtd;
+          consumoData[cod].totalVal += val;
+        }
+
+        renderizarAnaliseConsumo();
+        document.getElementById('plan-analise-section').style.display = 'block';
+        toast('Sucesso', `${Object.keys(consumoData).length} materiais carregados`, 'success');
+      } catch(err) {
+        console.error(err);
+        toast('Erro', 'Falha ao processar CSV: ' + err.message, 'error');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  function renderizarAnaliseConsumo() {
+    const materiais = Object.keys(consumoData);
+    const deps = new Set();
+    let totalVal = 0;
+
+    materiais.forEach(cod => {
+      consumoData[cod].deps.forEach(d => deps.add(d));
+      totalVal += consumoData[cod].totalVal;
+    });
+
+    document.getElementById('plan-kpi-materiais').textContent = materiais.length;
+    document.getElementById('plan-kpi-valor').textContent = fmtBRL(totalVal);
+    document.getElementById('plan-kpi-deps').textContent = deps.size;
+
+    // Renderizar tabela de materiais
+    const tbMat = document.getElementById('plan-tabela-materiais');
+    if(materiais.length === 0) {
+      tbMat.innerHTML = '<tr><td colspan="11"><div class="empty">Nenhum dado</div></td></tr>';
+    } else {
+      tbMat.innerHTML = materiais.map(cod => {
+        const m = consumoData[cod];
+        const taxaMensal = m.totalQtd / 5;
+        const meses = ['01', '02', '03', '04', '05'];
+        const celsMeses = meses.map(mes => `<td style="text-align:center">${m.meses[mes] || 0}</td>`).join('');
+        return `<tr>
+          <td><b>${cod}</b></td>
+          <td style="font-size:11px">${m.desc.substring(0, 40)}</td>
+          ${celsMeses}
+          <td style="text-align:center"><b>${m.totalQtd}</b></td>
+          <td style="text-align:right">${fmtBRL(m.totalVal)}</td>
+          <td style="text-align:center">${taxaMensal.toFixed(1)}</td>
+          <td style="font-size:11px">${Array.from(m.deps).join(', ')}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // Renderizar tabela de departamentos
+    const depMap = {};
+    materiais.forEach(cod => {
+      const m = consumoData[cod];
+      m.deps.forEach(dep => {
+        if(!depMap[dep]) {
+          depMap[dep] = { meses: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 }, total: 0, materiais: new Set() };
+        }
+        ['01', '02', '03', '04', '05'].forEach(mes => {
+          depMap[dep].meses[mes] += m.valoresMeses[mes];
+        });
+        depMap[dep].total += m.totalVal;
+        depMap[dep].materiais.add(cod);
+      });
+    });
+
+    const tbDep = document.getElementById('plan-tabela-departamentos');
+    const deps_arr = Object.keys(depMap);
+    if(deps_arr.length === 0) {
+      tbDep.innerHTML = '<tr><td colspan="9"><div class="empty">Nenhum dado</div></td></tr>';
+    } else {
+      tbDep.innerHTML = deps_arr.map(dep => {
+        const d = depMap[dep];
+        const pct = totalVal > 0 ? ((d.total / totalVal) * 100).toFixed(1) : 0;
+        const meses = ['01', '02', '03', '04', '05'];
+        const celsMeses = meses.map(mes => `<td style="text-align:right">${fmtBRL(d.meses[mes])}</td>`).join('');
+        return `<tr>
+          <td><b>${dep}</b></td>
+          ${celsMeses}
+          <td style="text-align:right;font-weight:600">${fmtBRL(d.total)}</td>
+          <td style="text-align:center"><span class="badge badge-info">${pct}%</span></td>
+          <td style="text-align:center">${d.materiais.size}</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  document.getElementById('btn-processar-consumo').addEventListener('click', processarConsumoCSV);
 
   // Inicialização
   setTimeout(() => { carregarLayoutSalvo(); renderRequisicoes(); atualizarKPIs(); }, 100);
