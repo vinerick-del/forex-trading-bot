@@ -3317,32 +3317,72 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       const dadosDemanda = demandaDadosCompletos[demandaAtiva.id];
       console.log('📊 Demanda ativa encontrada:', demandaAtiva.nomeArquivo, `(${dadosDemanda.length} registros)`);
 
-      // Mapa para rastrear código|depto -> quantidade
+      // Detectar colunas uma única vez (antes do loop)
+      let colCod, colDepto, colQtd, colMes;
+      if(dadosDemanda.length > 0) {
+        const firstRow = dadosDemanda[0];
+        const keys = Object.keys(firstRow);
+
+        // Usar normalização para matching robusto
+        colCod = keys.find(k => {
+          const kNorm = k.normalize('NFD').toUpperCase();
+          return kNorm.includes('CÓDIGO') || kNorm.includes('MATERIAL') || kNorm.includes('CODE');
+        });
+        colDepto = keys.find(k => {
+          const kNorm = k.normalize('NFD').toUpperCase();
+          return kNorm.includes('DEPARTAMENTO');
+        });
+        colQtd = keys.find(k => {
+          const kNorm = k.normalize('NFD').toUpperCase();
+          return kNorm.includes('QTD') || kNorm.includes('QUANTIDADE');
+        });
+        colMes = keys.find(k => {
+          const kNorm = k.normalize('NFD').toUpperCase();
+          return kNorm.includes('MÊS') || kNorm.includes('MES') || kNorm.includes('MONTH');
+        });
+
+        console.log('📋 Colunas detectadas:', { colCod, colDepto, colQtd, colMes });
+      }
+
+      // Mapa para rastrear código|depto|mes -> quantidade
       const planejadoMap = {};
 
       dadosDemanda.forEach(row => {
-        const colCod = Object.keys(row).find(k => k.toUpperCase().includes('CÓDIGO') || k.toUpperCase().includes('MATERIAL'));
-        const colDepto = Object.keys(row).find(k => k.includes('DEPARTAMENTO'));
-        const colQtd = Object.keys(row).find(k => k.toUpperCase().includes('QTD'));
-
         const cod = colCod ? (row[colCod] || '') : '';
         const depto = colDepto ? (row[colDepto] || 'Sem Depto') : 'Sem Depto';
         const qtd = colQtd ? (parseFloat(row[colQtd]) || 0) : 0;
+        let mes = '06'; // Default ao próximo período (junho)
+
+        if(colMes) {
+          const mesStr = row[colMes] || '';
+          if(mesStr.includes('/')) {
+            // Formato: DD/MM/YYYY ou MM/DD/YYYY
+            const parts = mesStr.split('/');
+            mes = (parts[1] || '06').padStart(2, '0');
+          } else if(mesStr.length === 2) {
+            mes = mesStr;
+          } else if(mesStr.length === 10) {
+            // Formato YYYY-MM-DD
+            mes = mesStr.substring(5, 7);
+          }
+        }
 
         if(!cod || !isDeptoValido(depto)) return;
 
-        const chave = `${cod}|${depto}`;
+        const chave = `${cod}|${depto}|${mes}`;
         if(!planejadoMap[chave]) planejadoMap[chave] = 0;
         planejadoMap[chave] += qtd;
         qtdPlanejadoEncontrados++;
       });
 
-      console.log('✓ Registros de planejado encontrados:', qtdPlanejadoEncontrados);
+      console.log('✓ Registros de planejado encontrados:', qtdPlanejadoEncontrados, 'de', dadosDemanda.length);
 
       // 3. Distribuir planejado por departamento e mês
-      // Apenas para meses anteriores (jan-mai) - para meses futuros distribuir uniformemente
       Object.keys(planejadoMap).forEach(chave => {
-        const [cod, depto] = chave.split('|');
+        const parts = chave.split('|');
+        const cod = parts[0];
+        const depto = parts[1];
+        const mes = parts[2] || '06';
         const qtdPlan = planejadoMap[chave];
 
         if(!depMap[depto]) {
@@ -3354,10 +3394,10 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           };
         }
 
-        // Distribuir entre todos os 12 meses (planejado)
-        meses.forEach(mes => {
-          depMap[depto].meses[mes].plan += qtdPlan / 12;
-        });
+        // Adicionar quantidade ao mês específico
+        if(depMap[depto].meses[mes]) {
+          depMap[depto].meses[mes].plan += qtdPlan;
+        }
       });
     }
 
@@ -3427,12 +3467,72 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   });
 
   window.abrirDetalhesDepto = function(depto) {
+    currentModalDepto = depto;
     document.getElementById('modal-plan-depto').textContent = depto;
 
-    const meses = ['01', '02', '03', '04', '05'];
-    const mesNomes = ['jan', 'fev', 'mar', 'abr', 'mai'];
-    const modalPorQtd = true;
+    // Reset to quantity mode
+    planModoPorQtd = true;
+    document.getElementById('modal-plan-qtd').style.background = 'var(--ambar-orange)';
+    document.getElementById('modal-plan-qtd').style.color = '#fff';
+    document.getElementById('modal-plan-val').style.background = '#ffffff';
+    document.getElementById('modal-plan-val').style.color = 'var(--text-main)';
 
+    renderizarModalMateriais();
+    document.getElementById('modal-plan-detalhes').style.display = 'grid';
+  };
+
+  let currentModalDepto = null;
+
+  function closePlanModal() {
+    document.getElementById('modal-plan-detalhes').style.display = 'none';
+  };
+
+  function renderizarModalMateriais() {
+    if(!currentModalDepto) return;
+    const depto = currentModalDepto;
+
+    // Construir mapa de planned por código|depto|mes a partir da demanda
+    const planejadoDetalhes = {};
+    if(demandaAtiva && demandaDadosCompletos[demandaAtiva.id]) {
+      const dadosDemanda = demandaDadosCompletos[demandaAtiva.id];
+      const firstRow = dadosDemanda[0];
+      const keys = Object.keys(firstRow);
+
+      const colCod = keys.find(k => {
+        const kNorm = k.normalize('NFD').toUpperCase();
+        return kNorm.includes('CÓDIGO') || kNorm.includes('MATERIAL');
+      });
+      const colDepto = keys.find(k => k.normalize('NFD').toUpperCase().includes('DEPARTAMENTO'));
+      const colQtd = keys.find(k => k.normalize('NFD').toUpperCase().includes('QTD'));
+      const colMes = keys.find(k => {
+        const kNorm = k.normalize('NFD').toUpperCase();
+        return kNorm.includes('MÊS') || kNorm.includes('MES');
+      });
+
+      dadosDemanda.forEach(row => {
+        const cod = colCod ? (row[colCod] || '') : '';
+        const rowDepto = colDepto ? (row[colDepto] || '') : '';
+        if(cod && rowDepto === depto) {
+          const qtd = colQtd ? (parseFloat(row[colQtd]) || 0) : 0;
+          let mes = '06';
+          if(colMes) {
+            const mesStr = row[colMes] || '';
+            if(mesStr.includes('/')) {
+              const parts = mesStr.split('/');
+              mes = (parts[1] || '06').padStart(2, '0');
+            } else if(mesStr.length === 2) {
+              mes = mesStr;
+            }
+          }
+
+          const chave = `${cod}|${mes}`;
+          if(!planejadoDetalhes[chave]) planejadoDetalhes[chave] = 0;
+          planejadoDetalhes[chave] += qtd;
+        }
+      });
+    }
+
+    const meses = ['01', '02', '03', '04', '05'];
     const materiais = Object.keys(consumoData).filter(cod => {
       const m = consumoData[cod];
       return Array.from(m.deps).includes(depto);
@@ -3445,13 +3545,13 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       tb.innerHTML = materiais.map(cod => {
         const m = consumoData[cod];
         const mesesCels = meses.map(mes => {
-          const realVal = modalPorQtd ? (m.meses[mes] || 0) : (m.valoresMeses[mes] || 0);
-          const planVal = 0; // Será calculado da demanda
+          const realVal = planModoPorQtd ? (m.meses[mes] || 0) : (m.valoresMeses[mes] || 0);
+          const planVal = planejadoDetalhes[`${cod}|${mes}`] || 0;
 
-          if(modalPorQtd) {
-            return `<td style="text-align:center">${Math.round(realVal)}</td><td style="text-align:center">-</td>`;
+          if(planModoPorQtd) {
+            return `<td style="text-align:center">${Math.round(realVal)}</td><td style="text-align:center">${planVal > 0 ? Math.round(planVal) : '-'}</td>`;
           } else {
-            return `<td style="text-align:right">${fmtBRL(realVal)}</td><td style="text-align:right">-</td>`;
+            return `<td style="text-align:right">${realVal > 0 ? fmtBRL(realVal) : '-'}</td><td style="text-align:right">${planVal > 0 ? fmtBRL(planVal) : '-'}</td>`;
           }
         }).join('');
 
@@ -3462,34 +3562,24 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         </tr>`;
       }).join('');
     }
-
-    // Reset to quantity mode
-    document.getElementById('modal-plan-qtd').style.background = 'var(--ambar-orange)';
-    document.getElementById('modal-plan-qtd').style.color = '#fff';
-    document.getElementById('modal-plan-val').style.background = '#ffffff';
-    document.getElementById('modal-plan-val').style.color = 'var(--text-main)';
-
-    document.getElementById('modal-plan-detalhes').style.display = 'grid';
-  };
-
-  function closePlanModal() {
-    document.getElementById('modal-plan-detalhes').style.display = 'none';
-  };
+  }
 
   document.getElementById('modal-plan-qtd')?.addEventListener('click', function() {
+    planModoPorQtd = true;
     this.style.background = 'var(--ambar-orange)';
     this.style.color = '#fff';
     document.getElementById('modal-plan-val').style.background = '#ffffff';
     document.getElementById('modal-plan-val').style.color = 'var(--text-main)';
-    // Renderizar modo quantidade
+    renderizarModalMateriais();
   });
 
   document.getElementById('modal-plan-val')?.addEventListener('click', function() {
+    planModoPorQtd = false;
     this.style.background = 'var(--ambar-orange)';
     this.style.color = '#fff';
     document.getElementById('modal-plan-qtd').style.background = '#ffffff';
     document.getElementById('modal-plan-qtd').style.color = 'var(--text-main)';
-    // Renderizar modo valor
+    renderizarModalMateriais();
   });
 
   document.getElementById('modal-plan-detalhes')?.addEventListener('click', function(e) {
