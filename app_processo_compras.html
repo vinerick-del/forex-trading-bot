@@ -1677,29 +1677,14 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     </div>
 
     ${(() => {
-      // Extrair departamentos/programas da COMPRA (itens selecionados do processo)
-      const deptosDaCompra = new Set();
-      const progsDaCompra = new Set();
+      // Se houver demanda ativa, usar seus departamentos/programas
+      let depList = [];
+      let progList = [];
 
-      Object.keys(itensPorCod).forEach(cod => {
-        const g = ganhadores[cod];
-        if(g) {
-          // Buscar na demanda qual dept/prog esse código tem
-          const dados = demandaDadosCompletos[demandaAtiva?.id] || [];
-          dados.forEach(row => {
-            const rowCod = row['CÓDIGO'] || row['Código'] || row['codigo'] || '';
-            if(rowCod === cod) {
-              const depto = Object.keys(row).find(k => k.includes('DEPARTAMENTO')) ? row[Object.keys(row).find(k => k.includes('DEPARTAMENTO'))] : '';
-              const prog = Object.keys(row).find(k => k.includes('PROGRAMA')) ? row[Object.keys(row).find(k => k.includes('PROGRAMA'))] : '';
-              if(depto) deptosDaCompra.add(depto);
-              if(prog) progsDaCompra.add(prog);
-            }
-          });
-        }
-      });
-
-      const depList = Array.from(deptosDaCompra).sort();
-      const progList = Array.from(progsDaCompra).sort();
+      if(demandaAtiva && typeof demandaAtiva === 'object' && demandaAtiva.departamentos) {
+        depList = demandaAtiva.departamentos || [];
+        progList = demandaAtiva.programas || [];
+      }
 
       return `<div class="card">
         <div class="card-title" style="margin-bottom:16px">Departamentos e Programas Atendidos nesta Compra</div>
@@ -1707,7 +1692,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           <div>
             <div style="font-weight:600;color:var(--ambar-orange);margin-bottom:10px;font-size:12px;text-transform:uppercase">Departamentos (${depList.length})</div>
             <div style="display:flex;flex-direction:column;gap:6px">
-              ${depList.length ? depList.map(d => `<span style="background:var(--info-bg);color:var(--info);padding:6px 10px;border-radius:var(--r-md);font-size:12px;font-weight:500">${d}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhum departamento</span>'}
+              ${depList.length ? depList.map(d => `<span style="background:var(--info-bg);color:var(--info);padding:6px 10px;border-radius:var(--r-md);font-size:12px;font-weight:500">${d}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhuma demanda ativa</span>'}
             </div>
           </div>
           <div>
@@ -1717,10 +1702,80 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
             </div>
           </div>
         </div>
-        ${demandaAtiva ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color);font-size:11px;color:var(--text-muted)">
+        ${demandaAtiva && typeof demandaAtiva === 'object' ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color);font-size:11px;color:var(--text-muted)">
           📄 Demanda: <b>${demandaAtiva.nomeArquivo}</b> | ${demandaAtiva.linhas.toLocaleString('pt-BR')} registros | ${demandaAtiva.departamentos?.length || 0} deptos | ${demandaAtiva.programas?.length || 0} programas
-        </div>` : ''}
+        </div>` : '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color);font-size:11px;color:var(--text-muted)">⚠️ Nenhuma demanda ativa importada</div>'}
       </div>`;
+    })()}
+
+    ${(() => {
+      // ANÁLISE DE MATERIAIS DA DEMANDA
+      if(!demandaAtiva || typeof demandaAtiva !== 'object') {
+        return '';
+      }
+
+      const consumoPorDepto = demandaAtiva.consumoPorDepto || {};
+      const consumoPorProg = demandaAtiva.consumoPorProg || {};
+
+      const totalMateriais = demandaAtiva.linhas || 0;
+      const totalDeptos = demandaAtiva.departamentos?.length || 0;
+      const totalProgs = demandaAtiva.programas?.length || 0;
+
+      // Top 3 departamentos por consumo
+      const topDeptos = Object.entries(consumoPorDepto)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
+
+      // Top 3 programas por consumo
+      const topProgs = Object.entries(consumoPorProg)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
+
+      return `<div class="card">
+        <div class="card-title" style="margin-bottom:16px">Análise de Materiais da Demanda</div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px">
+          <div style="background:var(--bg-app);border-radius:var(--r-md);padding:16px;text-align:center">
+            <div style="font-size:24px;font-weight:700;color:var(--ambar-orange)">${totalMateriais.toLocaleString('pt-BR')}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:8px">Materiais</div>
+          </div>
+          <div style="background:var(--bg-app);border-radius:var(--r-md);padding:16px;text-align:center">
+            <div style="font-size:24px;font-weight:700;color:var(--info)">${totalDeptos}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:8px">Departamentos</div>
+          </div>
+          <div style="background:var(--bg-app);border-radius:var(--r-md);padding:16px;text-align:center">
+            <div style="font-size:24px;font-weight:700;color:var(--warning)">${totalProgs}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:8px">Programas</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div>
+            <div style="font-weight:600;color:var(--info);margin-bottom:12px;font-size:12px;text-transform:uppercase">Top Departamentos</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              ${topDeptos.length ? topDeptos.map(([depto, qtd]) => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--info-bg);border-radius:var(--r-md);font-size:12px">
+                  <span style="color:var(--info);font-weight:500">${depto}</span>
+                  <span style="color:var(--info);font-weight:700">${qtd.toLocaleString('pt-BR')}</span>
+                </div>
+              `).join('') : '<span style="color:var(--text-muted);font-size:12px">Sem dados</span>'}
+            </div>
+          </div>
+          <div>
+            <div style="font-weight:600;color:var(--warning);margin-bottom:12px;font-size:12px;text-transform:uppercase">Top Programas</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              ${topProgs.length ? topProgs.map(([prog, qtd]) => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--warning-bg);border-radius:var(--r-md);font-size:12px">
+                  <span style="color:var(--warning);font-weight:500">${prog}</span>
+                  <span style="color:var(--warning);font-weight:700">${qtd.toLocaleString('pt-BR')}</span>
+                </div>
+              `).join('') : '<span style="color:var(--text-muted);font-size:12px">Sem dados</span>'}
+            </div>
+          </div>
+        </div>
+      </div>`;
+    })()}
+
     })()}
 
     <div class="card">
