@@ -3168,14 +3168,13 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
         if(linhas.length < 2) return toast('Erro', 'CSV vazio ou inválido', 'error');
 
-        const headers = linhas[0].split(';').map(h => h.trim().toLowerCase());
+        const headers = linhas[0].split(';').map(h => h.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''));
         const idxMaterial = headers.findIndex(h => h.includes('material') && !h.includes('doc'));
         const idxQtd = headers.findIndex(h => h.includes('qtd') && h.includes('um'));
         const idxValor = headers.findIndex(h => h.includes('montante') || h.includes('valor'));
         const idxDep = headers.findIndex(h => h.includes('departamento'));
-        const idxMesData = headers.findIndex(h => h.includes('mês') && h.includes('data'));
-        const idxMes = idxMesData !== -1 ? idxMesData : headers.findIndex(h => h === 'mês' || (h.includes('mês') && !h.includes('data')));
-        const idxDesc = headers.findIndex(h => h.includes('texto breve') || h.includes('descrição'));
+        const idxMes = idxDep !== -1 ? idxDep + 2 : -1;
+        const idxDesc = headers.findIndex(h => h.includes('texto breve') || h.includes('descricao'));
 
         if(idxMaterial === -1 || idxQtd === -1 || idxValor === -1 || idxDep === -1 || idxMes === -1) {
           return toast('Erro', 'Colunas esperadas não encontradas', 'error');
