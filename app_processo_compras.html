@@ -3312,8 +3312,10 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     });
 
     // 2. Adicionar dados PLANEJADOS rastreando por código|departamento
+    let qtdPlanejadoEncontrados = 0;
     if(demandaAtiva && demandaDadosCompletos[demandaAtiva.id]) {
       const dadosDemanda = demandaDadosCompletos[demandaAtiva.id];
+      console.log('📊 Demanda ativa encontrada:', demandaAtiva.nomeArquivo, `(${dadosDemanda.length} registros)`);
 
       // Mapa para rastrear código|depto -> quantidade
       const planejadoMap = {};
@@ -3332,7 +3334,10 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         const chave = `${cod}|${depto}`;
         if(!planejadoMap[chave]) planejadoMap[chave] = 0;
         planejadoMap[chave] += qtd;
+        qtdPlanejadoEncontrados++;
       });
+
+      console.log('✓ Registros de planejado encontrados:', qtdPlanejadoEncontrados);
 
       // 3. Distribuir planejado por departamento e mês
       // Apenas para meses anteriores (jan-mai) - para meses futuros distribuir uniformemente
@@ -3363,6 +3368,14 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     if(deps_sorted.length === 0) {
       tb.innerHTML = '<tr><td colspan="19"><div class="empty">Nenhum dado carregado</div></td></tr>';
       return;
+    }
+
+    // Mostrar aviso se demanda não está carregada
+    if(!demandaAtiva || !demandaDadosCompletos[demandaAtiva?.id]) {
+      toast('⚠️ Aviso', 'Nenhuma demanda carregada - coloque dados em "Demanda Materiais" para ver o planejado', 'warning');
+      console.log('⚠️ ATENÇÃO: demandaAtiva =', demandaAtiva, 'demandaDadosCompletos =', Object.keys(demandaDadosCompletos));
+    } else if(qtdPlanejadoEncontrados === 0) {
+      toast('⚠️ Aviso', 'Demanda carregada mas nenhum item foi encontrado - verifique os códigos e departamentos', 'warning');
     }
 
     tb.innerHTML = deps_sorted.map(dep => {
