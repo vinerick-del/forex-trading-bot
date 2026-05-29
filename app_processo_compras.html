@@ -458,12 +458,15 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         <section class="page" id="fornecedores">
           <div class="page-head"><div><h1 class="page-title">Fornecedores</h1></div></div>
           <div class="card">
-            <div class="card-head"><div class="card-title">Novo fornecedor</div></div>
+            <div class="card-head"><div class="card-title" id="forn-form-title">Novo fornecedor</div></div>
             <div class="form-grid">
+              <input type="hidden" id="forn-id">
               <div class="field"><label>Classificação <span class="req">*</span></label><select class="select" id="forn-classif"><option value="">Selecione…</option><option>Fabricante</option><option>Distribuidor</option><option>Prestador</option></select></div>
               <div class="field"><label>Razão social / Nome <span class="req">*</span></label><input class="input" id="forn-nome"></div>
               <div class="field"><label>CNPJ <span class="req">*</span></label><input class="input" id="forn-cnpj"></div>
-              <div class="field"><label>E-mail <span class="req">*</span></label><input class="input" id="forn-email" type="email"></div>
+              <div class="field"><label>E-mail Principal <span class="req">*</span></label><input class="input" id="forn-email" type="email"></div>
+              <div class="field"><label>E-mail Adicional 1</label><input class="input" id="forn-email2" type="email" placeholder="(opcional)"></div>
+              <div class="field"><label>E-mail Adicional 2</label><input class="input" id="forn-email3" type="email" placeholder="(opcional)"></div>
               <div class="field"><label>Telefone</label><input class="input" id="forn-tel"></div>
               <div class="field"><label>UF <span class="req">*</span></label><select class="select" id="forn-uf"><option value="">--</option><option>SP</option><option>RJ</option><option>MG</option><option>RS</option><option>AM</option></select></div>
               <div class="field"><label>ICMS (%)</label><input class="input" id="forn-icms" type="number" step="0.01" value="18"></div>
@@ -474,7 +477,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           </div>
           <div class="card">
             <div class="card-head"><div class="card-title">Cadastrados</div></div>
-            <div class="table-wrap"><table class="table"><thead><tr><th>Nome</th><th>CNPJ</th><th>UF</th><th>Classificação</th><th>E-mail</th><th></th></tr></thead><tbody id="tabela-fornecedores"><tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Vazio</div></td></tr></tbody></table></div>
+            <div class="table-wrap"><table class="table" style="font-size:12px"><thead><tr><th>Nome</th><th>CNPJ</th><th>UF</th><th>Classificação</th><th>E-mail</th><th style="text-align:center">Ações</th></tr></thead><tbody id="tabela-fornecedores"><tr><td colspan="6"><div class="empty"><i class="lucide lucide-inbox"></i> Vazio</div></td></tr></tbody></table></div>
           </div>
         </section>
 
@@ -1233,17 +1236,113 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   window.deletarReq = (id) => { if(confirm('Excluir?')){ state.requisicoes = state.requisicoes.filter(r=>r.id!=id); salvar(); renderRequisicoesFull(); renderRequisicoes(); }};
 
   document.getElementById('btn-salvar-forn').addEventListener('click', () => {
-    const classif=document.getElementById('forn-classif').value, nome=document.getElementById('forn-nome').value.trim(), cnpj=document.getElementById('forn-cnpj').value.trim(), email=document.getElementById('forn-email').value.trim();
-    if(!classif||!nome||!cnpj||!email){ toast('Erro','Preencha obrigatórios','error'); return; }
-    state.fornecedores.push({id:Date.now(), classif, nome, cnpj, email, tel:document.getElementById('forn-tel').value, uf:document.getElementById('forn-uf').value, icms:parseFloat(document.getElementById('forn-icms').value)||18, ipi:parseFloat(document.getElementById('forn-ipi').value)||0, pis:parseFloat(document.getElementById('forn-pis').value)||0});
-    salvar(); toast('Sucesso','Fornecedor salvo'); renderFornecedores();
+    const id = document.getElementById('forn-id').value;
+    const classif = document.getElementById('forn-classif').value;
+    const nome = document.getElementById('forn-nome').value.trim();
+    const cnpj = document.getElementById('forn-cnpj').value.trim();
+    const email = document.getElementById('forn-email').value.trim();
+    const email2 = document.getElementById('forn-email2').value.trim();
+    const email3 = document.getElementById('forn-email3').value.trim();
+
+    if(!classif || !nome || !cnpj || !email) {
+      toast('Erro', 'Preencha os obrigatórios', 'error');
+      return;
+    }
+
+    const novoForn = {
+      id: id ? parseFloat(id) : Date.now(),
+      classif, nome, cnpj, email,
+      emails: [email, email2, email3].filter(e => e.length > 0),
+      tel: document.getElementById('forn-tel').value,
+      uf: document.getElementById('forn-uf').value,
+      icms: parseFloat(document.getElementById('forn-icms').value) || 18,
+      ipi: parseFloat(document.getElementById('forn-ipi').value) || 0,
+      pis: parseFloat(document.getElementById('forn-pis').value) || 0
+    };
+
+    if(id) {
+      // Editar
+      const idx = state.fornecedores.findIndex(f => f.id == id);
+      if(idx >= 0) state.fornecedores[idx] = novoForn;
+    } else {
+      // Novo
+      state.fornecedores.push(novoForn);
+    }
+
+    salvar();
+    toast('Sucesso', id ? 'Fornecedor atualizado' : 'Fornecedor salvo');
+    limparFormFornecedor();
+    renderFornecedores();
   });
+
+  window.editarForn = (id) => {
+    const f = state.fornecedores.find(fn => fn.id == id);
+    if(!f) return;
+    document.getElementById('forn-id').value = id;
+    document.getElementById('forn-classif').value = f.classif || '';
+    document.getElementById('forn-nome').value = f.nome || '';
+    document.getElementById('forn-cnpj').value = f.cnpj || '';
+    document.getElementById('forn-email').value = f.email || '';
+    document.getElementById('forn-email2').value = f.emails?.[1] || '';
+    document.getElementById('forn-email3').value = f.emails?.[2] || '';
+    document.getElementById('forn-tel').value = f.tel || '';
+    document.getElementById('forn-uf').value = f.uf || '';
+    document.getElementById('forn-icms').value = f.icms || 18;
+    document.getElementById('forn-ipi').value = f.ipi || 0;
+    document.getElementById('forn-pis').value = f.pis || 0;
+    document.getElementById('forn-form-title').textContent = 'Editar fornecedor: ' + f.nome;
+    window.scrollTo(0, 0);
+  };
+
+  window.limparFormFornecedor = () => {
+    document.getElementById('forn-id').value = '';
+    document.getElementById('forn-classif').value = '';
+    document.getElementById('forn-nome').value = '';
+    document.getElementById('forn-cnpj').value = '';
+    document.getElementById('forn-email').value = '';
+    document.getElementById('forn-email2').value = '';
+    document.getElementById('forn-email3').value = '';
+    document.getElementById('forn-tel').value = '';
+    document.getElementById('forn-uf').value = '';
+    document.getElementById('forn-icms').value = 18;
+    document.getElementById('forn-ipi').value = 0;
+    document.getElementById('forn-pis').value = 0;
+    document.getElementById('forn-form-title').textContent = 'Novo fornecedor';
+  };
+
+  document.querySelector('[data-action="cancel-form"]').addEventListener('click', limparFormFornecedor);
+
   function renderFornecedores(){
     const tbody = document.getElementById('tabela-fornecedores');
     if(!state.fornecedores.length) return tbody.innerHTML='<tr><td colspan="6" class="empty">Vazio</td></tr>';
-    tbody.innerHTML = state.fornecedores.slice().reverse().map(f => `<tr><td><b>${f.nome}</b></td><td>${f.cnpj}</td><td><span class="badge badge-info">${f.uf||'—'}</span></td><td>${f.classif}</td><td>${f.email}</td><td><button class="btn btn-ghost btn-sm" onclick="deletarForn(${f.id})"><i class="lucide lucide-trash-2"></i></button></td></tr>`).join('');
+    tbody.innerHTML = state.fornecedores.slice().reverse().map(f => {
+      const whatsappUrl = f.tel ? `https://wa.me/55${f.tel.replace(/\D/g, '')}` : '#';
+      const emailUrl = f.email ? `mailto:${f.email}` : '#';
+      const outlookUrl = f.email ? `https://outlook.live.com/mail/deeplink/compose?to=${f.email}` : '#';
+      return `<tr>
+        <td><b>${f.nome}</b></td>
+        <td>${f.cnpj}</td>
+        <td><span class="badge badge-info">${f.uf||'—'}</span></td>
+        <td>${f.classif}</td>
+        <td><small>${f.email}</small>${f.emails && f.emails.length > 1 ? `<br><small style="color:var(--text-muted)">+${f.emails.length - 1} email(s)</small>` : ''}</td>
+        <td style="text-align:center;display:flex;gap:4px;justify-content:center">
+          ${f.tel ? `<a href="${whatsappUrl}" target="_blank" class="btn btn-ghost btn-sm" title="WhatsApp"><i class="lucide lucide-message-circle"></i></a>` : ''}
+          <a href="mailto:${f.email}" class="btn btn-ghost btn-sm" title="Email"><i class="lucide lucide-mail"></i></a>
+          <button class="btn btn-ghost btn-sm" onclick="editarForn(${f.id})" title="Editar"><i class="lucide lucide-edit"></i></button>
+          <button class="btn btn-ghost btn-sm" onclick="deletarForn(${f.id})" title="Deletar"><i class="lucide lucide-trash-2"></i></button>
+        </td>
+      </tr>`;
+    }).join('');
   }
-  window.deletarForn = (id) => { if(confirm('Excluir?')){ state.fornecedores = state.fornecedores.filter(f=>f.id!=id); salvar(); renderFornecedores(); }};
+
+  window.deletarForn = (id) => {
+    if(confirm('Excluir este fornecedor?')){
+      state.fornecedores = state.fornecedores.filter(f => f.id != id);
+      salvar();
+      renderFornecedores();
+      toast('Deletado', 'Fornecedor removido');
+    }
+  };
 
   function atualizarSelectProcesso() { document.getElementById('cot-processo').innerHTML = '<option value="">Selecione…</option>' + state.requisicoes.map(r => `<option value="${r.id}">${r.numero} — ${r.depart}</option>`).join(''); }
   function limparNumero(valor) {
