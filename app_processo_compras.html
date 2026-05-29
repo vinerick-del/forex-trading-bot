@@ -1861,15 +1861,29 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       // Pegar dados completos da demanda para análise detalhada
       const dadosDemanda = demandaDadosCompletos[demandaAtiva.id] || [];
 
-      // Mapear dados da demanda por código
+      // Mapear dados da demanda por código (normalizado)
       const demandaPorCod = {};
       dadosDemanda.forEach(row => {
-        const cod = Object.keys(row).find(k => k.toUpperCase().includes('CÓDIGO')) ?
-          row[Object.keys(row).find(k => k.toUpperCase().includes('CÓDIGO'))] : '';
-        const depto = Object.keys(row).find(k => k.toUpperCase().includes('DEPART')) ?
-          row[Object.keys(row).find(k => k.toUpperCase().includes('DEPART'))] : '';
-        const prog = Object.keys(row).find(k => k.toUpperCase().includes('PROGRAMA')) ?
-          row[Object.keys(row).find(k => k.toUpperCase().includes('PROGRAMA'))] : '';
+        // Procurar coluna de código com flexibilidade
+        let cod = '';
+        const colCod = Object.keys(row).find(k => k.toUpperCase().includes('CÓD') || k.toUpperCase().includes('COD'));
+        if(colCod) {
+          cod = String(row[colCod]).trim().toUpperCase();
+        }
+
+        // Procurar coluna de departamento
+        let depto = '';
+        const colDepto = Object.keys(row).find(k => k.toUpperCase().includes('DEPART'));
+        if(colDepto) {
+          depto = String(row[colDepto]).trim();
+        }
+
+        // Procurar coluna de programa
+        let prog = '';
+        const colProg = Object.keys(row).find(k => k.toUpperCase().includes('PROGRAMA'));
+        if(colProg) {
+          prog = String(row[colProg]).trim();
+        }
 
         if(cod && (depto || prog)) {
           if(!demandaPorCod[cod]) demandaPorCod[cod] = { deptos: new Set(), progs: new Set() };
@@ -1884,9 +1898,20 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       const progsDistintos = new Set();
 
       codigosDemandados.forEach(cod => {
-        if(demandaPorCod[cod]) {
-          demandaPorCod[cod].deptos.forEach(d => deptosDistintos.add(d));
-          demandaPorCod[cod].progs.forEach(p => progsDistintos.add(p));
+        // Normalizar código para comparação (remover espaços, maiúsculas)
+        const codNorm = cod.trim().toUpperCase();
+
+        // Procurar no demandaPorCod com código normalizado
+        if(demandaPorCod[codNorm]) {
+          demandaPorCod[codNorm].deptos.forEach(d => deptosDistintos.add(d));
+          demandaPorCod[codNorm].progs.forEach(p => progsDistintos.add(p));
+        } else {
+          // Se não encontrou com normalizado, procurar case-insensitive
+          const codMatch = Object.keys(demandaPorCod).find(k => k.toUpperCase() === codNorm);
+          if(codMatch) {
+            demandaPorCod[codMatch].deptos.forEach(d => deptosDistintos.add(d));
+            demandaPorCod[codMatch].progs.forEach(p => progsDistintos.add(p));
+          }
         }
       });
 
@@ -1895,6 +1920,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       const valorPorProg = {};
 
       codigosDemandados.forEach(cod => {
+        const codNorm = cod.trim().toUpperCase();
         const g = ganhadores[cod];
         if(g && itensPorCod[cod].cotacoes[g]) {
           const u = itensPorCod[cod].cotacoes[g][itensPorCod[cod].cotacoes[g].length - 1];
@@ -1902,11 +1928,18 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           const precoComDifal = calcularPrecoComDIFAL(u.vunit, fornData?.icms || 18, true);
           const valorItem = precoComDifal * itensPorCod[cod].qtd;
 
-          if(demandaPorCod[cod]) {
-            demandaPorCod[cod].deptos.forEach(d => {
+          // Procurar departamentos e programas para este código
+          let demandaCod = demandaPorCod[codNorm];
+          if(!demandaCod) {
+            const codMatch = Object.keys(demandaPorCod).find(k => k.toUpperCase() === codNorm);
+            demandaCod = codMatch ? demandaPorCod[codMatch] : null;
+          }
+
+          if(demandaCod) {
+            demandaCod.deptos.forEach(d => {
               valorPorDepto[d] = (valorPorDepto[d] || 0) + valorItem;
             });
-            demandaPorCod[cod].progs.forEach(p => {
+            demandaCod.progs.forEach(p => {
               valorPorProg[p] = (valorPorProg[p] || 0) + valorItem;
             });
           }
