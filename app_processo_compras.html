@@ -1656,10 +1656,37 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     const tbody = document.getElementById('tabela-cotacoes');
     const conteudoAtual = tbody.innerHTML;
 
+    // Detectar o padrão de dados
+    const primeiraLinha = linhas[0].split('\t');
+    const ehFormatoEstendido = primeiraLinha.length >= 13; // Mais de 12 colunas
+
     const novasLinhas = linhas.map((linha, idx) => {
-      const [f,e,p,fr,g,v,n,c,d,un,q,vu] = linha.split('\t');
-      const qNum=limparNumero(q), vuNum=limparNumero(vu);
+      let f, e, p, fr, g, v, n, c, d, un, q, vu;
+
+      if(ehFormatoEstendido) {
+        // Seu padrão: Fornecedor | 60 | 90 | CIF | 12 MESES | INICIAL/FINAL | Código | Descrição | UND | Qtd | R$ Unit | R$ Total | R$ Total Margem | SIM/NÃO
+        const cols = linha.split('\t');
+        f = cols[0];      // Fornecedor
+        e = cols[3] || ''; // CIF (Entrega)
+        p = cols[2] || ''; // 90 (Pagamento)
+        fr = '';           // (deixar vazio ou usar cols[1])
+        g = '';            // (deixar vazio)
+        v = cols[4] || ''; // 12 MESES (Vigência)
+        n = cols[5] || ''; // INICIAL/FINAL (Nº Cot)
+        c = cols[6];       // Código
+        d = cols[7];       // Descrição
+        un = cols[8];      // UND
+        q = cols[9];       // Qtd
+        vu = cols[10];     // R$ Unit (pode estar como "R$ 45,00")
+      } else {
+        // Padrão original esperado: Fornecedor | Entrega | Pgt | Frete | Garantia | Vigência | Nº Cot | Código | Desc | UN | Qtd | V.Unit
+        [f,e,p,fr,g,v,n,c,d,un,q,vu] = linha.split('\t');
+      }
+
+      const qNum = limparNumero(q);
+      const vuNum = limparNumero(vu);
       const rowIdx = conteudoAtual.includes('class="empty"') ? idx : tbody.querySelectorAll('tr').length + idx;
+
       return `<tr><td>${f||''}</td><td>${e||''}</td><td>${p||''}</td><td>${fr||''}</td><td>${g||''}</td><td>${v||''}</td><td>${n||''}</td><td><b>${c||''}</b></td><td>${d||''}</td><td>${un||''}</td><td>${qNum}</td><td>${fmtBRL(vuNum)}</td><td>${fmtBRL(qNum*vuNum)}</td><td style="text-align:center;white-space:nowrap;padding:4px"><button class="btn btn-ghost btn-sm" onclick="editarLinhaTab(${rowIdx})" title="Editar" style="padding:2px;color:var(--ambar-orange)"><i class="lucide lucide-edit-2"></i></button><button class="btn btn-ghost btn-sm" onclick="deletarLinhaTab(${rowIdx})" title="Deletar" style="padding:2px;color:var(--danger)"><i class="lucide lucide-trash-2"></i></button></td></tr>`;
     }).join('');
 
@@ -1671,7 +1698,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     }
 
     document.getElementById('cot-textarea').value = '';
-    toast('Processado', `${linhas.length} novas linhas adicionadas`);
+    const formato = ehFormatoEstendido ? '(Formato com Margem/Status)' : '(Formato Padrão)';
+    toast('Processado', `${linhas.length} novas linhas adicionadas ${formato}`);
   });
   document.getElementById('btn-salvar-cot').addEventListener('click', () => {
     const pid = document.getElementById('cot-processo').value; const r = state.requisicoes.find(x=>x.id==pid);
