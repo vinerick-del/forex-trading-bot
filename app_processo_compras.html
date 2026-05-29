@@ -141,8 +141,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 .btn-secondary:hover{background:var(--bg-app);border-color:var(--ambar-slate-light);}
 .btn-success{background:var(--success);color:#fff;}
 .btn-danger{background:var(--danger);color:#fff;}
-.btn-ghost{background:transparent;color:var(--text-light);}
-.btn-ghost:hover{background:var(--bg-app);color:var(--ambar-orange);border-color:var(--ambar-orange-light);}
+.btn-ghost{background:transparent;color:var(--ambar-slate);}
+.btn-ghost:hover{background:var(--ambar-orange-light);color:var(--ambar-orange);border-color:var(--ambar-orange);}
 .btn-ghost i{color:inherit;}
 .btn-sm{padding:6px 12px;font-size:var(--fs-xs);border-radius:var(--r-sm);}
 
@@ -1467,11 +1467,13 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         <td><span class="badge badge-info">${f.uf||'—'}</span></td>
         <td>${f.classif}</td>
         <td><small>${f.email}</small>${f.emails && f.emails.length > 1 ? `<br><small style="color:var(--text-muted)">+${f.emails.length - 1} email(s)</small>` : ''}</td>
-        <td style="text-align:center;white-space:nowrap">
-          ${f.tel ? `<a href="${whatsappUrl}" target="_blank" class="btn btn-ghost btn-sm" title="WhatsApp"><i class="lucide lucide-message-circle"></i></a>` : `<span style="display:inline-block;width:32px"></span>`}
-          <a href="mailto:${f.email}" class="btn btn-ghost btn-sm" title="Email"><i class="lucide lucide-mail"></i></a>
-          <button class="btn btn-ghost btn-sm" onclick="editarForn(${f.id})" title="Editar"><i class="lucide lucide-edit"></i></button>
-          <button class="btn btn-ghost btn-sm" onclick="deletarForn(${f.id})" title="Deletar"><i class="lucide lucide-trash-2"></i></button>
+        <td style="text-align:center;white-space:nowrap;padding:8px">
+          <div style="display:flex;gap:4px;justify-content:center">
+            ${f.tel ? `<a href="${whatsappUrl}" target="_blank" class="btn btn-ghost btn-sm" title="WhatsApp"><i class="lucide lucide-message-circle"></i></a>` : ''}
+            <a href="mailto:${f.email}" class="btn btn-ghost btn-sm" title="Email"><i class="lucide lucide-mail"></i></a>
+            <button class="btn btn-ghost btn-sm" onclick="editarForn(${f.id})" title="Editar"><i class="lucide lucide-edit"></i></button>
+            <button class="btn btn-ghost btn-sm" onclick="deletarForn(${f.id})" title="Deletar"><i class="lucide lucide-trash-2"></i></button>
+          </div>
         </td>
       </tr>`;
     }).join('');
@@ -1592,16 +1594,22 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   }
 
   function extrairDepartamentosPrograma(){
-    // Se houver demanda ativa, usar os departamentos e programas da demanda
-    if(demandaAtiva && demandaAtiva.departamentos && demandaAtiva.programas) {
+    // Procurar a demanda ativa na lista de revisions
+    let demandaUsada = null;
+    if(demandaAtiva && typeof demandaAtiva === 'object' && demandaAtiva.id) {
+      demandaUsada = demandaRevisions.find(r => r.id === demandaAtiva.id);
+    }
+
+    // Se encontrou uma demanda na lista, usar seus departamentos e programas
+    if(demandaUsada && demandaUsada.departamentos && demandaUsada.programas) {
       return {
-        departamentos: demandaAtiva.departamentos,
-        programas: demandaAtiva.programas
+        departamentos: demandaUsada.departamentos,
+        programas: demandaUsada.programas
       };
     }
 
     // Alternativa: tentar extrair dos dados completos em memória
-    if(demandaAtiva && demandaDadosCompletos[demandaAtiva.id]) {
+    if(demandaAtiva && typeof demandaAtiva === 'object' && demandaAtiva.id && demandaDadosCompletos[demandaAtiva.id]) {
       const dados = demandaDadosCompletos[demandaAtiva.id];
       const deptos = new Set();
       const progs = new Set();
@@ -2483,7 +2491,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         <td>${comprador}</td>
         <td><span class="badge badge-info">${r.status}</span></td>
         <td>${fmtBRL(valor)}</td>
-        <td style="text-align:center"><button class="btn btn-ghost btn-sm" onclick="abrirModalDesignarComprador(${r.id})" title="Designar comprador"><i class="lucide lucide-user-check"></i></button></td>
+        <td style="text-align:center"><button class="btn btn-sm" style="background:var(--bg-app);color:var(--ambar-orange);border:1px solid var(--border-color)" onclick="abrirModalDesignarComprador(${r.id})" title="Designar comprador"><i class="lucide lucide-edit-2"></i></button></td>
       </tr>`;
     }).join('');
 
