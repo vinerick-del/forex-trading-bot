@@ -1416,14 +1416,6 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-title" style="margin-bottom:16px">Análise de Risco</div>
-      <div style="padding:16px;background:var(--bg-app);border-radius:var(--r-md);display:flex;align-items:center;gap:12px">
-        <div class="${risco.classe}">${risco.nivel}</div>
-        <span style="color:var(--text-muted);font-size:14px">Nível de risco da contratação baseado na aprovação técnica dos itens</span>
-      </div>
-    </div>
-
     ${(() => {
       // Extrair departamentos/programas da COMPRA (itens selecionados do processo)
       const deptosDaCompra = new Set();
@@ -1475,7 +1467,10 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       <div class="card-title" style="margin-bottom:16px">Análise do Processo de Compra</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px">
         ${(() => {
-          const fornGanhadores = {};
+          // Contar todos os fornecedores que cotaram para o processo
+          const fornCotantes = new Set();
+          cotProc.forEach(c => fornCotantes.add(c.fornecedor));
+
           const totalItens = Object.keys(itensPorCod).length;
           let itensAprovados = 0, itensReprovados = 0;
 
@@ -1483,7 +1478,6 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
             const g = ganhadores[cod];
             if(g) {
               const item = itensPorCod[cod];
-              const fornData = state.fornecedores.find(f => f.nome === g);
               if(item.cotacoes[g]) {
                 const u = item.cotacoes[g][item.cotacoes[g].length - 1];
                 const analise = state.analises.find(a => a.cotacaoId === u.id);
@@ -1494,11 +1488,12 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           });
 
           const pctAprovado = totalItens > 0 ? ((itensAprovados / totalItens) * 100).toFixed(1) : 0;
+          const economia = orçado > 0 ? (((orçado - proposto) / orçado) * 100).toFixed(1) : 0;
 
           return `
             <div style="background:var(--bg-app);border-radius:var(--r-md);padding:12px;text-align:center">
-              <div style="font-size:24px;font-weight:700;color:var(--ambar-orange)">${Object.keys(fornGanhadores).length || Object.values(ganhadores).filter((v,i,a) => a.indexOf(v) === i).length}</div>
-              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Fornecedores</div>
+              <div style="font-size:24px;font-weight:700;color:var(--ambar-orange)">${fornCotantes.size}</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Fornecedores que Cotaram</div>
             </div>
             <div style="background:var(--bg-app);border-radius:var(--r-md);padding:12px;text-align:center">
               <div style="font-size:24px;font-weight:700;color:var(--success)">${itensAprovados}</div>
@@ -1514,11 +1509,13 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
             </div>
             <div style="background:var(--bg-app);border-radius:var(--r-md);padding:12px;text-align:center">
               <div style="font-size:24px;font-weight:700;color:var(--success)">${fmtBRL(orçado - proposto)}</div>
-              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Saving Total</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:4px;font-family:monospace">= Orçado − Proposto<br>${fmtBRL(orçado)} − ${fmtBRL(proposto)}</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:4px">Saving Total</div>
             </div>
             <div style="background:var(--bg-app);border-radius:var(--r-md);padding:12px;text-align:center">
-              <div style="font-size:24px;font-weight:700;color:var(--info)">${((proposto > 0 ? ((orçado - proposto) / orçado) * 100 : 0).toFixed(1))}%</div>
-              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Economia %</div>
+              <div style="font-size:24px;font-weight:700;color:var(--info)">${economia}%</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:4px;font-family:monospace">= (Orçado − Proposto) / Orçado × 100<br>(${fmtBRL(orçado)} − ${fmtBRL(proposto)}) / ${fmtBRL(orçado)}</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:4px">Economia %</div>
             </div>
           `;
         })()}
@@ -1599,8 +1596,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
     <div class="card">
       <div class="card-title" style="margin-bottom:16px">Resumo de Decisão</div>
-      <table class="report-table">
-        <thead><tr><th>Código</th><th>Descrição</th><th>Qtd</th><th>Fornecedor</th><th>UF</th><th>V. Unit</th><th>Total</th><th>Risco</th></tr></thead>
+      <table class="report-table" style="font-size:12px">
+        <thead><tr><th>Código</th><th>Descrição</th><th>Qtd</th><th>Fornecedor</th><th>V. Unit (sem DIFAL)</th><th>V. Unit (com DIFAL)</th><th>Total (sem DIFAL)</th><th>Total (com DIFAL)</th><th>Motivo</th></tr></thead>
         <tbody>`;
 
     Object.keys(itensPorCod).forEach(cod => {
@@ -1609,10 +1606,12 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       const fornData = state.fornecedores.find(f => f.nome === g);
       if(g && item.cotacoes[g]){
         const u = item.cotacoes[g][item.cotacoes[g].length - 1];
-        const precoComDifal = calcularPrecoComDIFAL(u.vunit, fornData?.icms || 18, true);
-        const analise = state.analises.find(a => a.cotacaoId === u.id);
-        const riscoCot = analise && analise.status === 'SIM' ? '<span class="risk-low">BAIXO</span>' : analise && analise.status === 'NÃO' ? '<span class="risk-high">ALTO</span>' : '<span class="risk-medium">MÉDIO</span>';
-        html += `<tr><td><b>${cod}</b></td><td>${item.desc}</td><td>${item.qtd} ${item.un}</td><td>${g}</td><td>${fornData?.uf || '—'}</td><td>${fmtBRL(precoComDifal)}</td><td>${fmtBRL(precoComDifal * item.qtd)}</td><td>${riscoCot}</td></tr>`;
+        const vunitSemDifal = u.vunit;
+        const vunitComDifal = calcularPrecoComDIFAL(u.vunit, fornData?.icms || 18, true);
+        const totalSemDifal = vunitSemDifal * item.qtd;
+        const totalComDifal = vunitComDifal * item.qtd;
+        const motivo = 'Melhor proposta técnica e financeira';
+        html += `<tr><td><b>${cod}</b></td><td>${item.desc}</td><td>${item.qtd} ${item.un}</td><td>${g}</td><td>${fmtBRL(vunitSemDifal)}</td><td>${fmtBRL(vunitComDifal)}</td><td>${fmtBRL(totalSemDifal)}</td><td>${fmtBRL(totalComDifal)}</td><td style="font-size:11px;color:var(--text-muted)">${motivo}</td></tr>`;
       }
     });
 
