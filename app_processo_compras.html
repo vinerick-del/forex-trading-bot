@@ -558,6 +558,53 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
               </table>
             </div>
           </div>
+
+          <div id="modal-plan-detalhes" class="modal">
+            <div class="modal-content" style="max-width:900px;max-height:80vh;overflow-y:auto">
+              <div class="modal-head">
+                <h2><i class="lucide lucide-package" style="width:20px;height:20px"></i> Detalhes - <span id="modal-plan-depto">Departamento</span></h2>
+                <button class="modal-close" onclick="closePlanModal()">×</button>
+              </div>
+
+              <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+                <button class="btn btn-sm" id="modal-plan-qtd" style="background:var(--ambar-orange);color:#fff;border:none"><i class="lucide lucide-package"></i> Por Qtd</button>
+                <button class="btn btn-sm btn-secondary" id="modal-plan-val"><i class="lucide lucide-dollar-sign"></i> Por Valor</button>
+              </div>
+
+              <div class="table-wrap" style="overflow-x:auto;max-height:60vh">
+                <table class="table" style="font-size:11px;min-width:1000px">
+                  <thead>
+                    <tr>
+                      <th style="min-width:100px">Material</th>
+                      <th style="min-width:200px">Descrição</th>
+                      <th colspan="2" style="text-align:center">Janeiro</th>
+                      <th colspan="2" style="text-align:center">Fevereiro</th>
+                      <th colspan="2" style="text-align:center">Março</th>
+                      <th colspan="2" style="text-align:center">Abril</th>
+                      <th colspan="2" style="text-align:center">Maio</th>
+                    </tr>
+                    <tr>
+                      <th></th>
+                      <th></th>
+                      <th style="font-size:10px">Real</th>
+                      <th style="font-size:10px">Plan</th>
+                      <th style="font-size:10px">Real</th>
+                      <th style="font-size:10px">Plan</th>
+                      <th style="font-size:10px">Real</th>
+                      <th style="font-size:10px">Plan</th>
+                      <th style="font-size:10px">Real</th>
+                      <th style="font-size:10px">Plan</th>
+                      <th style="font-size:10px">Real</th>
+                      <th style="font-size:10px">Plan</th>
+                    </tr>
+                  </thead>
+                  <tbody id="modal-plan-materiais">
+                    <tr><td colspan="12"><div class="empty">Carregando...</div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- COTAÇÕES (Mantido) -->
@@ -3333,8 +3380,74 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   });
 
   window.abrirDetalhesDepto = function(depto) {
-    toast('Info', `Detalhes de ${depto} - em desenvolvimento`, 'info');
+    document.getElementById('modal-plan-depto').textContent = depto;
+
+    const meses = ['01', '02', '03', '04', '05'];
+    const mesNomes = ['jan', 'fev', 'mar', 'abr', 'mai'];
+    const modalPorQtd = true;
+
+    const materiais = Object.keys(consumoData).filter(cod => {
+      const m = consumoData[cod];
+      return Array.from(m.deps).includes(depto);
+    });
+
+    const tb = document.getElementById('modal-plan-materiais');
+    if(materiais.length === 0) {
+      tb.innerHTML = '<tr><td colspan="12"><div class="empty">Nenhum material para este departamento</div></td></tr>';
+    } else {
+      tb.innerHTML = materiais.map(cod => {
+        const m = consumoData[cod];
+        const mesesCels = meses.map(mes => {
+          const realVal = modalPorQtd ? (m.meses[mes] || 0) : (m.valoresMeses[mes] || 0);
+          const planVal = 0; // Será calculado da demanda
+
+          if(modalPorQtd) {
+            return `<td style="text-align:center">${Math.round(realVal)}</td><td style="text-align:center">-</td>`;
+          } else {
+            return `<td style="text-align:right">${fmtBRL(realVal)}</td><td style="text-align:right">-</td>`;
+          }
+        }).join('');
+
+        return `<tr>
+          <td><b>${cod}</b></td>
+          <td style="font-size:10px">${m.desc.substring(0, 60)}</td>
+          ${mesesCels}
+        </tr>`;
+      }).join('');
+    }
+
+    // Reset to quantity mode
+    document.getElementById('modal-plan-qtd').style.background = 'var(--ambar-orange)';
+    document.getElementById('modal-plan-qtd').style.color = '#fff';
+    document.getElementById('modal-plan-val').style.background = '#ffffff';
+    document.getElementById('modal-plan-val').style.color = 'var(--text-main)';
+
+    document.getElementById('modal-plan-detalhes').style.display = 'grid';
   };
+
+  function closePlanModal() {
+    document.getElementById('modal-plan-detalhes').style.display = 'none';
+  };
+
+  document.getElementById('modal-plan-qtd')?.addEventListener('click', function() {
+    this.style.background = 'var(--ambar-orange)';
+    this.style.color = '#fff';
+    document.getElementById('modal-plan-val').style.background = '#ffffff';
+    document.getElementById('modal-plan-val').style.color = 'var(--text-main)';
+    // Renderizar modo quantidade
+  });
+
+  document.getElementById('modal-plan-val')?.addEventListener('click', function() {
+    this.style.background = 'var(--ambar-orange)';
+    this.style.color = '#fff';
+    document.getElementById('modal-plan-qtd').style.background = '#ffffff';
+    document.getElementById('modal-plan-qtd').style.color = 'var(--text-main)';
+    // Renderizar modo valor
+  });
+
+  document.getElementById('modal-plan-detalhes')?.addEventListener('click', function(e) {
+    if(e.target === this) closePlanModal();
+  });
 
   // Inicialização
   setTimeout(() => { carregarLayoutSalvo(); renderRequisicoes(); atualizarKPIs(); }, 100);
