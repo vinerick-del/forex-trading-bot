@@ -344,6 +344,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         <div class="nav-item" data-page="apresentacao"><i class="lucide lucide-presentation"></i><span>Apresentação</span></div>
         <div class="nav-item" data-page="resumo"><i class="lucide lucide-trending-up"></i><span>Resumo Financeiro</span></div>
         <div class="nav-item" data-page="contratos"><i class="lucide lucide-file-signature"></i><span>Contratos</span></div>
+        <div class="nav-item" data-page="coordenacao"><i class="lucide lucide-users"></i><span>Coordenação</span></div>
       </div>
     </nav>
     <div class="side-footer"><div class="pulse"></div><span>v3.0 · CotaPro Online</span></div>
@@ -610,6 +611,80 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           </div>
           <div class="card">
             <div class="table-wrap"><table class="table"><thead><tr><th>Nº Contrato</th><th>Req.</th><th>Fornecedor</th><th>Data</th><th>Prazo</th><th>Valor</th></tr></thead><tbody id="tabela-contratos"><tr><td colspan="6"><div class="empty">Vazio</div></td></tr></tbody></table></div>
+          </div>
+        </section>
+
+        <!-- COORDENAÇÃO E SUPERVISÃO -->
+        <section class="page" id="coordenacao">
+          <div class="page-head">
+            <div>
+              <h1 class="page-title">Coordenação e Supervisão</h1>
+              <p class="page-desc">Designação de compradores e acompanhamento de processos de compra.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Indicadores de Performance</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+              <div style="background:var(--bg-app);border-radius:var(--r-md);padding:16px;text-align:center">
+                <div style="font-size:28px;font-weight:700;color:var(--ambar-orange)" id="ind-total-processos">0</div>
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:8px">Total de Processos</div>
+              </div>
+              <div style="background:var(--bg-app);border-radius:var(--r-md);padding:16px;text-align:center">
+                <div style="font-size:28px;font-weight:700;color:var(--success)" id="ind-tempo-medio">0 dias</div>
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:8px">Tempo Médio</div>
+              </div>
+              <div style="background:var(--bg-app);border-radius:var(--r-md);padding:16px;text-align:center">
+                <div style="font-size:28px;font-weight:700;color:var(--info)" id="ind-saving-total">R$ 0</div>
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:8px">Saving Total</div>
+              </div>
+              <div style="background:var(--bg-app);border-radius:var(--r-md);padding:16px;text-align:center">
+                <div style="font-size:28px;font-weight:700;color:var(--warning)" id="ind-sem-comprador">0</div>
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:8px">Sem Comprador</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Processos de Compra</div>
+            <div class="table-wrap">
+              <table class="table" style="font-size:12px">
+                <thead>
+                  <tr>
+                    <th>Nº Requisição</th>
+                    <th>Departamento</th>
+                    <th>Itens</th>
+                    <th>Comprador Designado</th>
+                    <th>Status</th>
+                    <th>Valor Proposto</th>
+                    <th style="text-align:center">Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="tabela-processos-coord">
+                  <tr><td colspan="7"><div class="empty">Nenhum processo encontrado</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Performance por Comprador</div>
+            <div class="table-wrap">
+              <table class="table" style="font-size:12px">
+                <thead>
+                  <tr>
+                    <th>Comprador</th>
+                    <th>Processos</th>
+                    <th>Tempo Médio</th>
+                    <th>Saving Total</th>
+                    <th>Economia %</th>
+                  </tr>
+                </thead>
+                <tbody id="tabela-compradores-perf">
+                  <tr><td colspan="5"><div class="empty">Sem dados</div></td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
       </div>
@@ -1178,6 +1253,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       if (id === 'apresentacao') atualizarSelectApresentacao();
       if (id === 'resumo') atualizarSelectResumo();
       if (id === 'contratos') { atualizarSelectContratos(); renderContratos(); }
+      if (id === 'coordenacao') renderCoordenacao();
     } catch(e) {
       console.error('Erro ao navegar para ' + id + ':', e);
     }
@@ -2292,6 +2368,141 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     html2pdf().set(opt).from(elemento).save();
     toast('Sucesso','PDF gerado e baixado');
   });
+
+  // ===== COORDENAÇÃO E SUPERVISÃO =====
+  function calcularValorProcesso(processoId) {
+    const ganhador = Object.values(ganhadores).flat().find(g => g.processoId == processoId);
+    if(!ganhador) return 0;
+    return ganhador.qtd * ganhador.vunit;
+  }
+
+  function calcularSavingProcesso(processoId) {
+    const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
+    if(!cotProc.length) return 0;
+    const precoOriginal = cotProc.reduce((s, c) => s + (c.qtd * c.vunit), 0);
+    const precoFinal = calcularValorProcesso(processoId);
+    return Math.max(0, precoOriginal - precoFinal);
+  }
+
+  function renderCoordenacao() {
+    const tbody = document.getElementById('tabela-processos-coord');
+
+    if(!state.requisicoes.length) {
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty">Nenhum processo encontrado</div></td></tr>';
+      atualizarIndicadoresCoordenacao();
+      renderPerformanceCompradores();
+      return;
+    }
+
+    tbody.innerHTML = state.requisicoes.map(r => {
+      const cotCount = state.cotacoes.filter(c => c.processoId == r.id).length;
+      const valor = calcularValorProcesso(r.id);
+      const comprador = r.comprador || '-';
+      const btnDesignar = r.comprador
+        ? `<button class="btn btn-ghost btn-sm" onclick="editarCompradorProcesso(${r.id})"><i class="lucide lucide-edit-2"></i></button>`
+        : `<button class="btn btn-ghost btn-sm" onclick="editarCompradorProcesso(${r.id})"><i class="lucide lucide-plus"></i></button>`;
+
+      return `<tr>
+        <td><b>${r.numero}</b></td>
+        <td>${r.depart}</td>
+        <td>${cotCount}</td>
+        <td>${comprador}</td>
+        <td><span class="badge badge-info">${r.status}</span></td>
+        <td>${fmtBRL(valor)}</td>
+        <td style="text-align:center">${btnDesignar}</td>
+      </tr>`;
+    }).join('');
+
+    atualizarIndicadoresCoordenacao();
+    renderPerformanceCompradores();
+  }
+
+  function atualizarIndicadoresCoordenacao() {
+    const totalProcessos = state.requisicoes.length;
+    const semComprador = state.requisicoes.filter(r => !r.comprador).length;
+
+    let totalSaving = 0;
+    let totalDias = 0;
+    let diasCount = 0;
+
+    state.requisicoes.forEach(r => {
+      totalSaving += calcularSavingProcesso(r.id);
+
+      const dataReq = new Date(r.data.split('/').reverse().join('-'));
+      const agora = new Date();
+      const dias = Math.ceil((agora - dataReq) / (1000 * 60 * 60 * 24));
+      if(dias >= 0) {
+        totalDias += dias;
+        diasCount++;
+      }
+    });
+
+    const tempoMedio = diasCount ? Math.round(totalDias / diasCount) : 0;
+
+    document.getElementById('ind-total-processos').textContent = totalProcessos;
+    document.getElementById('ind-tempo-medio').textContent = tempoMedio + ' dias';
+    document.getElementById('ind-saving-total').textContent = fmtBRL(totalSaving);
+    document.getElementById('ind-sem-comprador').textContent = semComprador;
+  }
+
+  function renderPerformanceCompradores() {
+    const tbody = document.getElementById('tabela-compradores-perf');
+
+    const compradores = {};
+    state.requisicoes.forEach(r => {
+      if(r.comprador) {
+        if(!compradores[r.comprador]) {
+          compradores[r.comprador] = { processos: 0, totalSaving: 0, totalDias: 0, diasCount: 0 };
+        }
+        compradores[r.comprador].processos++;
+        compradores[r.comprador].totalSaving += calcularSavingProcesso(r.id);
+
+        const dataReq = new Date(r.data.split('/').reverse().join('-'));
+        const agora = new Date();
+        const dias = Math.ceil((agora - dataReq) / (1000 * 60 * 60 * 24));
+        if(dias >= 0) {
+          compradores[r.comprador].totalDias += dias;
+          compradores[r.comprador].diasCount++;
+        }
+      }
+    });
+
+    if(!Object.keys(compradores).length) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty">Sem dados</div></td></tr>';
+      return;
+    }
+
+    const totalSavingGeral = Object.values(compradores).reduce((s, c) => s + c.totalSaving, 0);
+
+    tbody.innerHTML = Object.entries(compradores).map(([nome, data]) => {
+      const tempoMedio = data.diasCount ? Math.round(data.totalDias / data.diasCount) : 0;
+      const economiaPct = totalSavingGeral ? ((data.totalSaving / totalSavingGeral) * 100).toFixed(1) : 0;
+
+      return `<tr>
+        <td><b>${nome}</b></td>
+        <td>${data.processos}</td>
+        <td>${tempoMedio} dias</td>
+        <td>${fmtBRL(data.totalSaving)}</td>
+        <td>${economiaPct}%</td>
+      </tr>`;
+    }).join('');
+  }
+
+  window.editarCompradorProcesso = function(processoId) {
+    const req = state.requisicoes.find(r => r.id == processoId);
+    if(!req) return;
+
+    const nomeAtual = req.comprador || '';
+    const novoNome = prompt(`Designar comprador para ${req.numero}:\n(Deixe em branco para remover)`, nomeAtual);
+
+    if(novoNome !== null) {
+      const nome = novoNome.trim();
+      req.comprador = nome || undefined;
+      salvar();
+      renderCoordenacao();
+      toast('Sucesso', nome ? `Comprador "${nome}" designado` : 'Comprador removido', 'success');
+    }
+  };
 
   // Inicialização
   setTimeout(() => { carregarLayoutSalvo(); renderRequisicoes(); atualizarKPIs(); }, 100);
