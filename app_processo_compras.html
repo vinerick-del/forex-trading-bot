@@ -507,63 +507,53 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           </div>
 
           <div class="card" id="plan-analise-section" style="display:none">
-            <div class="card-head"><div class="card-title">2. Análise de Consumo Real</div><div style="display:flex;gap:8px"><button class="btn btn-secondary btn-sm" id="btn-plan-exportar"><i class="lucide lucide-download"></i> Exportar</button></div></div>
-
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
-              <div class="kpi info">
-                <div class="kpi-top"><span class="kpi-label">Materiais Consumidos</span><div class="kpi-icon"><i class="lucide lucide-package"></i></div></div>
-                <div class="kpi-value" id="plan-kpi-materiais">0</div>
-              </div>
-              <div class="kpi success">
-                <div class="kpi-top"><span class="kpi-label">Valor Total Consumido</span><div class="kpi-icon"><i class="lucide lucide-trending-up"></i></div></div>
-                <div class="kpi-value" id="plan-kpi-valor">R$ 0,00</div>
-              </div>
-              <div class="kpi warning">
-                <div class="kpi-top"><span class="kpi-label">Departamentos Ativos</span><div class="kpi-icon"><i class="lucide lucide-users"></i></div></div>
-                <div class="kpi-value" id="plan-kpi-deps">0</div>
+            <div class="card-head">
+              <div class="card-title">2. Análise: Real x Planejado</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-sm" id="plan-toggle-qtd" style="background:var(--ambar-orange);color:#fff;border:none"><i class="lucide lucide-package"></i> Por Quantidade</button>
+                <button class="btn btn-sm btn-secondary" id="plan-toggle-valor"><i class="lucide lucide-dollar-sign"></i> Por Valor</button>
               </div>
             </div>
 
-            <div class="table-wrap" style="margin-bottom:24px">
-              <table class="table" style="font-size:12px">
+            <div class="table-wrap" style="overflow-x:auto">
+              <table class="table" style="font-size:11px;min-width:1200px">
                 <thead>
                   <tr>
-                    <th>Material</th>
-                    <th>Descrição</th>
-                    <th>Jan</th>
-                    <th>Fev</th>
-                    <th>Mar</th>
-                    <th>Abr</th>
-                    <th>Mai</th>
-                    <th>Total (Qtd)</th>
-                    <th>Total (Valor)</th>
-                    <th>Taxa Mensal</th>
-                    <th>Departamentos</th>
+                    <th style="position:sticky;left:0;z-index:5;background:var(--ambar-slate);width:180px">Departamento</th>
+                    <th colspan="2" style="text-align:center;background:#f0f0f0">Janeiro</th>
+                    <th colspan="2" style="text-align:center;background:#f0f0f0">Fevereiro</th>
+                    <th colspan="2" style="text-align:center;background:#f0f0f0">Março</th>
+                    <th colspan="2" style="text-align:center;background:#f0f0f0">Abril</th>
+                    <th colspan="2" style="text-align:center;background:#f0f0f0">Maio</th>
+                    <th colspan="2" style="text-align:center;background:#e8e8e8">Junho</th>
+                    <th colspan="2" style="text-align:center;background:#e8e8e8">Julho</th>
+                    <th colspan="2" style="text-align:center;background:#e8e8e8">Agosto</th>
+                    <th colspan="2" style="text-align:center;background:#e8e8e8">Setembro</th>
                   </tr>
-                </thead>
-                <tbody id="plan-tabela-materiais">
-                  <tr><td colspan="11"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhum dado carregado</div></td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="table-wrap">
-              <table class="table" style="font-size:12px">
-                <thead>
                   <tr>
-                    <th>Departamento</th>
-                    <th>Jan</th>
-                    <th>Fev</th>
-                    <th>Mar</th>
-                    <th>Abr</th>
-                    <th>Mai</th>
-                    <th>Total</th>
-                    <th>% do Total</th>
-                    <th>Materiais Uniq.</th>
+                    <th style="position:sticky;left:0;z-index:5;background:var(--ambar-slate)"></th>
+                    <th style="font-size:10px;background:#f0f0f0">Real</th>
+                    <th style="font-size:10px;background:#f0f0f0">Plan</th>
+                    <th style="font-size:10px;background:#f0f0f0">Real</th>
+                    <th style="font-size:10px;background:#f0f0f0">Plan</th>
+                    <th style="font-size:10px;background:#f0f0f0">Real</th>
+                    <th style="font-size:10px;background:#f0f0f0">Plan</th>
+                    <th style="font-size:10px;background:#f0f0f0">Real</th>
+                    <th style="font-size:10px;background:#f0f0f0">Plan</th>
+                    <th style="font-size:10px;background:#f0f0f0">Real</th>
+                    <th style="font-size:10px;background:#f0f0f0">Plan</th>
+                    <th style="font-size:10px;background:#e8e8e8">-</th>
+                    <th style="font-size:10px;background:#e8e8e8">Plan</th>
+                    <th style="font-size:10px;background:#e8e8e8">-</th>
+                    <th style="font-size:10px;background:#e8e8e8">Plan</th>
+                    <th style="font-size:10px;background:#e8e8e8">-</th>
+                    <th style="font-size:10px;background:#e8e8e8">Plan</th>
+                    <th style="font-size:10px;background:#e8e8e8">-</th>
+                    <th style="font-size:10px;background:#e8e8e8">Plan</th>
                   </tr>
                 </thead>
-                <tbody id="plan-tabela-departamentos">
-                  <tr><td colspan="9"><div class="empty"><i class="lucide lucide-inbox"></i> Nenhum dado carregado</div></td></tr>
+                <tbody id="plan-tabela-consolidado">
+                  <tr><td colspan="19"><div class="empty"><i class="lucide lucide-inbox"></i> Carregue o CSV para ver os dados</div></td></tr>
                 </tbody>
               </table>
             </div>
@@ -3155,6 +3145,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   // =========================================================================
   let consumoData = {};
   let consumoMeses = { '01': [], '02': [], '03': [], '04': [], '05': [] };
+  let planModoPorQtd = true;
 
   window.processarConsumoCSV = function() {
     const file = document.getElementById('plan-upload-csv').files[0];
@@ -3181,7 +3172,6 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         }
 
         consumoData = {};
-        consumoMeses = { '01': [], '02': [], '03': [], '04': [], '05': [] };
 
         for(let i = 1; i < linhas.length; i++) {
           const cols = linhas[i].split(';').map(c => c.trim());
@@ -3192,7 +3182,6 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           const mesStr = cols[idxMes];
           const desc = cols[idxDesc] || 'Sem descrição';
 
-          // Extrair mês (DD/MM/YYYY ou MM)
           let mes = '00';
           if(mesStr?.includes('/')) {
             const parts = mesStr.split('/');
@@ -3221,7 +3210,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           consumoData[cod].totalVal += val;
         }
 
-        renderizarAnaliseConsumo();
+        renderizarConsolidadoRealXPlan();
         document.getElementById('plan-analise-section').style.display = 'block';
         toast('Sucesso', `${Object.keys(consumoData).length} materiais carregados`, 'success');
       } catch(err) {
@@ -3232,80 +3221,120 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     reader.readAsText(file);
   };
 
-  function renderizarAnaliseConsumo() {
-    const materiais = Object.keys(consumoData);
-    const deps = new Set();
-    let totalVal = 0;
-
-    materiais.forEach(cod => {
-      consumoData[cod].deps.forEach(d => deps.add(d));
-      totalVal += consumoData[cod].totalVal;
-    });
-
-    document.getElementById('plan-kpi-materiais').textContent = materiais.length;
-    document.getElementById('plan-kpi-valor').textContent = fmtBRL(totalVal);
-    document.getElementById('plan-kpi-deps').textContent = deps.size;
-
-    // Renderizar tabela de materiais
-    const tbMat = document.getElementById('plan-tabela-materiais');
-    if(materiais.length === 0) {
-      tbMat.innerHTML = '<tr><td colspan="11"><div class="empty">Nenhum dado</div></td></tr>';
-    } else {
-      tbMat.innerHTML = materiais.map(cod => {
-        const m = consumoData[cod];
-        const taxaMensal = m.totalQtd / 5;
-        const meses = ['01', '02', '03', '04', '05'];
-        const celsMeses = meses.map(mes => `<td style="text-align:center">${m.meses[mes] || 0}</td>`).join('');
-        return `<tr>
-          <td><b>${cod}</b></td>
-          <td style="font-size:11px">${m.desc.substring(0, 40)}</td>
-          ${celsMeses}
-          <td style="text-align:center"><b>${m.totalQtd}</b></td>
-          <td style="text-align:right">${fmtBRL(m.totalVal)}</td>
-          <td style="text-align:center">${taxaMensal.toFixed(1)}</td>
-          <td style="font-size:11px">${Array.from(m.deps).join(', ')}</td>
-        </tr>`;
-      }).join('');
-    }
-
-    // Renderizar tabela de departamentos
+  function renderizarConsolidadoRealXPlan() {
+    const meses = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+    const mesNomes = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
     const depMap = {};
-    materiais.forEach(cod => {
+
+    // Construir estrutura de departamentos com dados reais e planejados
+    Object.keys(consumoData).forEach(cod => {
       const m = consumoData[cod];
       m.deps.forEach(dep => {
         if(!depMap[dep]) {
-          depMap[dep] = { meses: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 }, total: 0, materiais: new Set() };
+          depMap[dep] = {
+            meses: { '01': {real: 0, plan: 0}, '02': {real: 0, plan: 0}, '03': {real: 0, plan: 0}, '04': {real: 0, plan: 0}, '05': {real: 0, plan: 0},
+                     '06': {real: 0, plan: 0}, '07': {real: 0, plan: 0}, '08': {real: 0, plan: 0}, '09': {real: 0, plan: 0}, '10': {real: 0, plan: 0},
+                     '11': {real: 0, plan: 0}, '12': {real: 0, plan: 0} },
+            materiais: {}
+          };
         }
-        ['01', '02', '03', '04', '05'].forEach(mes => {
-          depMap[dep].meses[mes] += m.valoresMeses[mes];
+
+        ['01', '02', '03', '04', '05'].forEach(m_mes => {
+          if(planModoPorQtd) {
+            depMap[dep].meses[m_mes].real += m.meses[m_mes] || 0;
+          } else {
+            depMap[dep].meses[m_mes].real += m.valoresMeses[m_mes] || 0;
+          }
         });
-        depMap[dep].total += m.totalVal;
-        depMap[dep].materiais.add(cod);
       });
     });
 
-    const tbDep = document.getElementById('plan-tabela-departamentos');
-    const deps_arr = Object.keys(depMap);
-    if(deps_arr.length === 0) {
-      tbDep.innerHTML = '<tr><td colspan="9"><div class="empty">Nenhum dado</div></td></tr>';
-    } else {
-      tbDep.innerHTML = deps_arr.map(dep => {
-        const d = depMap[dep];
-        const pct = totalVal > 0 ? ((d.total / totalVal) * 100).toFixed(1) : 0;
-        const meses = ['01', '02', '03', '04', '05'];
-        const celsMeses = meses.map(mes => `<td style="text-align:right">${fmtBRL(d.meses[mes])}</td>`).join('');
-        return `<tr>
-          <td><b>${dep}</b></td>
-          ${celsMeses}
-          <td style="text-align:right;font-weight:600">${fmtBRL(d.total)}</td>
-          <td style="text-align:center"><span class="badge badge-info">${pct}%</span></td>
-          <td style="text-align:center">${d.materiais.size}</td>
-        </tr>`;
-      }).join('');
+    // Adicionar dados planejados da demanda ativa
+    if(demandaAtiva && demandaDadosCompletos[demandaAtiva.id]) {
+      const dadosDemanda = demandaDadosCompletos[demandaAtiva.id];
+      dadosDemanda.forEach(row => {
+        const colDepto = Object.keys(row).find(k => k.includes('DEPARTAMENTO'));
+        const depto = colDepto ? (row[colDepto] || 'Sem Depto') : 'Sem Depto';
+
+        const colQtd = Object.keys(row).find(k => k.toUpperCase().includes('QTD'));
+        const qtd = colQtd ? (parseFloat(row[colQtd]) || 0) : 0;
+
+        if(!depMap[depto]) {
+          depMap[depto] = {
+            meses: { '01': {real: 0, plan: 0}, '02': {real: 0, plan: 0}, '03': {real: 0, plan: 0}, '04': {real: 0, plan: 0}, '05': {real: 0, plan: 0},
+                     '06': {real: 0, plan: 0}, '07': {real: 0, plan: 0}, '08': {real: 0, plan: 0}, '09': {real: 0, plan: 0}, '10': {real: 0, plan: 0},
+                     '11': {real: 0, plan: 0}, '12': {real: 0, plan: 0} },
+            materiais: {}
+          };
+        }
+
+        // Distribuir planejado entre todos os meses (jan-dez) proporcionalmente
+        meses.forEach(mes => {
+          depMap[depto].meses[mes].plan += qtd / 12;
+        });
+      });
     }
+
+    // Renderizar tabela
+    const tb = document.getElementById('plan-tabela-consolidado');
+    const deps_sorted = Object.keys(depMap).filter(d => d && d !== '#N/D' && !d.includes('/')).sort();
+
+    if(deps_sorted.length === 0) {
+      tb.innerHTML = '<tr><td colspan="19"><div class="empty">Nenhum dado carregado</div></td></tr>';
+      return;
+    }
+
+    tb.innerHTML = deps_sorted.map(dep => {
+      const d = depMap[dep];
+      const mesesCels = meses.map((mes, idx) => {
+        const real = Math.round(d.meses[mes].real);
+        const plan = Math.round(d.meses[mes].plan);
+        const realStr = idx < 5 ? real : '-'; // Mostrar real apenas para jan-mai
+        const planStr = plan > 0 ? plan : '-';
+
+        const pctMatch = real > 0 && plan > 0 ? ((real / plan) * 100).toFixed(0) : '-';
+        const colorClass = pctMatch !== '-' && pctMatch < 70 ? 'style="background:var(--danger-bg);color:var(--danger);font-weight:600"' : '';
+
+        return `<td ${colorClass} style="text-align:center;padding:4px 2px;font-size:10px">${realStr}</td><td style="text-align:center;padding:4px 2px;font-size:10px">${planStr}</td>`;
+      }).join('');
+
+      return `<tr>
+        <td style="position:sticky;left:0;z-index:4;background:#f9fafb;padding:8px;font-weight:600;border-right:2px solid var(--border-color)">
+          ${dep}
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;cursor:pointer" onclick="abrirDetalhesDepto('${dep.replace(/'/g, "\\'")}')"><i class="lucide lucide-chevron-right" style="width:12px;height:12px"></i> Ver detalhes</div>
+        </td>
+        ${mesesCels}
+      </tr>`;
+    }).join('');
   }
 
   document.getElementById('btn-processar-consumo').addEventListener('click', processarConsumoCSV);
+
+  document.getElementById('plan-toggle-qtd')?.addEventListener('click', function() {
+    planModoPorQtd = true;
+    this.style.background = 'var(--ambar-orange)';
+    this.style.color = '#fff';
+    this.style.borderColor = 'transparent';
+    document.getElementById('plan-toggle-valor').style.background = '#ffffff';
+    document.getElementById('plan-toggle-valor').style.color = 'var(--text-main)';
+    document.getElementById('plan-toggle-valor').style.borderColor = 'var(--border-color)';
+    renderizarConsolidadoRealXPlan();
+  });
+
+  document.getElementById('plan-toggle-valor')?.addEventListener('click', function() {
+    planModoPorQtd = false;
+    this.style.background = 'var(--ambar-orange)';
+    this.style.color = '#fff';
+    this.style.borderColor = 'transparent';
+    document.getElementById('plan-toggle-qtd').style.background = '#ffffff';
+    document.getElementById('plan-toggle-qtd').style.color = 'var(--text-main)';
+    document.getElementById('plan-toggle-qtd').style.borderColor = 'var(--border-color)';
+    renderizarConsolidadoRealXPlan();
+  });
+
+  window.abrirDetalhesDepto = function(depto) {
+    toast('Info', `Detalhes de ${depto} - em desenvolvimento`, 'info');
+  };
 
   // Inicialização
   setTimeout(() => { carregarLayoutSalvo(); renderRequisicoes(); atualizarKPIs(); }, 100);
