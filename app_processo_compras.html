@@ -1733,7 +1733,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     return html;
   }
 
-  // Calcula e mostra rateio de contratação
+  // Calcula e mostra rateio de contratação com valores
   window.calcularRateio = function(e) {
     const input = e.target;
     const cod = input.getAttribute('data-codigo');
@@ -1743,24 +1743,47 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     const dados = demandaDadosCompletos[demandaAtiva?.id];
     if(!dados) return;
 
-    // Montar rateio
+    // Montar rateio por departamento E programa
     const deptos = {};
+    const progs = {};
     dados.forEach(row => {
       const rowCod = row['CÓDIGO'] || row['Código'] || row['codigo'] || '';
       if(rowCod !== cod) return;
       const depto = Object.keys(row).find(k => k.includes('DEPARTAMENTO')) ? row[Object.keys(row).find(k => k.includes('DEPARTAMENTO'))] : '';
+      const prog = Object.keys(row).find(k => k.includes('PROGRAMA')) ? row[Object.keys(row).find(k => k.includes('PROGRAMA'))] : '';
       const qtdStr = row['Qtd'] || row['qtd'] || row['QTD'] || '0';
       const qtd = parseFloat(qtdStr) || 0;
-      if(depto) deptos[depto] = (deptos[depto] || 0) + qtd;
+
+      if(depto) {
+        deptos[depto] = (deptos[depto] || 0) + qtd;
+      }
+      if(prog) {
+        progs[prog] = (progs[prog] || 0) + qtd;
+      }
     });
 
-    let rateioHtml = '';
+    let rateioHtml = '<div style="font-size:11px">';
+
+    // Rateio por departamento
+    rateioHtml += '<div style="font-weight:600;color:var(--text-main);margin-bottom:6px;border-bottom:1px solid var(--border-color);padding-bottom:4px">Departamentos:</div>';
     Object.entries(deptos).forEach(([depto, qtdDepto]) => {
-      const pct = (qtdDepto / totalDemanda) * 100;
-      const qtdRateio = (qtdContratar * pct) / 100;
-      rateioHtml += `<div style="margin-bottom:4px;font-size:11px">${depto}: <b>${qtdRateio.toFixed(0)}</b> un</div>`;
+      const pct = ((qtdDepto / totalDemanda) * 100).toFixed(1);
+      const qtdRateio = (qtdContratar * parseFloat(pct)) / 100;
+      rateioHtml += `<div style="margin-bottom:3px;display:grid;grid-template-columns:auto 1fr;gap:4px"><span style="color:var(--text-muted)">${depto}</span><span style="text-align:right"><b>${qtdRateio.toFixed(0)}</b> un (${pct}%)</span></div>`;
     });
 
+    // Rateio por programa (top 3)
+    const progsOrdenados = Object.entries(progs).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    if(progsOrdenados.length) {
+      rateioHtml += '<div style="font-weight:600;color:var(--text-main);margin-top:8px;margin-bottom:6px;border-top:1px solid var(--border-color);border-bottom:1px solid var(--border-color);padding:4px 0">Programas:</div>';
+      progsOrdenados.forEach(([prog, qtdProg]) => {
+        const pct = ((qtdProg / totalDemanda) * 100).toFixed(1);
+        const qtdRateio = (qtdContratar * parseFloat(pct)) / 100;
+        rateioHtml += `<div style="margin-bottom:3px;display:grid;grid-template-columns:auto 1fr;gap:4px;font-size:10px"><span style="color:var(--text-muted);text-overflow:ellipsis;overflow:hidden;white-space:nowrap">${prog}</span><span style="text-align:right"><b>${qtdRateio.toFixed(0)}</b> un (${pct}%)</span></div>`;
+      });
+    }
+
+    rateioHtml += '</div>';
     document.getElementById(`rateio-${cod}`).innerHTML = rateioHtml || '<span style="color:var(--text-muted)">Selecione quantidade</span>';
   };
   document.getElementById('btn-gravar-ana').addEventListener('click', () => {
