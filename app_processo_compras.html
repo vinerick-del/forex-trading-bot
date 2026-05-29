@@ -3225,25 +3225,32 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         for(let i = 1; i < linhas.length; i++) {
           const cols = linhas[i].split(';').map(c => c.trim());
           const cod = cols[idxMaterial];
-          const qtd = parseFloat(cols[idxQtd]?.replace(/[^\d,.]/g, '').replace(',', '.')) || 0;
-          const val = parseFloat(cols[idxValor]?.replace(/[^\d,.]/g, '').replace(',', '.')) || 0;
+          // Converter para positivo (valor absoluto) - saídas são negativas no sistema de estoque
+          const qtd = Math.abs(parseFloat(cols[idxQtd]?.replace(/[^\d,.]/g, '').replace(',', '.')) || 0);
+          const val = Math.abs(parseFloat(cols[idxValor]?.replace(/[^\d,.]/g, '').replace(',', '.')) || 0);
           const dep = cols[idxDep] || 'Sem Depto';
           const mesStr = cols[idxMes];
           const desc = cols[idxDesc] || 'Sem descrição';
 
           let mes = '00';
           if(mesStr?.includes('/')) {
+            // Formato: DD/MM/YYYY ou MM/DD/YYYY
             const parts = mesStr.split('/');
-            mes = parts[1] || '00';
+            mes = (parts[1] || '00').padStart(2, '0');
           } else if(mesStr?.length === 2) {
-            mes = mesStr;
+            // Formato: MM
+            mes = mesStr.padStart(2, '0');
+          } else if(mesStr?.length === 1) {
+            // Formato: M (número inteiro 1-12) - converter para 01-12
+            const mesNum = parseInt(mesStr);
+            mes = mesNum.toString().padStart(2, '0');
           }
 
           if(!consumoData[cod]) {
             consumoData[cod] = {
               desc: desc,
-              meses: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
-              valoresMeses: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
+              meses: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0, '06': 0, '07': 0, '08': 0, '09': 0, '10': 0, '11': 0, '12': 0 },
+              valoresMeses: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0, '06': 0, '07': 0, '08': 0, '09': 0, '10': 0, '11': 0, '12': 0 },
               deps: new Set(),
               totalQtd: 0,
               totalVal: 0
