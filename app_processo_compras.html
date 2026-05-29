@@ -1058,9 +1058,12 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       return col
         .trim()
         .replace(/^"|"$/g, '') // Remove aspas
-        .normalize('NFD') // Decomposição de acentos
-        .replace(/[̀-ͯ]/g, '') // Remove marcas de acentos
-        .replace(/[^\w\s]/g, '') // Remove caracteres especiais/garbled
+        .replace(/Â/g, 'A') // Substitui Â garbled por A
+        .replace(/ô/g, 'o') // Substitui ô garbled por o
+        .replace(/ã/g, 'a') // Substitui ã garbled por a
+        .replace(/ç/g, 'c') // Substitui ç garbled por c
+        .replace(/é/g, 'e') // Substitui é garbled por e
+        .replace(/[^\w\s]/g, '') // Remove caracteres especiais restantes
         .replace(/\s+/g, ' ') // Normaliza espaços múltiplos
         .trim();
     }
@@ -3342,21 +3345,24 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         const firstRow = dadosDemanda[0];
         const keys = Object.keys(firstRow);
 
-        // Colunas já estão normalizadas no parseCSV, então basta matching case-insensitive
+        // Colunas já estão normalizadas no parseCSV, mas com caracteres garbled removidos
+        // Usa matching flexível com padrões parciais
         colCod = keys.find(k => {
           const kUpper = k.toUpperCase();
-          return kUpper.includes('CODIGO') || kUpper.includes('MATERIAL') || kUpper.includes('CODE');
+          return kUpper.includes('CODIGO') || kUpper.includes('CDIGO') ||
+                 kUpper.includes('MATERIAL') || kUpper.includes('CODE');
         });
         colDepto = keys.find(k => {
-          return k.toUpperCase().includes('DEPARTAMENTO');
+          const kUpper = k.toUpperCase();
+          return kUpper.includes('DEPARTAMENTO') || kUpper.includes('DEPART');
         });
         colQtd = keys.find(k => {
           const kUpper = k.toUpperCase();
-          return kUpper.includes('QTD') || kUpper.includes('QUANTIDADE');
+          return kUpper.includes('QTD') || kUpper.includes('QUANTIDADE') || kUpper.includes('QTDE');
         });
         colMes = keys.find(k => {
           const kUpper = k.toUpperCase();
-          return kUpper.includes('MES') || kUpper.includes('MONTH');
+          return kUpper.includes('MES') || kUpper.includes('MS') || kUpper.includes('MONTH');
         });
 
         console.log('📋 Colunas detectadas:', { colCod, colDepto, colQtd, colMes });
@@ -3518,13 +3524,20 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
       const colCod = keys.find(k => {
         const kUpper = k.toUpperCase();
-        return kUpper.includes('CODIGO') || kUpper.includes('MATERIAL');
+        return kUpper.includes('CODIGO') || kUpper.includes('CDIGO') ||
+               kUpper.includes('MATERIAL');
       });
-      const colDepto = keys.find(k => k.toUpperCase().includes('DEPARTAMENTO'));
-      const colQtd = keys.find(k => k.toUpperCase().includes('QTD'));
+      const colDepto = keys.find(k => {
+        const kUpper = k.toUpperCase();
+        return kUpper.includes('DEPARTAMENTO') || kUpper.includes('DEPART');
+      });
+      const colQtd = keys.find(k => {
+        const kUpper = k.toUpperCase();
+        return kUpper.includes('QTD') || kUpper.includes('QTDE');
+      });
       const colMes = keys.find(k => {
         const kUpper = k.toUpperCase();
-        return kUpper.includes('MES') || kUpper.includes('MONTH');
+        return kUpper.includes('MES') || kUpper.includes('MS') || kUpper.includes('MONTH');
       });
 
       dadosDemanda.forEach(row => {
