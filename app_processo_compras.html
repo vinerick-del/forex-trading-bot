@@ -1677,14 +1677,41 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     </div>
 
     ${(() => {
-      // Se houver demanda ativa, usar seus departamentos/programas
-      let depList = [];
-      let progList = [];
+      // Extrair apenas DEPARTAMENTOS E PROGRAMAS dos códigos que estão sendo COMPRADOS
+      const deptosDaCompra = new Set();
+      const progsDaCompra = new Set();
 
-      if(demandaAtiva && typeof demandaAtiva === 'object' && demandaAtiva.departamentos) {
-        depList = demandaAtiva.departamentos || [];
-        progList = demandaAtiva.programas || [];
+      if(demandaAtiva && typeof demandaAtiva === 'object' && demandaDadosCompletos[demandaAtiva.id]) {
+        const dados = demandaDadosCompletos[demandaAtiva.id] || [];
+
+        // Para cada código que estamos comprando
+        Object.keys(itensPorCod).forEach(cod => {
+          // Buscar este código nos dados da demanda
+          dados.forEach(row => {
+            // Procurar por coluna CÓDIGO (com variações)
+            const rowCod = Object.entries(row).find(([k, v]) => 
+              k.toUpperCase().includes('CÓDIGO') || k.toUpperCase().includes('CODE')
+            )?.[1];
+
+            if(rowCod === cod || String(rowCod).trim() === String(cod).trim()) {
+              // Encontrou o código na demanda, extrair dept/prog
+              const depto = Object.entries(row).find(([k, v]) => 
+                k.toUpperCase().includes('DEPART')
+              )?.[1];
+              
+              const prog = Object.entries(row).find(([k, v]) => 
+                k.toUpperCase().includes('PROGRAMA')
+              )?.[1];
+
+              if(depto) deptosDaCompra.add(String(depto).trim());
+              if(prog) progsDaCompra.add(String(prog).trim());
+            }
+          });
+        });
       }
+
+      const depList = Array.from(deptosDaCompra).sort();
+      const progList = Array.from(progsDaCompra).sort();
 
       return `<div class="card">
         <div class="card-title" style="margin-bottom:16px">Departamentos e Programas Atendidos nesta Compra</div>
@@ -1692,18 +1719,18 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           <div>
             <div style="font-weight:600;color:var(--ambar-orange);margin-bottom:10px;font-size:12px;text-transform:uppercase">Departamentos (${depList.length})</div>
             <div style="display:flex;flex-direction:column;gap:6px">
-              ${depList.length ? depList.map(d => `<span style="background:var(--info-bg);color:var(--info);padding:6px 10px;border-radius:var(--r-md);font-size:12px;font-weight:500">${d}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhuma demanda ativa</span>'}
+              ${depList.length ? depList.map(d => `<span style="background:var(--info-bg);color:var(--info);padding:6px 10px;border-radius:var(--r-md);font-size:12px;font-weight:500">${d}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhum departamento nesta compra</span>'}
             </div>
           </div>
           <div>
             <div style="font-weight:600;color:var(--ambar-orange);margin-bottom:10px;font-size:12px;text-transform:uppercase">Programas Orçamentários (${progList.length})</div>
             <div style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto">
-              ${progList.length ? progList.map(p => `<span style="background:var(--warning-bg);color:var(--warning);padding:6px 10px;border-radius:var(--r-md);font-size:12px;font-weight:500">${p}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhum programa</span>'}
+              ${progList.length ? progList.map(p => `<span style="background:var(--warning-bg);color:var(--warning);padding:6px 10px;border-radius:var(--r-md);font-size:12px;font-weight:500">${p}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhum programa nesta compra</span>'}
             </div>
           </div>
         </div>
         ${demandaAtiva && typeof demandaAtiva === 'object' ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color);font-size:11px;color:var(--text-muted)">
-          📄 Demanda: <b>${demandaAtiva.nomeArquivo}</b> | ${demandaAtiva.linhas.toLocaleString('pt-BR')} registros | ${demandaAtiva.departamentos?.length || 0} deptos | ${demandaAtiva.programas?.length || 0} programas
+          📄 Demanda: <b>${demandaAtiva.nomeArquivo}</b> | ${demandaAtiva.linhas.toLocaleString('pt-BR')} registros | Processo contém ${depList.length} deptos e ${progList.length} programas
         </div>` : '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color);font-size:11px;color:var(--text-muted)">⚠️ Nenhuma demanda ativa importada</div>'}
       </div>`;
     })()}
