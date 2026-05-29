@@ -1677,65 +1677,6 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     </div>
 
     ${(() => {
-      // Extrair apenas DEPARTAMENTOS E PROGRAMAS dos códigos que estão sendo COMPRADOS
-      const deptosDaCompra = new Set();
-      const progsDaCompra = new Set();
-
-      if(demandaAtiva && typeof demandaAtiva === 'object' && demandaDadosCompletos[demandaAtiva.id]) {
-        const dados = demandaDadosCompletos[demandaAtiva.id] || [];
-
-        // Para cada código que estamos comprando
-        Object.keys(itensPorCod).forEach(cod => {
-          // Buscar este código nos dados da demanda
-          dados.forEach(row => {
-            // Procurar por coluna CÓDIGO (com variações)
-            const rowCod = Object.entries(row).find(([k, v]) => 
-              k.toUpperCase().includes('CÓDIGO') || k.toUpperCase().includes('CODE')
-            )?.[1];
-
-            if(rowCod === cod || String(rowCod).trim() === String(cod).trim()) {
-              // Encontrou o código na demanda, extrair dept/prog
-              const depto = Object.entries(row).find(([k, v]) => 
-                k.toUpperCase().includes('DEPART')
-              )?.[1];
-              
-              const prog = Object.entries(row).find(([k, v]) => 
-                k.toUpperCase().includes('PROGRAMA')
-              )?.[1];
-
-              if(depto) deptosDaCompra.add(String(depto).trim());
-              if(prog) progsDaCompra.add(String(prog).trim());
-            }
-          });
-        });
-      }
-
-      const depList = Array.from(deptosDaCompra).sort();
-      const progList = Array.from(progsDaCompra).sort();
-
-      return `<div class="card">
-        <div class="card-title" style="margin-bottom:16px">Departamentos e Programas Atendidos nesta Compra</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-          <div>
-            <div style="font-weight:600;color:var(--ambar-orange);margin-bottom:10px;font-size:12px;text-transform:uppercase">Departamentos (${depList.length})</div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              ${depList.length ? depList.map(d => `<span style="background:var(--info-bg);color:var(--info);padding:6px 10px;border-radius:var(--r-md);font-size:12px;font-weight:500">${d}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhum departamento nesta compra</span>'}
-            </div>
-          </div>
-          <div>
-            <div style="font-weight:600;color:var(--ambar-orange);margin-bottom:10px;font-size:12px;text-transform:uppercase">Programas Orçamentários (${progList.length})</div>
-            <div style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto">
-              ${progList.length ? progList.map(p => `<span style="background:var(--warning-bg);color:var(--warning);padding:6px 10px;border-radius:var(--r-md);font-size:12px;font-weight:500">${p}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhum programa nesta compra</span>'}
-            </div>
-          </div>
-        </div>
-        ${demandaAtiva && typeof demandaAtiva === 'object' ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color);font-size:11px;color:var(--text-muted)">
-          📄 Demanda: <b>${demandaAtiva.nomeArquivo}</b> | ${demandaAtiva.linhas.toLocaleString('pt-BR')} registros | Processo contém ${depList.length} deptos e ${progList.length} programas
-        </div>` : '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color);font-size:11px;color:var(--text-muted)">⚠️ Nenhuma demanda ativa importada</div>'}
-      </div>`;
-    })()}
-
-    ${(() => {
       // ANÁLISE DE MATERIAIS DA DEMANDA
       if(!demandaAtiva || typeof demandaAtiva !== 'object') {
         return '';
@@ -1747,6 +1688,19 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       const totalMateriais = demandaAtiva.linhas || 0;
       const totalDeptos = demandaAtiva.departamentos?.length || 0;
       const totalProgs = demandaAtiva.programas?.length || 0;
+
+      // Top 3 departamentos por consumo
+      const topDeptos = Object.entries(consumoPorDepto)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
+
+      // Top 3 programas por consumo
+      const topProgs = Object.entries(consumoPorProg)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
+
+      const totalConsumoDepts = Object.values(consumoPorDepto).reduce((a, b) => a + b, 0) || 1;
+      const totalConsumoProgs = Object.values(consumoPorProg).reduce((a, b) => a + b, 0) || 1;
 
       // Top 3 departamentos por consumo
       const topDeptos = Object.entries(consumoPorDepto)
@@ -1778,25 +1732,37 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
           <div>
-            <div style="font-weight:600;color:var(--info);margin-bottom:12px;font-size:12px;text-transform:uppercase">Top Departamentos</div>
+            <div style="font-weight:600;color:var(--info);margin-bottom:12px;font-size:12px;text-transform:uppercase">Departamentos por Consumo</div>
             <div style="display:flex;flex-direction:column;gap:8px">
-              ${topDeptos.length ? topDeptos.map(([depto, qtd]) => `
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--info-bg);border-radius:var(--r-md);font-size:12px">
-                  <span style="color:var(--info);font-weight:500">${depto}</span>
-                  <span style="color:var(--info);font-weight:700">${qtd.toLocaleString('pt-BR')}</span>
+              ${topDeptos.length ? topDeptos.map(([depto, qtd]) => {
+                const pct = ((qtd / totalConsumoDepts) * 100).toFixed(1);
+                return `
+                <div style="padding:8px;background:var(--info-bg);border-radius:var(--r-md);font-size:11px">
+                  <div style="display:flex;justify-content:space-between;color:var(--info);font-weight:600;margin-bottom:4px">
+                    <span>${depto}</span>
+                    <span>${pct}%</span>
+                  </div>
+                  <div style="color:var(--info);font-size:10px">${qtd.toLocaleString('pt-BR')} unidades</div>
                 </div>
-              `).join('') : '<span style="color:var(--text-muted);font-size:12px">Sem dados</span>'}
+              `;
+              }).join('') : '<span style="color:var(--text-muted);font-size:12px">Sem dados</span>'}
             </div>
           </div>
           <div>
-            <div style="font-weight:600;color:var(--warning);margin-bottom:12px;font-size:12px;text-transform:uppercase">Top Programas</div>
+            <div style="font-weight:600;color:var(--warning);margin-bottom:12px;font-size:12px;text-transform:uppercase">Programas por Consumo</div>
             <div style="display:flex;flex-direction:column;gap:8px">
-              ${topProgs.length ? topProgs.map(([prog, qtd]) => `
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--warning-bg);border-radius:var(--r-md);font-size:12px">
-                  <span style="color:var(--warning);font-weight:500">${prog}</span>
-                  <span style="color:var(--warning);font-weight:700">${qtd.toLocaleString('pt-BR')}</span>
+              ${topProgs.length ? topProgs.map(([prog, qtd]) => {
+                const pct = ((qtd / totalConsumoProgs) * 100).toFixed(1);
+                return `
+                <div style="padding:8px;background:var(--warning-bg);border-radius:var(--r-md);font-size:11px">
+                  <div style="display:flex;justify-content:space-between;color:var(--warning);font-weight:600;margin-bottom:4px">
+                    <span>${prog}</span>
+                    <span>${pct}%</span>
+                  </div>
+                  <div style="color:var(--warning);font-size:10px">${qtd.toLocaleString('pt-BR')} unidades</div>
                 </div>
-              `).join('') : '<span style="color:var(--text-muted);font-size:12px">Sem dados</span>'}
+              `;
+              }).join('') : '<span style="color:var(--text-muted);font-size:12px">Sem dados</span>'}
             </div>
           </div>
         </div>
