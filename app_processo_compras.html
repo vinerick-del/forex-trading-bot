@@ -1689,16 +1689,6 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       const totalDeptos = demandaAtiva.departamentos?.length || 0;
       const totalProgs = demandaAtiva.programas?.length || 0;
 
-      // Top 3 departamentos por consumo
-      const topDeptos = Object.entries(consumoPorDepto)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 3);
-
-      // Top 3 programas por consumo
-      const topProgs = Object.entries(consumoPorProg)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 3);
-
       const totalConsumoDepts = Object.values(consumoPorDepto).reduce((a, b) => a + b, 0) || 1;
       const totalConsumoProgs = Object.values(consumoPorProg).reduce((a, b) => a + b, 0) || 1;
 
