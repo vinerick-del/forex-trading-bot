@@ -1057,12 +1057,42 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     const preview = document.getElementById('demanda-preview');
     if(!revision) return;
 
+    // Buscar dados completos para análise
+    const dados = demandaDadosCompletos[revision.id] || [];
+
+    // Contar códigos distintos
+    const codigosUnicos = new Set();
+    const codigosPorDepto = {};
+    const codigosPorProg = {};
+
+    dados.forEach(row => {
+      const cod = row['CÓDIGO'] || row['Código'] || row['codigo'] || '';
+      const depto = Object.keys(row).find(k => k.includes('DEPARTAMENTO')) ? row[Object.keys(row).find(k => k.includes('DEPARTAMENTO'))] : '';
+      const prog = Object.keys(row).find(k => k.includes('PROGRAMA')) ? row[Object.keys(row).find(k => k.includes('PROGRAMA'))] : '';
+
+      if(cod) {
+        codigosUnicos.add(cod);
+      }
+      if(cod && depto) {
+        if(!codigosPorDepto[depto]) codigosPorDepto[depto] = new Set();
+        codigosPorDepto[depto].add(cod);
+      }
+      if(cod && prog) {
+        if(!codigosPorProg[prog]) codigosPorProg[prog] = new Set();
+        codigosPorProg[prog].add(cod);
+      }
+    });
+
     let html = `
       <div style="padding:16px;background:var(--bg-app);border-radius:var(--r-md);margin-bottom:16px">
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
           <div style="text-align:center">
             <div style="font-size:24px;font-weight:700;color:var(--ambar-orange)">${revision.linhas.toLocaleString('pt-BR')}</div>
             <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Registros</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:24px;font-weight:700;color:var(--success)">${codigosUnicos.size}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Códigos Distintos</div>
           </div>
           <div style="text-align:center">
             <div style="font-size:24px;font-weight:700;color:var(--success)">${(revision.departamentos || []).length}</div>
@@ -1080,34 +1110,43 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       </div>
     `;
 
-    // Listar departamentos
+    // Departamentos com contagem de códigos
     if(revision.departamentos && revision.departamentos.length) {
       html += `
         <div style="margin-bottom:16px">
           <h3 style="margin-bottom:8px;font-size:13px;font-weight:600;color:var(--text-main)">Departamentos</h3>
-          <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <div style="display:grid;gap:8px">
       `;
       revision.departamentos.forEach(depto => {
         const consumo = revision.consumoPorDepto?.[depto] || 0;
-        html += `<span style="background:var(--bg-app);border-radius:var(--r-md);padding:6px 12px;font-size:12px">${depto} <span style="color:var(--text-muted)">(${consumo.toLocaleString('pt-BR')})</span></span>`;
+        const codsCount = codigosPorDepto[depto]?.size || 0;
+        html += `
+          <div style="background:white;border:1px solid var(--border-color);border-radius:var(--r-md);padding:8px 12px;font-size:12px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center">
+            <span><b>${depto}</b><br><span style="font-size:11px;color:var(--text-muted)">${codsCount} código(s)</span></span>
+            <span style="text-align:right;color:var(--text-muted)">${consumo.toLocaleString('pt-BR')} un</span>
+          </div>
+        `;
       });
       html += '</div></div>';
     }
 
-    // Listar programas
+    // Programas com contagem de códigos
     if(revision.programas && revision.programas.length) {
       html += `
         <div style="margin-bottom:16px">
           <h3 style="margin-bottom:8px;font-size:13px;font-weight:600;color:var(--text-main)">Programas Orçamentários</h3>
-          <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <div style="display:grid;gap:8px">
       `;
-      revision.programas.slice(0, 10).forEach(prog => {
+      revision.programas.forEach(prog => {
         const consumo = revision.consumoPorProg?.[prog] || 0;
-        html += `<span style="background:var(--bg-app);border-radius:var(--r-md);padding:6px 12px;font-size:12px">${prog} <span style="color:var(--text-muted)">(${consumo.toLocaleString('pt-BR')})</span></span>`;
+        const codsCount = codigosPorProg[prog]?.size || 0;
+        html += `
+          <div style="background:white;border:1px solid var(--border-color);border-radius:var(--r-md);padding:8px 12px;font-size:12px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center">
+            <span><b>${prog}</b><br><span style="font-size:11px;color:var(--text-muted)">${codsCount} código(s)</span></span>
+            <span style="text-align:right;color:var(--text-muted)">${consumo.toLocaleString('pt-BR')} un</span>
+          </div>
+        `;
       });
-      if(revision.programas.length > 10) {
-        html += `<span style="color:var(--text-muted);font-size:12px">... e mais ${revision.programas.length - 10}</span>`;
-      }
       html += '</div></div>';
     }
 
@@ -1385,42 +1424,178 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       </div>
     </div>
 
-    ${demandaAtiva ? `<div class="card">
-      <div class="card-title" style="margin-bottom:16px">Departamentos e Programas Atendidos</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <div>
-          <div style="font-weight:600;color:var(--ambar-orange);margin-bottom:10px;font-size:12px;text-transform:uppercase">Departamentos</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px">
-            ${departamentos.length ? departamentos.map(d => `<span class="badge badge-info">${d}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhum departamento mapeado</span>'}
+    ${(() => {
+      // Extrair departamentos/programas da COMPRA (itens selecionados do processo)
+      const deptosDaCompra = new Set();
+      const progsDaCompra = new Set();
+
+      Object.keys(itensPorCod).forEach(cod => {
+        const g = ganhadores[cod];
+        if(g) {
+          // Buscar na demanda qual dept/prog esse código tem
+          const dados = demandaDadosCompletos[demandaAtiva?.id] || [];
+          dados.forEach(row => {
+            const rowCod = row['CÓDIGO'] || row['Código'] || row['codigo'] || '';
+            if(rowCod === cod) {
+              const depto = Object.keys(row).find(k => k.includes('DEPARTAMENTO')) ? row[Object.keys(row).find(k => k.includes('DEPARTAMENTO'))] : '';
+              const prog = Object.keys(row).find(k => k.includes('PROGRAMA')) ? row[Object.keys(row).find(k => k.includes('PROGRAMA'))] : '';
+              if(depto) deptosDaCompra.add(depto);
+              if(prog) progsDaCompra.add(prog);
+            }
+          });
+        }
+      });
+
+      const depList = Array.from(deptosDaCompra).sort();
+      const progList = Array.from(progsDaCompra).sort();
+
+      return `<div class="card">
+        <div class="card-title" style="margin-bottom:16px">Departamentos e Programas Atendidos nesta Compra</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div>
+            <div style="font-weight:600;color:var(--ambar-orange);margin-bottom:10px;font-size:12px;text-transform:uppercase">Departamentos (${depList.length})</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              ${depList.length ? depList.map(d => `<span style="background:var(--info-bg);color:var(--info);padding:6px 10px;border-radius:var(--r-md);font-size:12px;font-weight:500">${d}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhum departamento</span>'}
+            </div>
+          </div>
+          <div>
+            <div style="font-weight:600;color:var(--ambar-orange);margin-bottom:10px;font-size:12px;text-transform:uppercase">Programas Orçamentários (${progList.length})</div>
+            <div style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto">
+              ${progList.length ? progList.map(p => `<span style="background:var(--warning-bg);color:var(--warning);padding:6px 10px;border-radius:var(--r-md);font-size:12px;font-weight:500">${p}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhum programa</span>'}
+            </div>
           </div>
         </div>
-        <div>
-          <div style="font-weight:600;color:var(--ambar-orange);margin-bottom:10px;font-size:12px;text-transform:uppercase">Programas Orçamentários</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px">
-            ${programas.length ? programas.map(p => `<span class="badge badge-violet">${p}</span>`).join('') : '<span style="color:var(--text-muted);font-size:12px">Nenhum programa mapeado</span>'}
-          </div>
-        </div>
-      </div>
-      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color);font-size:11px;color:var(--text-muted)">
-        📄 Demanda importada: <b>${demandaAtiva.nomeArquivo}</b> em ${demandaAtiva.dataHora}
-      </div>
-    </div>` : ''}
+        ${demandaAtiva ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color);font-size:11px;color:var(--text-muted)">
+          📄 Demanda: <b>${demandaAtiva.nomeArquivo}</b> | ${demandaAtiva.linhas.toLocaleString('pt-BR')} registros | ${demandaAtiva.departamentos?.length || 0} deptos | ${demandaAtiva.programas?.length || 0} programas
+        </div>` : ''}
+      </div>`;
+    })()}
 
     <div class="card">
-      <div class="card-title" style="margin-bottom:16px">Parâmetros Globais</div>
-      <div class="params-grid">`;
+      <div class="card-title" style="margin-bottom:16px">Análise do Processo de Compra</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px">
+        ${(() => {
+          const fornGanhadores = {};
+          const totalItens = Object.keys(itensPorCod).length;
+          let itensAprovados = 0, itensReprovados = 0;
 
-    const fornUnicos = [...new Set(cotProc.map(c => c.fornecedor))];
-    const amostraForn = state.fornecedores.find(f => f.nome === fornUnicos[0]);
-    if(amostraForn){
-      html += `<div class="param-item"><strong>Entrega</strong><span>${cotProc[0]?.entrega || '—'}</span></div>`;
-      html += `<div class="param-item"><strong>Pagamento</strong><span>${cotProc[0]?.pagamento || '—'}</span></div>`;
-      html += `<div class="param-item"><strong>Frete</strong><span>${cotProc[0]?.frete || '—'}</span></div>`;
-      html += `<div class="param-item"><strong>Garantia</strong><span>${cotProc[0]?.garantia || '—'}</span></div>`;
-      html += `<div class="param-item"><strong>Vigência</strong><span>${cotProc[0]?.vigencia || '—'}</span></div>`;
-    }
+          Object.keys(itensPorCod).forEach(cod => {
+            const g = ganhadores[cod];
+            if(g) {
+              const item = itensPorCod[cod];
+              const fornData = state.fornecedores.find(f => f.nome === g);
+              if(item.cotacoes[g]) {
+                const u = item.cotacoes[g][item.cotacoes[g].length - 1];
+                const analise = state.analises.find(a => a.cotacaoId === u.id);
+                if(analise?.status === 'SIM') itensAprovados++;
+                else if(analise?.status === 'NÃO') itensReprovados++;
+              }
+            }
+          });
 
-    html += `</div></div>
+          const pctAprovado = totalItens > 0 ? ((itensAprovados / totalItens) * 100).toFixed(1) : 0;
+
+          return `
+            <div style="background:var(--bg-app);border-radius:var(--r-md);padding:12px;text-align:center">
+              <div style="font-size:24px;font-weight:700;color:var(--ambar-orange)">${Object.keys(fornGanhadores).length || Object.values(ganhadores).filter((v,i,a) => a.indexOf(v) === i).length}</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Fornecedores</div>
+            </div>
+            <div style="background:var(--bg-app);border-radius:var(--r-md);padding:12px;text-align:center">
+              <div style="font-size:24px;font-weight:700;color:var(--success)">${itensAprovados}</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Itens Aprovados</div>
+            </div>
+            <div style="background:var(--bg-app);border-radius:var(--r-md);padding:12px;text-align:center">
+              <div style="font-size:24px;font-weight:700;color:var(--danger)">${itensReprovados}</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Itens Reprovados</div>
+            </div>
+            <div style="background:var(--bg-app);border-radius:var(--r-md);padding:12px;text-align:center">
+              <div style="font-size:24px;font-weight:700;color:var(--success)">${pctAprovado}%</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Taxa de Aprovação</div>
+            </div>
+            <div style="background:var(--bg-app);border-radius:var(--r-md);padding:12px;text-align:center">
+              <div style="font-size:24px;font-weight:700;color:var(--success)">${fmtBRL(orçado - proposto)}</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Saving Total</div>
+            </div>
+            <div style="background:var(--bg-app);border-radius:var(--r-md);padding:12px;text-align:center">
+              <div style="font-size:24px;font-weight:700;color:var(--info)">${((proposto > 0 ? ((orçado - proposto) / orçado) * 100 : 0).toFixed(1))}%</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Economia %</div>
+            </div>
+          `;
+        })()}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:16px">Parâmetros por Fornecedor Ganhador</div>
+      <div style="display:grid;gap:16px">
+      ${(() => {
+        const fornGanhadores = {};
+        Object.keys(itensPorCod).forEach(cod => {
+          const g = ganhadores[cod];
+          if(g) {
+            if(!fornGanhadores[g]) {
+              fornGanhadores[g] = { valor: 0, itens: 0, cotacoes: [] };
+            }
+            fornGanhadores[g].itens += 1;
+            const item = itensPorCod[cod];
+            const fornData = state.fornecedores.find(f => f.nome === g);
+            if(item.cotacoes[g]) {
+              const u = item.cotacoes[g][item.cotacoes[g].length - 1];
+              const precoComDifal = calcularPrecoComDIFAL(u.vunit, fornData?.icms || 18, true);
+              fornGanhadores[g].valor += (precoComDifal * item.qtd);
+              fornGanhadores[g].cotacoes.push(u);
+            }
+          }
+        });
+
+        const fornOrdenados = Object.entries(fornGanhadores)
+          .sort((a, b) => b[1].valor - a[1].valor)
+          .map(([nome, dados]) => ({ nome, ...dados }));
+
+        return fornOrdenados.map((forn, idx) => {
+          const fornData = state.fornecedores.find(f => f.nome === forn.nome);
+          const primeiraCot = forn.cotacoes[0];
+          return `
+          <div style="background:white;border:2px solid ${idx === 0 ? 'var(--ambar-orange)' : 'var(--border-color)'};border-radius:var(--r-md);padding:16px">
+            ${idx === 0 ? '<div style="font-size:11px;color:var(--ambar-orange);font-weight:600;margin-bottom:8px">🏆 FORNECEDOR GANHADOR</div>' : ''}
+            <div style="display:grid;grid-template-columns:1fr auto;gap:12px;margin-bottom:12px">
+              <div>
+                <div style="font-weight:600;font-size:14px;color:var(--text-main)">${forn.nome}</div>
+                <div style="font-size:12px;color:var(--text-muted)">${fornData?.uf || '—'} | ${forn.itens} item(ns)</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:18px;font-weight:700;color:var(--ambar-orange)">${fmtBRL(forn.valor)}</div>
+                <div style="font-size:11px;color:var(--text-muted)">valor total</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;padding-top:12px;border-top:1px solid var(--border-color)">
+              <div style="font-size:11px">
+                <div style="color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Entrega</div>
+                <div style="color:var(--text-main)">${primeiraCot?.entrega || '—'}</div>
+              </div>
+              <div style="font-size:11px">
+                <div style="color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Pagamento</div>
+                <div style="color:var(--text-main)">${primeiraCot?.pagamento || '—'}</div>
+              </div>
+              <div style="font-size:11px">
+                <div style="color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Frete</div>
+                <div style="color:var(--text-main)">${primeiraCot?.frete || '—'}</div>
+              </div>
+              <div style="font-size:11px">
+                <div style="color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Garantia</div>
+                <div style="color:var(--text-main)">${primeiraCot?.garantia || '—'}</div>
+              </div>
+              <div style="font-size:11px">
+                <div style="color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Vigência</div>
+                <div style="color:var(--text-main)">${primeiraCot?.vigencia || '—'}</div>
+              </div>
+            </div>
+          </div>
+          `;
+        }).join('');
+      })()}
+      </div>
+    </div>
 
     <div class="card">
       <div class="card-title" style="margin-bottom:16px">Resumo de Decisão</div>
