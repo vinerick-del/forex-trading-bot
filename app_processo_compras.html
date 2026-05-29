@@ -1053,29 +1053,39 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     let tipoSeparador = null;
     let colunas = [];
 
+    // Função para normalizar nome de coluna (remove acentos, caracteres garbled, espaços extras)
+    function normalizarColuna(col) {
+      return col
+        .trim()
+        .replace(/^"|"$/g, '') // Remove aspas
+        .normalize('NFD') // Decomposição de acentos
+        .replace(/[̀-ͯ]/g, '') // Remove marcas de acentos
+        .replace(/[^\w\s]/g, '') // Remove caracteres especiais/garbled
+        .replace(/\s+/g, ' ') // Normaliza espaços múltiplos
+        .trim();
+    }
+
     // Testar cada separador até encontrar um que resulte em múltiplas colunas
     for(let sep of separadoresParaTentar) {
-      const colTest = primeiraLinha.split(sep.char).map(c => c.trim().replace(/^"|"$/g, '')).filter(c => c.length > 0);
+      const colTest = primeiraLinha.split(sep.char).map(normalizarColuna).filter(c => c.length > 0);
       console.log(`Parse: teste com ${sep.nome} = ${colTest.length} colunas`);
 
       if(colTest.length > 1) {
         separador = sep.char;
         tipoSeparador = sep.nome;
-        // Normalizar nomes de colunas para lidar com encoding
-        colunas = colTest.map(col => col.normalize('NFD').replace(/[̀-ͯ]/g, ''));
+        colunas = colTest;
         break;
       }
     }
 
     // Se nenhum separador funcionou, tentar espaços múltiplos
     if(!separador) {
-      const colTest = primeiraLinha.split(/  +/).map(c => c.trim().replace(/^"|"$/g, '')).filter(c => c.length > 0);
+      const colTest = primeiraLinha.split(/  +/).map(normalizarColuna).filter(c => c.length > 0);
       console.log(`Parse: teste com ESPAÇOS MÚLTIPLOS = ${colTest.length} colunas`);
       if(colTest.length > 1) {
         separador = /  +/;
         tipoSeparador = 'ESPAÇOS MÚLTIPLOS';
-        // Normalizar nomes de colunas para lidar com encoding
-        colunas = colTest.map(col => col.normalize('NFD').replace(/[̀-ͯ]/g, ''));
+        colunas = colTest;
       }
     }
 
