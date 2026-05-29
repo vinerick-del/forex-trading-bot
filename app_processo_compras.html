@@ -501,7 +501,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
             <textarea class="textarea" id="cot-textarea" placeholder="Fornecedor&#9;Entrega&#9;Pagamento&#9;Frete&#9;Garantia&#9;Vigência&#9;Nº Cot.&#9;Código&#9;Desc.&#9;UND&#9;Qtd&#9;V.Unit&#9;V.Total"></textarea>
           </div>
           <div class="card">
-            <div class="card-head"><div class="card-title">3. Validação</div><div style="display:flex;gap:8px"><button class="btn btn-secondary btn-sm" id="btn-add-linha"><i class="lucide lucide-plus"></i> Exemplo</button><button class="btn btn-success btn-sm" id="btn-salvar-cot"><i class="lucide lucide-check"></i> Salvar na base</button></div></div>
+            <div class="card-head"><div class="card-title">3. Validação</div><div style="display:flex;gap:8px"><button class="btn btn-secondary btn-sm" id="btn-add-linha"><i class="lucide lucide-plus"></i> Exemplo</button><button class="btn btn-info btn-sm" onclick="adicionarNovaLinhaTab()"><i class="lucide lucide-file-plus"></i> Nova Linha</button><button class="btn btn-success btn-sm" id="btn-salvar-cot"><i class="lucide lucide-check"></i> Salvar na base</button></div></div>
             <div class="table-wrap"><table class="table"><thead><tr><th>Fornecedor</th><th>Entrega</th><th>Pgt.</th><th>Frete</th><th>Garantia</th><th>Vigência</th><th>Nº Cot.</th><th>Código</th><th>Desc.</th><th>UN</th><th>Qtd</th><th>V. Unit</th><th>V. Total</th></tr></thead><tbody id="tabela-cotacoes"><tr><td colspan="13"><div class="empty">Cole e processe os dados acima.</div></td></tr></tbody></table></div>
           </div>
         </section>
@@ -711,6 +711,30 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
 <div class="modal" id="notif-modal"><div class="modal-content"><div class="modal-head"><h2><i class="lucide lucide-bell" style="color:var(--ambar-orange)"></i> Notificações</h2><button class="modal-close" data-close-modal="notif-modal"><i class="lucide lucide-x"></i></button></div><div id="notif-list" style="display:flex;flex-direction:column;gap:10px"></div></div></div>
 <div class="modal" id="help-modal"><div class="modal-content"><div class="modal-head"><h2><i class="lucide lucide-circle-help" style="color:var(--ambar-orange)"></i> Ajuda</h2><button class="modal-close" data-close-modal="help-modal"><i class="lucide lucide-x"></i></button></div><ol style="color:var(--text-main);font-size:var(--fs-sm);line-height:1.8;padding-left:20px"><li>Cadastre uma <b>Requisição</b> e <b>Fornecedores</b>.</li><li>Em <b>Cotações</b>, cole os dados.</li><li>Em <b>Análise Técnica</b>, aprove ou reprove itens.</li><li>Na <b>Matriz</b>, use os botões mágicos ou clique nos cards para escolher os vencedores.</li></ol></div></div>
+
+<div class="modal" id="modal-editar-cotacao">
+  <div class="modal-content" style="max-width:500px">
+    <div class="modal-head"><h2><i class="lucide lucide-edit" style="color:var(--ambar-orange)"></i> Editar Cotação</h2><button class="modal-close" data-close-modal="modal-editar-cotacao"><i class="lucide lucide-x"></i></button></div>
+    <div style="display:grid;gap:12px;margin-bottom:20px">
+      <div><label style="font-weight:600;font-size:12px">Fornecedor</label><input type="text" id="editar-cot-fornecedor" class="input" placeholder="Fornecedor"></div>
+      <div><label style="font-weight:600;font-size:12px">Entrega</label><input type="text" id="editar-cot-entrega" class="input" placeholder="Entrega"></div>
+      <div><label style="font-weight:600;font-size:12px">Pagamento</label><input type="text" id="editar-cot-pagamento" class="input" placeholder="Pagamento"></div>
+      <div><label style="font-weight:600;font-size:12px">Frete</label><input type="text" id="editar-cot-frete" class="input" placeholder="Frete"></div>
+      <div><label style="font-weight:600;font-size:12px">Garantia</label><input type="text" id="editar-cot-garantia" class="input" placeholder="Garantia"></div>
+      <div><label style="font-weight:600;font-size:12px">Vigência</label><input type="text" id="editar-cot-vigencia" class="input" placeholder="Vigência"></div>
+      <div><label style="font-weight:600;font-size:12px">Nº Cotação</label><input type="text" id="editar-cot-nro" class="input" placeholder="Nº Cot."></div>
+      <div><label style="font-weight:600;font-size:12px">Código</label><input type="text" id="editar-cot-codigo" class="input" placeholder="Código"></div>
+      <div><label style="font-weight:600;font-size:12px">Descrição</label><input type="text" id="editar-cot-desc" class="input" placeholder="Descrição"></div>
+      <div><label style="font-weight:600;font-size:12px">Unidade</label><input type="text" id="editar-cot-un" class="input" placeholder="UN"></div>
+      <div><label style="font-weight:600;font-size:12px">Quantidade</label><input type="number" id="editar-cot-qtd" class="input" placeholder="0"></div>
+      <div><label style="font-weight:600;font-size:12px">Valor Unitário (R$)</label><input type="text" id="editar-cot-vu" class="input" placeholder="0,00"></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-secondary" data-close-modal="modal-editar-cotacao">Cancelar</button>
+      <button class="btn btn-success" id="btn-confirmar-cot" onclick="confirmarEditouNovaLinhaTab()">Salvar</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal" id="modal-designar-comprador">
   <div class="modal-content" style="max-width:600px">
@@ -1508,18 +1532,136 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     toast('Limpo', 'Textarea e tabela limpas');
   });
 
+  // Edição de cotações
+  let cotacaoEmEdicao = null;
+
+  window.editarLinhaTab = function(rowIndex) {
+    const tbody = document.getElementById('tabela-cotacoes');
+    const rows = tbody.querySelectorAll('tr');
+    if(!rows[rowIndex] || rows[rowIndex].querySelector('.empty')) return;
+
+    const tds = rows[rowIndex].querySelectorAll('td');
+    cotacaoEmEdicao = rowIndex;
+
+    document.getElementById('editar-cot-fornecedor').value = tds[0].textContent.trim();
+    document.getElementById('editar-cot-entrega').value = tds[1].textContent.trim();
+    document.getElementById('editar-cot-pagamento').value = tds[2].textContent.trim();
+    document.getElementById('editar-cot-frete').value = tds[3].textContent.trim();
+    document.getElementById('editar-cot-garantia').value = tds[4].textContent.trim();
+    document.getElementById('editar-cot-vigencia').value = tds[5].textContent.trim();
+    document.getElementById('editar-cot-nro').value = tds[6].textContent.trim();
+    document.getElementById('editar-cot-codigo').value = tds[7].textContent.trim();
+    document.getElementById('editar-cot-desc').value = tds[8].textContent.trim();
+    document.getElementById('editar-cot-un').value = tds[9].textContent.trim();
+    document.getElementById('editar-cot-qtd').value = limparNumero(tds[10].textContent);
+    document.getElementById('editar-cot-vu').value = limparNumero(tds[11].textContent);
+
+    openModal('modal-editar-cotacao');
+  };
+
+  window.adicionarNovaLinhaTab = function() {
+    cotacaoEmEdicao = -1; // Novo registro
+    document.getElementById('editar-cot-fornecedor').value = '';
+    document.getElementById('editar-cot-entrega').value = '';
+    document.getElementById('editar-cot-pagamento').value = '';
+    document.getElementById('editar-cot-frete').value = '';
+    document.getElementById('editar-cot-garantia').value = '';
+    document.getElementById('editar-cot-vigencia').value = '';
+    document.getElementById('editar-cot-nro').value = '';
+    document.getElementById('editar-cot-codigo').value = '';
+    document.getElementById('editar-cot-desc').value = '';
+    document.getElementById('editar-cot-un').value = '';
+    document.getElementById('editar-cot-qtd').value = '';
+    document.getElementById('editar-cot-vu').value = '';
+    openModal('modal-editar-cotacao');
+  };
+
+  window.confirmarEditouNovaLinhaTab = function() {
+    const tbody = document.getElementById('tabela-cotacoes');
+    const qNum = limparNumero(document.getElementById('editar-cot-qtd').value);
+    const vuNum = limparNumero(document.getElementById('editar-cot-vu').value);
+
+    if(cotacaoEmEdicao === -1) {
+      // Adicionar nova linha
+      const isEmpty = tbody.querySelector('.empty');
+      const rowIndex = tbody.querySelectorAll('tr').length;
+      const novaLinha = `<tr>
+        <td>${document.getElementById('editar-cot-fornecedor').value}</td>
+        <td>${document.getElementById('editar-cot-entrega').value}</td>
+        <td>${document.getElementById('editar-cot-pagamento').value}</td>
+        <td>${document.getElementById('editar-cot-frete').value}</td>
+        <td>${document.getElementById('editar-cot-garantia').value}</td>
+        <td>${document.getElementById('editar-cot-vigencia').value}</td>
+        <td>${document.getElementById('editar-cot-nro').value}</td>
+        <td><b>${document.getElementById('editar-cot-codigo').value}</b></td>
+        <td>${document.getElementById('editar-cot-desc').value}</td>
+        <td>${document.getElementById('editar-cot-un').value}</td>
+        <td>${qNum}</td>
+        <td>${fmtBRL(vuNum)}</td>
+        <td>${fmtBRL(qNum*vuNum)}</td>
+        <td style="text-align:center;white-space:nowrap;padding:4px"><button class="btn btn-ghost btn-sm" onclick="editarLinhaTab(${rowIndex})" title="Editar" style="padding:2px;color:var(--ambar-orange)"><i class="lucide lucide-edit-2"></i></button><button class="btn btn-ghost btn-sm" onclick="deletarLinhaTab(${rowIndex})" title="Deletar" style="padding:2px;color:var(--danger)"><i class="lucide lucide-trash-2"></i></button></td>
+      </tr>`;
+      if(isEmpty) {
+        tbody.innerHTML = novaLinha;
+      } else {
+        tbody.innerHTML += novaLinha;
+      }
+      toast('Adicionado', 'Nova linha inserida');
+    } else if(cotacaoEmEdicao !== null) {
+      // Editar linha existente
+      const rows = tbody.querySelectorAll('tr');
+      if(rows[cotacaoEmEdicao]) {
+        rows[cotacaoEmEdicao].innerHTML = `
+          <td>${document.getElementById('editar-cot-fornecedor').value}</td>
+          <td>${document.getElementById('editar-cot-entrega').value}</td>
+          <td>${document.getElementById('editar-cot-pagamento').value}</td>
+          <td>${document.getElementById('editar-cot-frete').value}</td>
+          <td>${document.getElementById('editar-cot-garantia').value}</td>
+          <td>${document.getElementById('editar-cot-vigencia').value}</td>
+          <td>${document.getElementById('editar-cot-nro').value}</td>
+          <td><b>${document.getElementById('editar-cot-codigo').value}</b></td>
+          <td>${document.getElementById('editar-cot-desc').value}</td>
+          <td>${document.getElementById('editar-cot-un').value}</td>
+          <td>${qNum}</td>
+          <td>${fmtBRL(vuNum)}</td>
+          <td>${fmtBRL(qNum*vuNum)}</td>
+          <td style="text-align:center;white-space:nowrap;padding:4px"><button class="btn btn-ghost btn-sm" onclick="editarLinhaTab(${cotacaoEmEdicao})" title="Editar" style="padding:2px;color:var(--ambar-orange)"><i class="lucide lucide-edit-2"></i></button><button class="btn btn-ghost btn-sm" onclick="deletarLinhaTab(${cotacaoEmEdicao})" title="Deletar" style="padding:2px;color:var(--danger)"><i class="lucide lucide-trash-2"></i></button></td>
+        `;
+        toast('Salvo', 'Linha atualizada');
+      }
+    }
+
+    cotacaoEmEdicao = null;
+    closeModal('modal-editar-cotacao');
+  };
+
+  window.deletarLinhaTab = function(rowIndex) {
+    if(!confirm('Deletar esta linha?')) return;
+    const tbody = document.getElementById('tabela-cotacoes');
+    const rows = tbody.querySelectorAll('tr');
+    if(rows[rowIndex]) {
+      rows[rowIndex].remove();
+      const remainingRows = tbody.querySelectorAll('tr');
+      if(remainingRows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="13"><div class="empty">Cole e processe os dados acima.</div></td></tr>';
+      }
+      toast('Deletado', 'Linha removida');
+    }
+  };
+
   document.getElementById('btn-processar').addEventListener('click', () => {
     const texto = document.getElementById('cot-textarea').value.trim();
     if(!texto) return toast('Erro', 'Cole dados do Excel', 'error');
     const linhas = texto.split('\n').filter(l => l.trim());
-    const novasLinhas = linhas.map(linha => {
-      const [f,e,p,fr,g,v,n,c,d,un,q,vu] = linha.split('\t');
-      const qNum=limparNumero(q), vuNum=limparNumero(vu);
-      return `<tr><td>${f||''}</td><td>${e||''}</td><td>${p||''}</td><td>${fr||''}</td><td>${g||''}</td><td>${v||''}</td><td>${n||''}</td><td><b>${c||''}</b></td><td>${d||''}</td><td>${un||''}</td><td>${qNum}</td><td>${fmtBRL(vuNum)}</td><td>${fmtBRL(qNum*vuNum)}</td></tr>`;
-    }).join('');
-
     const tbody = document.getElementById('tabela-cotacoes');
     const conteudoAtual = tbody.innerHTML;
+
+    const novasLinhas = linhas.map((linha, idx) => {
+      const [f,e,p,fr,g,v,n,c,d,un,q,vu] = linha.split('\t');
+      const qNum=limparNumero(q), vuNum=limparNumero(vu);
+      const rowIdx = conteudoAtual.includes('class="empty"') ? idx : tbody.querySelectorAll('tr').length + idx;
+      return `<tr><td>${f||''}</td><td>${e||''}</td><td>${p||''}</td><td>${fr||''}</td><td>${g||''}</td><td>${v||''}</td><td>${n||''}</td><td><b>${c||''}</b></td><td>${d||''}</td><td>${un||''}</td><td>${qNum}</td><td>${fmtBRL(vuNum)}</td><td>${fmtBRL(qNum*vuNum)}</td><td style="text-align:center;white-space:nowrap;padding:4px"><button class="btn btn-ghost btn-sm" onclick="editarLinhaTab(${rowIdx})" title="Editar" style="padding:2px;color:var(--ambar-orange)"><i class="lucide lucide-edit-2"></i></button><button class="btn btn-ghost btn-sm" onclick="deletarLinhaTab(${rowIdx})" title="Deletar" style="padding:2px;color:var(--danger)"><i class="lucide lucide-trash-2"></i></button></td></tr>`;
+    }).join('');
 
     // Se a tabela tem só o placeholder vazio, substituir. Caso contrário, adicionar
     if(conteudoAtual.includes('class="empty"')) {
