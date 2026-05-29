@@ -141,8 +141,9 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 .btn-secondary:hover{background:var(--bg-app);border-color:var(--ambar-slate-light);}
 .btn-success{background:var(--success);color:#fff;}
 .btn-danger{background:var(--danger);color:#fff;}
-.btn-ghost{background:transparent;color:var(--text-muted);}
-.btn-ghost:hover{background:var(--bg-app);color:var(--ambar-slate);}
+.btn-ghost{background:transparent;color:var(--text-light);}
+.btn-ghost:hover{background:var(--bg-app);color:var(--ambar-orange);border-color:var(--ambar-orange-light);}
+.btn-ghost i{color:inherit;}
 .btn-sm{padding:6px 12px;font-size:var(--fs-xs);border-radius:var(--r-sm);}
 
 /* ============================ KPIs ============================ */
@@ -711,6 +712,65 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 <div class="modal" id="notif-modal"><div class="modal-content"><div class="modal-head"><h2><i class="lucide lucide-bell" style="color:var(--ambar-orange)"></i> Notificações</h2><button class="modal-close" data-close-modal="notif-modal"><i class="lucide lucide-x"></i></button></div><div id="notif-list" style="display:flex;flex-direction:column;gap:10px"></div></div></div>
 <div class="modal" id="help-modal"><div class="modal-content"><div class="modal-head"><h2><i class="lucide lucide-circle-help" style="color:var(--ambar-orange)"></i> Ajuda</h2><button class="modal-close" data-close-modal="help-modal"><i class="lucide lucide-x"></i></button></div><ol style="color:var(--text-main);font-size:var(--fs-sm);line-height:1.8;padding-left:20px"><li>Cadastre uma <b>Requisição</b> e <b>Fornecedores</b>.</li><li>Em <b>Cotações</b>, cole os dados.</li><li>Em <b>Análise Técnica</b>, aprove ou reprove itens.</li><li>Na <b>Matriz</b>, use os botões mágicos ou clique nos cards para escolher os vencedores.</li></ol></div></div>
 
+<div class="modal" id="modal-designar-comprador">
+  <div class="modal-content" style="max-width:600px">
+    <div class="modal-head"><h2><i class="lucide lucide-user-check" style="color:var(--ambar-orange)"></i> Designar Comprador</h2><button class="modal-close" data-close-modal="modal-designar-comprador"><i class="lucide lucide-x"></i></button></div>
+    <div style="margin-bottom:20px">
+      <p style="color:var(--text-muted);font-size:var(--fs-sm);margin-bottom:16px">Processo: <b id="modal-proc-numero">—</b></p>
+
+      <div style="margin-bottom:20px;padding:16px;background:var(--bg-app);border-radius:var(--r-md)">
+        <label style="font-weight:600;display:block;margin-bottom:12px">Selecionar Comprador</label>
+        <select id="modal-comprador-select" class="select" style="width:100%;margin-bottom:12px">
+          <option value="">— Sem comprador —</option>
+        </select>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px">
+          <i class="lucide lucide-info" style="font-size:0.9em;vertical-align:middle"></i> Clique em "Gerenciar" para adicionar/remover compradores
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;padding:16px;background:var(--warning-bg);border-radius:var(--r-md);border:1px solid var(--warning)">
+        <label style="font-weight:600;display:block;margin-bottom:12px;color:var(--warning)">
+          <i class="lucide lucide-calendar" style="font-size:0.95em;vertical-align:middle;margin-right:4px"></i> Substituição Temporária (Férias)
+        </label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+          <div><label style="font-size:12px;color:var(--text-main)">De</label><input type="date" id="modal-ferias-de" class="input"></div>
+          <div><label style="font-size:12px;color:var(--text-main)">Até</label><input type="date" id="modal-ferias-ate" class="input"></div>
+        </div>
+        <div><label style="font-size:12px;color:var(--text-main)">Substituído por</label><select id="modal-ferias-subst" class="select" style="width:100%;margin-top:4px"><option value="">— Selecione —</option></select></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:space-between;border-top:1px solid var(--border-color);padding-top:20px">
+      <button class="btn btn-secondary" id="btn-gerenciar-compradores"><i class="lucide lucide-settings"></i> Gerenciar</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" data-close-modal="modal-designar-comprador">Cancelar</button>
+        <button class="btn btn-primary" id="btn-salvar-designacao"><i class="lucide lucide-check"></i> Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-gerenciar-compradores">
+  <div class="modal-content" style="max-width:500px">
+    <div class="modal-head"><h2><i class="lucide lucide-users" style="color:var(--ambar-orange)"></i> Gerenciar Compradores</h2><button class="modal-close" data-close-modal="modal-gerenciar-compradores"><i class="lucide lucide-x"></i></button></div>
+
+    <div style="margin-bottom:20px">
+      <label style="font-weight:600;display:block;margin-bottom:8px">Lista de Compradores</label>
+      <div id="lista-compradores" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:300px;overflow-y:auto">
+        <!-- Preenchido dinamicamente -->
+      </div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="novo-comprador-nome" class="input" placeholder="Nome novo comprador" style="flex:1">
+        <button class="btn btn-primary" id="btn-adicionar-comprador" style="flex-shrink:0"><i class="lucide lucide-plus"></i></button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--border-color);padding-top:20px">
+      <button class="btn btn-secondary" data-close-modal="modal-gerenciar-compradores">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="ganhador-modal">
   <div class="modal-content" style="max-width:700px;max-height:80vh;overflow-y:auto;">
     <div class="modal-head"><h2><i class="lucide lucide-check-circle-2" style="color:var(--ambar-orange)"></i> Definir Ganhadores por Item</h2><button class="modal-close" data-close-modal="ganhador-modal"><i class="lucide lucide-x"></i></button></div>
@@ -735,6 +795,10 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   let demandaRevisions = JSON.parse(localStorage.getItem('cp_demanda_revisions') || '[]');
   let demandaAtiva = JSON.parse(localStorage.getItem('cp_demanda_ativa') || 'null');
 
+  // Compradores management
+  let compradores = JSON.parse(localStorage.getItem('cp_compradores') || '["Adriana","Polidório","William","Joseane","Antônio","Karol","Amarildo"]');
+  let feriasCoordenacao = JSON.parse(localStorage.getItem('cp_ferias') || '{}');
+
   // Dados completos em memória (não salva em localStorage para economizar espaço)
   let demandaDadosCompletos = {}; // { id_revision: full_jsonData }
   function salvar() {
@@ -746,6 +810,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     localStorage.setItem('cp_ganhadores', JSON.stringify(ganhadores));
     localStorage.setItem('cp_demanda_revisions', JSON.stringify(demandaRevisions));
     localStorage.setItem('cp_demanda_ativa', JSON.stringify(demandaAtiva));
+    localStorage.setItem('cp_compradores', JSON.stringify(compradores));
+    localStorage.setItem('cp_ferias', JSON.stringify(feriasCoordenacao));
   }
 
   function formatarDataHora(){
@@ -1401,8 +1467,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         <td><span class="badge badge-info">${f.uf||'—'}</span></td>
         <td>${f.classif}</td>
         <td><small>${f.email}</small>${f.emails && f.emails.length > 1 ? `<br><small style="color:var(--text-muted)">+${f.emails.length - 1} email(s)</small>` : ''}</td>
-        <td style="text-align:center;display:flex;gap:4px;justify-content:center">
-          ${f.tel ? `<a href="${whatsappUrl}" target="_blank" class="btn btn-ghost btn-sm" title="WhatsApp"><i class="lucide lucide-message-circle"></i></a>` : ''}
+        <td style="text-align:center;white-space:nowrap">
+          ${f.tel ? `<a href="${whatsappUrl}" target="_blank" class="btn btn-ghost btn-sm" title="WhatsApp"><i class="lucide lucide-message-circle"></i></a>` : `<span style="display:inline-block;width:32px"></span>`}
           <a href="mailto:${f.email}" class="btn btn-ghost btn-sm" title="Email"><i class="lucide lucide-mail"></i></a>
           <button class="btn btn-ghost btn-sm" onclick="editarForn(${f.id})" title="Editar"><i class="lucide lucide-edit"></i></button>
           <button class="btn btn-ghost btn-sm" onclick="deletarForn(${f.id})" title="Deletar"><i class="lucide lucide-trash-2"></i></button>
@@ -1526,25 +1592,36 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
   }
 
   function extrairDepartamentosPrograma(){
-    if(!demandaAtiva || !demandaAtiva.dados) return { departamentos: [], programas: [] };
+    // Se houver demanda ativa, usar os departamentos e programas da demanda
+    if(demandaAtiva && demandaAtiva.departamentos && demandaAtiva.programas) {
+      return {
+        departamentos: demandaAtiva.departamentos,
+        programas: demandaAtiva.programas
+      };
+    }
 
-    // Extrair nomes exatos das colunas (com base na estrutura real)
-    const deptos = new Set();
-    const progs = new Set();
+    // Alternativa: tentar extrair dos dados completos em memória
+    if(demandaAtiva && demandaDadosCompletos[demandaAtiva.id]) {
+      const dados = demandaDadosCompletos[demandaAtiva.id];
+      const deptos = new Set();
+      const progs = new Set();
 
-    demandaAtiva.dados.forEach(row => {
-      // Tentar múltiplas variações de nomes de coluna
-      const depto = row.DEPARTAMENTO || row['Departamento'] || row.Departamento;
-      const prog = row['PROGRAMA ORÇAMENTÁRIO'] || row['Programa Orçamentário'] || row.PROGRAMA || row.Programa;
+      dados.forEach(row => {
+        // Procurar por colunas com nomes semelhantes (flexível para encoding)
+        const depto = Object.entries(row).find(([k,v]) => k.toUpperCase().includes('DEPART'))?.[1];
+        const prog = Object.entries(row).find(([k,v]) => k.toUpperCase().includes('PROGRAMA'))?.[1];
 
-      if(depto) deptos.add(String(depto).trim());
-      if(prog) progs.add(String(prog).trim());
-    });
+        if(depto) deptos.add(String(depto).trim());
+        if(prog) progs.add(String(prog).trim());
+      });
 
-    return {
-      departamentos: Array.from(deptos).sort(),
-      programas: Array.from(progs).sort()
-    };
+      return {
+        departamentos: Array.from(deptos).sort(),
+        programas: Array.from(progs).sort()
+      };
+    }
+
+    return { departamentos: [], programas: [] };
   }
 
   function renderApresentacao(processoId){
@@ -2398,9 +2475,6 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       const cotCount = state.cotacoes.filter(c => c.processoId == r.id).length;
       const valor = calcularValorProcesso(r.id);
       const comprador = r.comprador || '-';
-      const btnDesignar = r.comprador
-        ? `<button class="btn btn-ghost btn-sm" onclick="editarCompradorProcesso(${r.id})"><i class="lucide lucide-edit-2"></i></button>`
-        : `<button class="btn btn-ghost btn-sm" onclick="editarCompradorProcesso(${r.id})"><i class="lucide lucide-plus"></i></button>`;
 
       return `<tr>
         <td><b>${r.numero}</b></td>
@@ -2409,7 +2483,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         <td>${comprador}</td>
         <td><span class="badge badge-info">${r.status}</span></td>
         <td>${fmtBRL(valor)}</td>
-        <td style="text-align:center">${btnDesignar}</td>
+        <td style="text-align:center"><button class="btn btn-ghost btn-sm" onclick="abrirModalDesignarComprador(${r.id})" title="Designar comprador"><i class="lucide lucide-user-check"></i></button></td>
       </tr>`;
     }).join('');
 
@@ -2488,21 +2562,97 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     }).join('');
   }
 
-  window.editarCompradorProcesso = function(processoId) {
+  window.abrirModalDesignarComprador = function(processoId) {
     const req = state.requisicoes.find(r => r.id == processoId);
     if(!req) return;
 
-    const nomeAtual = req.comprador || '';
-    const novoNome = prompt(`Designar comprador para ${req.numero}:\n(Deixe em branco para remover)`, nomeAtual);
+    document.getElementById('modal-proc-numero').textContent = req.numero;
 
-    if(novoNome !== null) {
-      const nome = novoNome.trim();
-      req.comprador = nome || undefined;
-      salvar();
-      renderCoordenacao();
-      toast('Sucesso', nome ? `Comprador "${nome}" designado` : 'Comprador removido', 'success');
-    }
+    // Preencher select de compradores
+    const selectComprador = document.getElementById('modal-comprador-select');
+    selectComprador.innerHTML = '<option value="">— Sem comprador —</option>' +
+      compradores.map(c => `<option value="${c}" ${req.comprador === c ? 'selected' : ''}>${c}</option>`).join('');
+
+    // Preencher select de substituição
+    const selectSubst = document.getElementById('modal-ferias-subst');
+    selectSubst.innerHTML = '<option value="">— Selecione —</option>' +
+      compradores.map(c => `<option value="${c}">${c}</option>`).join('');
+
+    // Limpar campos de férias
+    document.getElementById('modal-ferias-de').value = '';
+    document.getElementById('modal-ferias-ate').value = '';
+
+    // Armazenar o processoId no modal para usar no salvar
+    document.getElementById('modal-designar-comprador').dataset.processoId = processoId;
+
+    openModal('modal-designar-comprador');
   };
+
+  document.getElementById('btn-gerenciar-compradores').addEventListener('click', () => {
+    renderListaCompradores();
+    openModal('modal-gerenciar-compradores');
+  });
+
+  document.getElementById('btn-adicionar-comprador').addEventListener('click', () => {
+    const nome = document.getElementById('novo-comprador-nome').value.trim();
+    if(!nome) {
+      toast('Erro', 'Digite o nome do comprador', 'error');
+      return;
+    }
+    if(compradores.includes(nome)) {
+      toast('Erro', 'Comprador já existe', 'error');
+      return;
+    }
+    compradores.push(nome);
+    compradores.sort();
+    salvar();
+    document.getElementById('novo-comprador-nome').value = '';
+    renderListaCompradores();
+    toast('Sucesso', `Comprador "${nome}" adicionado`, 'success');
+  });
+
+  function renderListaCompradores() {
+    const lista = document.getElementById('lista-compradores');
+    lista.innerHTML = compradores.map(c => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--bg-app);border-radius:var(--r-md);font-size:14px">
+        <span>${c}</span>
+        <button class="btn btn-ghost btn-sm" onclick="removerComprador('${c}')" title="Remover"><i class="lucide lucide-x"></i></button>
+      </div>
+    `).join('');
+  }
+
+  window.removerComprador = function(nome) {
+    if(!confirm(`Remover comprador "${nome}"?`)) return;
+    compradores = compradores.filter(c => c !== nome);
+    salvar();
+    renderListaCompradores();
+    toast('Removido', `Comprador "${nome}" removido`, 'success');
+  };
+
+  document.getElementById('btn-salvar-designacao').addEventListener('click', () => {
+    const processoId = parseInt(document.getElementById('modal-designar-comprador').dataset.processoId);
+    const req = state.requisicoes.find(r => r.id == processoId);
+    if(!req) return;
+
+    const novoComprador = document.getElementById('modal-comprador-select').value;
+    req.comprador = novoComprador || undefined;
+
+    // Salvar férias se preenchidas
+    const de = document.getElementById('modal-ferias-de').value;
+    const ate = document.getElementById('modal-ferias-ate').value;
+    const subst = document.getElementById('modal-ferias-subst').value;
+
+    if(de && ate && subst) {
+      feriasCoordenacao[`${processoId}_${novoComprador}`] = {
+        processoId, comprador: novoComprador, de, ate, substituido_por: subst
+      };
+    }
+
+    salvar();
+    renderCoordenacao();
+    closeModal('modal-designar-comprador');
+    toast('Sucesso', `Comprador designado para ${req.numero}`, 'success');
+  });
 
   // Inicialização
   setTimeout(() => { carregarLayoutSalvo(); renderRequisicoes(); atualizarKPIs(); }, 100);
