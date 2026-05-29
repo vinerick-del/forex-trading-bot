@@ -2504,9 +2504,27 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
   // ===== COORDENAÇÃO E SUPERVISÃO =====
   function calcularValorProcesso(processoId) {
-    const ganhador = Object.values(ganhadores).flat().find(g => g.processoId == processoId);
-    if(!ganhador) return 0;
-    return ganhador.qtd * ganhador.vunit;
+    const cotProc = state.cotacoes.filter(c => c.processoId == processoId);
+    if(!cotProc.length) return 0;
+
+    const itemsProc = {};
+    cotProc.forEach(c => {
+      if(!itemsProc[c.codigo]) itemsProc[c.codigo] = { desc:c.descricao, qtd:c.qtd, un:c.unidade, cotacoes:{} };
+      if(!itemsProc[c.codigo].cotacoes[c.fornecedor]) itemsProc[c.codigo].cotacoes[c.fornecedor] = [];
+      itemsProc[c.codigo].cotacoes[c.fornecedor].push(c);
+    });
+
+    let total = 0;
+    Object.keys(itemsProc).forEach(cod => {
+      const g = ganhadores[cod];
+      if(g && itemsProc[cod].cotacoes[g]) {
+        const u = itemsProc[cod].cotacoes[g][itemsProc[cod].cotacoes[g].length - 1];
+        const fornData = state.fornecedores.find(f => f.nome === g);
+        const precoComDifal = calcularPrecoComDIFAL(u.vunit, fornData?.icms || 18, true);
+        total += (precoComDifal * itemsProc[cod].qtd);
+      }
+    });
+    return total;
   }
 
   function calcularSavingProcesso(processoId) {
