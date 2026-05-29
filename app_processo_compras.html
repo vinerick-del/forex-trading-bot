@@ -3173,7 +3173,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         const idxQtd = headers.findIndex(h => h.includes('qtd') && h.includes('um'));
         const idxValor = headers.findIndex(h => h.includes('montante') || h.includes('valor'));
         const idxDep = headers.findIndex(h => h.includes('departamento'));
-        const idxMes = headers.findIndex(h => h === 'mês' || h.includes('mês'));
+        const idxMesData = headers.findIndex(h => h.includes('mês') && h.includes('data'));
+        const idxMes = idxMesData !== -1 ? idxMesData : headers.findIndex(h => h === 'mês' || (h.includes('mês') && !h.includes('data')));
         const idxDesc = headers.findIndex(h => h.includes('texto breve') || h.includes('descrição'));
 
         if(idxMaterial === -1 || idxQtd === -1 || idxValor === -1 || idxDep === -1 || idxMes === -1) {
