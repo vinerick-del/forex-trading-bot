@@ -3234,6 +3234,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         }
 
         consumoData = {};
+        const consumoDetalhado = {}; // Armazenar por código|departamento|mês para matching correto
 
         for(let i = 1; i < linhas.length; i++) {
           const cols = linhas[i].split(';').map(c => c.trim());
@@ -3259,6 +3260,15 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
             mes = mesNum.toString().padStart(2, '0');
           }
 
+          // Armazenar dados por código|departamento|mês para soma correta
+          const chaveDetalhada = `${cod}|${dep}|${mes}`;
+          if(!consumoDetalhado[chaveDetalhada]) {
+            consumoDetalhado[chaveDetalhada] = { qtd: 0, val: 0 };
+          }
+          consumoDetalhado[chaveDetalhada].qtd += qtd;
+          consumoDetalhado[chaveDetalhada].val += val;
+
+          // Também manter por código para compatibilidade
           if(!consumoData[cod]) {
             consumoData[cod] = {
               desc: desc,
@@ -3278,6 +3288,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           consumoData[cod].totalQtd += qtd;
           consumoData[cod].totalVal += val;
         }
+
+        window.consumoDetalhado = consumoDetalhado; // Expor globalmente para debugging
 
         renderizarConsolidadoRealXPlan();
         document.getElementById('plan-analise-section').style.display = 'block';
@@ -3308,9 +3320,15 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     }
 
     // 1. Construir estrutura de departamentos com dados REAIS
-    Object.keys(consumoData).forEach(cod => {
-      const m = consumoData[cod];
-      m.deps.forEach(dep => {
+    // Usar consumoDetalhado que tem dados agregados por código|departamento|mês
+    if(window.consumoDetalhado) {
+      Object.keys(window.consumoDetalhado).forEach(chave => {
+        const parts = chave.split('|');
+        const cod = parts[0];
+        const dep = parts[1];
+        const mes = parts[2];
+        const dados = window.consumoDetalhado[chave];
+
         if(!isDeptoValido(dep)) return; // Filtrar inválidos
 
         if(!depMap[dep]) {
@@ -3322,16 +3340,16 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           };
         }
 
-        // Somar dados reais (jan-mai)
-        ['01', '02', '03', '04', '05'].forEach(m_mes => {
+        // Somar dados reais direto de consumoDetalhado (já está agregado por código|depto|mes)
+        if(depMap[dep].meses[mes]) {
           if(planModoPorQtd) {
-            depMap[dep].meses[m_mes].real += m.meses[m_mes] || 0;
+            depMap[dep].meses[mes].real += dados.qtd;
           } else {
-            depMap[dep].meses[m_mes].real += m.valoresMeses[m_mes] || 0;
+            depMap[dep].meses[mes].real += dados.val;
           }
-        });
+        }
       });
-    });
+    }
 
     // 2. Adicionar dados PLANEJADOS rastreando por código|departamento
     let qtdPlanejadoEncontrados = 0;
