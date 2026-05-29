@@ -502,7 +502,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           </div>
           <div class="card">
             <div class="card-head"><div class="card-title">3. Validação</div><div style="display:flex;gap:8px"><button class="btn btn-secondary btn-sm" id="btn-add-linha"><i class="lucide lucide-plus"></i> Exemplo</button><button class="btn btn-info btn-sm" onclick="adicionarNovaLinhaTab()"><i class="lucide lucide-file-plus"></i> Nova Linha</button><button class="btn btn-success btn-sm" id="btn-salvar-cot"><i class="lucide lucide-check"></i> Salvar na base</button></div></div>
-            <div class="table-wrap"><table class="table"><thead><tr><th>Fornecedor</th><th>Entrega</th><th>Pgt.</th><th>Frete</th><th>Garantia</th><th>Vigência</th><th>Nº Cot.</th><th>Código</th><th>Desc.</th><th>UN</th><th>Qtd</th><th>V. Unit</th><th>V. Total</th></tr></thead><tbody id="tabela-cotacoes"><tr><td colspan="13"><div class="empty">Cole e processe os dados acima.</div></td></tr></tbody></table></div>
+            <div class="table-wrap"><table class="table"><thead><tr><th>Fornecedor</th><th>Entrega</th><th>Pgt.</th><th>Frete</th><th>Garantia</th><th>Vigência</th><th>Cotação</th><th>Código</th><th>Desc.</th><th>UN</th><th>Qtd</th><th>V. Unit</th><th>V. Total</th><th>V. Eq.</th><th>Ap. Tec.</th><th>Ações</th></tr></thead><tbody id="tabela-cotacoes"><tr><td colspan="16"><div class="empty">Cole e processe os dados acima.</div></td></tr></tbody></table></div>
           </div>
         </section>
 
@@ -713,21 +713,35 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 <div class="modal" id="help-modal"><div class="modal-content"><div class="modal-head"><h2><i class="lucide lucide-circle-help" style="color:var(--ambar-orange)"></i> Ajuda</h2><button class="modal-close" data-close-modal="help-modal"><i class="lucide lucide-x"></i></button></div><ol style="color:var(--text-main);font-size:var(--fs-sm);line-height:1.8;padding-left:20px"><li>Cadastre uma <b>Requisição</b> e <b>Fornecedores</b>.</li><li>Em <b>Cotações</b>, cole os dados.</li><li>Em <b>Análise Técnica</b>, aprove ou reprove itens.</li><li>Na <b>Matriz</b>, use os botões mágicos ou clique nos cards para escolher os vencedores.</li></ol></div></div>
 
 <div class="modal" id="modal-editar-cotacao">
-  <div class="modal-content" style="max-width:500px">
+  <div class="modal-content" style="max-width:550px;max-height:90vh;overflow-y:auto">
     <div class="modal-head"><h2><i class="lucide lucide-edit" style="color:var(--ambar-orange)"></i> Editar Cotação</h2><button class="modal-close" data-close-modal="modal-editar-cotacao"><i class="lucide lucide-x"></i></button></div>
     <div style="display:grid;gap:12px;margin-bottom:20px">
-      <div><label style="font-weight:600;font-size:12px">Fornecedor</label><input type="text" id="editar-cot-fornecedor" class="input" placeholder="Fornecedor"></div>
-      <div><label style="font-weight:600;font-size:12px">Entrega</label><input type="text" id="editar-cot-entrega" class="input" placeholder="Entrega"></div>
-      <div><label style="font-weight:600;font-size:12px">Pagamento</label><input type="text" id="editar-cot-pagamento" class="input" placeholder="Pagamento"></div>
-      <div><label style="font-weight:600;font-size:12px">Frete</label><input type="text" id="editar-cot-frete" class="input" placeholder="Frete"></div>
-      <div><label style="font-weight:600;font-size:12px">Garantia</label><input type="text" id="editar-cot-garantia" class="input" placeholder="Garantia"></div>
-      <div><label style="font-weight:600;font-size:12px">Vigência</label><input type="text" id="editar-cot-vigencia" class="input" placeholder="Vigência"></div>
-      <div><label style="font-weight:600;font-size:12px">Nº Cotação</label><input type="text" id="editar-cot-nro" class="input" placeholder="Nº Cot."></div>
-      <div><label style="font-weight:600;font-size:12px">Código</label><input type="text" id="editar-cot-codigo" class="input" placeholder="Código"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label style="font-weight:600;font-size:12px">Fornecedor</label><input type="text" id="editar-cot-fornecedor" class="input" placeholder="Fornecedor"></div>
+        <div><label style="font-weight:600;font-size:12px">Entrega</label><input type="text" id="editar-cot-entrega" class="input" placeholder="Entrega"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label style="font-weight:600;font-size:12px">Pagamento</label><input type="text" id="editar-cot-pagamento" class="input" placeholder="Pagamento"></div>
+        <div><label style="font-weight:600;font-size:12px">Frete</label><input type="text" id="editar-cot-frete" class="input" placeholder="Frete"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label style="font-weight:600;font-size:12px">Garantia</label><input type="text" id="editar-cot-garantia" class="input" placeholder="Garantia"></div>
+        <div><label style="font-weight:600;font-size:12px">Vigência</label><input type="text" id="editar-cot-vigencia" class="input" placeholder="Vigência"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label style="font-weight:600;font-size:12px">Cotação</label><input type="text" id="editar-cot-nro" class="input" placeholder="Nº Cot."></div>
+        <div><label style="font-weight:600;font-size:12px">Código</label><input type="text" id="editar-cot-codigo" class="input" placeholder="Código"></div>
+      </div>
       <div><label style="font-weight:600;font-size:12px">Descrição</label><input type="text" id="editar-cot-desc" class="input" placeholder="Descrição"></div>
-      <div><label style="font-weight:600;font-size:12px">Unidade</label><input type="text" id="editar-cot-un" class="input" placeholder="UN"></div>
-      <div><label style="font-weight:600;font-size:12px">Quantidade</label><input type="number" id="editar-cot-qtd" class="input" placeholder="0"></div>
-      <div><label style="font-weight:600;font-size:12px">Valor Unitário (R$)</label><input type="text" id="editar-cot-vu" class="input" placeholder="0,00"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label style="font-weight:600;font-size:12px">Unidade</label><input type="text" id="editar-cot-un" class="input" placeholder="UN"></div>
+        <div><label style="font-weight:600;font-size:12px">Quantidade</label><input type="number" id="editar-cot-qtd" class="input" placeholder="0"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label style="font-weight:600;font-size:12px">Valor Unitário (R$)</label><input type="text" id="editar-cot-vu" class="input" placeholder="0,00"></div>
+        <div><label style="font-weight:600;font-size:12px">Valor Equalizado (R$)</label><input type="text" id="editar-cot-ve" class="input" placeholder="0,00"></div>
+      </div>
+      <div><label style="font-weight:600;font-size:12px">Aprovação Técnica</label><select id="editar-cot-ap" class="select"><option value="">—</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></div>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button class="btn btn-secondary" data-close-modal="modal-editar-cotacao">Cancelar</button>
@@ -1528,7 +1542,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
   document.getElementById('btn-limpar').addEventListener('click', () => {
     document.getElementById('cot-textarea').value = '';
-    document.getElementById('tabela-cotacoes').innerHTML = '<tr><td colspan="13"><div class="empty">Cole e processe os dados acima.</div></td></tr>';
+    document.getElementById('tabela-cotacoes').innerHTML = '<tr><td colspan="16"><div class="empty">Cole e processe os dados acima.</div></td></tr>';
     toast('Limpo', 'Textarea e tabela limpas');
   });
 
@@ -1555,6 +1569,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     document.getElementById('editar-cot-un').value = tds[9].textContent.trim();
     document.getElementById('editar-cot-qtd').value = limparNumero(tds[10].textContent);
     document.getElementById('editar-cot-vu').value = limparNumero(tds[11].textContent);
+    document.getElementById('editar-cot-ve').value = tds.length > 13 ? limparNumero(tds[13].textContent) : '';
+    document.getElementById('editar-cot-ap').value = tds.length > 14 ? tds[14].textContent.trim() : '';
 
     openModal('modal-editar-cotacao');
   };
@@ -1580,6 +1596,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     const tbody = document.getElementById('tabela-cotacoes');
     const qNum = limparNumero(document.getElementById('editar-cot-qtd').value);
     const vuNum = limparNumero(document.getElementById('editar-cot-vu').value);
+    const veNum = limparNumero(document.getElementById('editar-cot-ve').value);
+    const ap = document.getElementById('editar-cot-ap').value;
 
     if(cotacaoEmEdicao === -1) {
       // Adicionar nova linha
@@ -1599,6 +1617,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         <td>${qNum}</td>
         <td>${fmtBRL(vuNum)}</td>
         <td>${fmtBRL(qNum*vuNum)}</td>
+        <td>${fmtBRL(veNum)}</td>
+        <td style="text-align:center;white-space:nowrap"><span style="font-size:11px;padding:2px 6px;border-radius:4px;${ap?.toUpperCase?.()?.includes('SIM') ? 'background:var(--success-bg);color:var(--success)' : ap?.toUpperCase?.()?.includes('NÃO') ? 'background:var(--danger-bg);color:var(--danger)' : 'background:var(--border-color);color:var(--text-muted)'}">${ap||'—'}</span></td>
         <td style="text-align:center;white-space:nowrap;padding:4px"><button class="btn btn-ghost btn-sm" onclick="editarLinhaTab(${rowIndex})" title="Editar" style="padding:2px;color:var(--ambar-orange)"><i class="lucide lucide-edit-2"></i></button><button class="btn btn-ghost btn-sm" onclick="deletarLinhaTab(${rowIndex})" title="Deletar" style="padding:2px;color:var(--danger)"><i class="lucide lucide-trash-2"></i></button></td>
       </tr>`;
       if(isEmpty) {
@@ -1625,6 +1645,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
           <td>${qNum}</td>
           <td>${fmtBRL(vuNum)}</td>
           <td>${fmtBRL(qNum*vuNum)}</td>
+          <td>${fmtBRL(veNum)}</td>
+          <td style="text-align:center;white-space:nowrap"><span style="font-size:11px;padding:2px 6px;border-radius:4px;${ap?.toUpperCase?.()?.includes('SIM') ? 'background:var(--success-bg);color:var(--success)' : ap?.toUpperCase?.()?.includes('NÃO') ? 'background:var(--danger-bg);color:var(--danger)' : 'background:var(--border-color);color:var(--text-muted)'}">${ap||'—'}</span></td>
           <td style="text-align:center;white-space:nowrap;padding:4px"><button class="btn btn-ghost btn-sm" onclick="editarLinhaTab(${cotacaoEmEdicao})" title="Editar" style="padding:2px;color:var(--ambar-orange)"><i class="lucide lucide-edit-2"></i></button><button class="btn btn-ghost btn-sm" onclick="deletarLinhaTab(${cotacaoEmEdicao})" title="Deletar" style="padding:2px;color:var(--danger)"><i class="lucide lucide-trash-2"></i></button></td>
         `;
         toast('Salvo', 'Linha atualizada');
@@ -1643,7 +1665,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
       rows[rowIndex].remove();
       const remainingRows = tbody.querySelectorAll('tr');
       if(remainingRows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="13"><div class="empty">Cole e processe os dados acima.</div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="16"><div class="empty">Cole e processe os dados acima.</div></td></tr>';
       }
       toast('Deletado', 'Linha removida');
     }
@@ -1658,36 +1680,70 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
 
     // Detectar o padrão de dados
     const primeiraLinha = linhas[0].split('\t');
-    const ehFormatoEstendido = primeiraLinha.length >= 13; // Mais de 12 colunas
+    const ehFormatoEstendido = primeiraLinha.length >= 14; // 14+ colunas (novo padrão com COTAÇÃO, VALOR EQUALIZADO, AP. TEC.)
 
     const novasLinhas = linhas.map((linha, idx) => {
-      let f, e, p, fr, g, v, n, c, d, un, q, vu;
+      let f, e, p, fr, g, v, n, c, d, un, q, vu, ve, ap;
 
       if(ehFormatoEstendido) {
-        // Seu padrão: Fornecedor | 60 | 90 | CIF | 12 MESES | INICIAL/FINAL | Código | Descrição | UND | Qtd | R$ Unit | R$ Total | R$ Total Margem | SIM/NÃO
+        // Novo padrão: Fornecedor | Entrega | Pagamento | Frete | Garantia | Vigência | Cotação | Código | Descrição | Unidade | Qtd | Vlr Unitário | Valor Total | Valor Equalizado | Ap. Tec.
         const cols = linha.split('\t');
-        f = cols[0];      // Fornecedor
-        e = cols[3] || ''; // CIF (Entrega)
-        p = cols[2] || ''; // 90 (Pagamento)
-        fr = '';           // (deixar vazio ou usar cols[1])
-        g = '';            // (deixar vazio)
-        v = cols[4] || ''; // 12 MESES (Vigência)
-        n = cols[5] || ''; // INICIAL/FINAL (Nº Cot)
-        c = cols[6];       // Código
-        d = cols[7];       // Descrição
-        un = cols[8];      // UND
-        q = cols[9];       // Qtd
-        vu = cols[10];     // R$ Unit (pode estar como "R$ 45,00")
+        f = cols[0];    // Fornecedor
+        e = cols[1];    // Entrega
+        p = cols[2];    // Pagamento
+        fr = cols[3];   // Frete
+        g = cols[4];    // Garantia
+        v = cols[5];    // Vigência
+        n = cols[6];    // Cotação (nroCot)
+        c = cols[7];    // Código
+        d = cols[8];    // Descrição
+        un = cols[9];   // Unidade
+        q = cols[10];   // Qtd
+        vu = cols[11];  // Vlr Unitário
+        ve = cols[12];  // Valor Equalizado (informativos)
+        ap = cols[13];  // Ap. Tec. (informativos)
+      } else if(primeiraLinha.length >= 13) {
+        // Seu padrão anterior: Fornecedor | 60 | 90 | CIF | 12 MESES | INICIAL | Código | Descrição | UND | Qtd | R$ Unit | R$ Total | R$ Margem | SIM/NÃO
+        const cols = linha.split('\t');
+        f = cols[0];
+        e = cols[3] || '';
+        p = cols[2] || '';
+        fr = '';
+        g = '';
+        v = cols[4] || '';
+        n = cols[5] || '';
+        c = cols[6];
+        d = cols[7];
+        un = cols[8];
+        q = cols[9];
+        vu = cols[10];
+        ve = cols[12] || '';
+        ap = cols[13] || '';
       } else {
-        // Padrão original esperado: Fornecedor | Entrega | Pgt | Frete | Garantia | Vigência | Nº Cot | Código | Desc | UN | Qtd | V.Unit
-        [f,e,p,fr,g,v,n,c,d,un,q,vu] = linha.split('\t');
+        // Padrão original: Fornecedor | Entrega | Pgt | Frete | Garantia | Vigência | Nº Cot | Código | Desc | UN | Qtd | V.Unit
+        const cols = linha.split('\t');
+        f = cols[0];
+        e = cols[1];
+        p = cols[2];
+        fr = cols[3];
+        g = cols[4];
+        v = cols[5];
+        n = cols[6];
+        c = cols[7];
+        d = cols[8];
+        un = cols[9];
+        q = cols[10];
+        vu = cols[11];
+        ve = '';
+        ap = '';
       }
 
       const qNum = limparNumero(q);
       const vuNum = limparNumero(vu);
+      const veNum = limparNumero(ve);
       const rowIdx = conteudoAtual.includes('class="empty"') ? idx : tbody.querySelectorAll('tr').length + idx;
 
-      return `<tr><td>${f||''}</td><td>${e||''}</td><td>${p||''}</td><td>${fr||''}</td><td>${g||''}</td><td>${v||''}</td><td>${n||''}</td><td><b>${c||''}</b></td><td>${d||''}</td><td>${un||''}</td><td>${qNum}</td><td>${fmtBRL(vuNum)}</td><td>${fmtBRL(qNum*vuNum)}</td><td style="text-align:center;white-space:nowrap;padding:4px"><button class="btn btn-ghost btn-sm" onclick="editarLinhaTab(${rowIdx})" title="Editar" style="padding:2px;color:var(--ambar-orange)"><i class="lucide lucide-edit-2"></i></button><button class="btn btn-ghost btn-sm" onclick="deletarLinhaTab(${rowIdx})" title="Deletar" style="padding:2px;color:var(--danger)"><i class="lucide lucide-trash-2"></i></button></td></tr>`;
+      return `<tr><td>${f||''}</td><td>${e||''}</td><td>${p||''}</td><td>${fr||''}</td><td>${g||''}</td><td>${v||''}</td><td>${n||''}</td><td><b>${c||''}</b></td><td>${d||''}</td><td>${un||''}</td><td>${qNum}</td><td>${fmtBRL(vuNum)}</td><td>${fmtBRL(qNum*vuNum)}</td><td>${fmtBRL(veNum)}</td><td style="text-align:center;white-space:nowrap"><span style="font-size:11px;padding:2px 6px;border-radius:4px;${ap?.toUpperCase()?.includes('SIM') ? 'background:var(--success-bg);color:var(--success)' : ap?.toUpperCase()?.includes('NÃO') ? 'background:var(--danger-bg);color:var(--danger)' : 'background:var(--border-color);color:var(--text-muted)'}">${ap||'—'}</span></td><td style="text-align:center;white-space:nowrap;padding:4px"><button class="btn btn-ghost btn-sm" onclick="editarLinhaTab(${rowIdx})" title="Editar" style="padding:2px;color:var(--ambar-orange)"><i class="lucide lucide-edit-2"></i></button><button class="btn btn-ghost btn-sm" onclick="deletarLinhaTab(${rowIdx})" title="Deletar" style="padding:2px;color:var(--danger)"><i class="lucide lucide-trash-2"></i></button></td></tr>`;
     }).join('');
 
     // Se a tabela tem só o placeholder vazio, substituir. Caso contrário, adicionar
@@ -1698,8 +1754,8 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     }
 
     document.getElementById('cot-textarea').value = '';
-    const formato = ehFormatoEstendido ? '(Formato com Margem/Status)' : '(Formato Padrão)';
-    toast('Processado', `${linhas.length} novas linhas adicionadas ${formato}`);
+    const formato = ehFormatoEstendido ? '(Formato 15 colunas)' : primeiraLinha.length >= 13 ? '(Formato com Margem)' : '(Formato Padrão)';
+    toast('Processado', `${linhas.length} linhas adicionadas ${formato}`);
   });
   document.getElementById('btn-salvar-cot').addEventListener('click', () => {
     const pid = document.getElementById('cot-processo').value; const r = state.requisicoes.find(x=>x.id==pid);
@@ -1707,11 +1763,31 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     let c = 0;
     document.getElementById('tabela-cotacoes').querySelectorAll('tr').forEach(tr => {
       const td = tr.querySelectorAll('td');
-      if(td.length===13){ state.cotacoes.push({ id:Date.now()+Math.random(), processoId:parseInt(pid), fornecedor:td[0].textContent.trim(), entrega:td[1].textContent.trim(), pagamento:td[2].textContent.trim(), frete:td[3].textContent.trim(), garantia:td[4].textContent.trim(), vigencia:td[5].textContent.trim(), nroCot:td[6].textContent.trim(), codigo:td[7].textContent.trim(), descricao:td[8].textContent.trim(), unidade:td[9].textContent.trim(), qtd:limparNumero(td[10].textContent), vunit:limparNumero(td[11].textContent) }); c++; }
+      if(td.length >= 15 && !tr.querySelector('.empty')){
+        state.cotacoes.push({
+          id:Date.now()+Math.random(),
+          processoId:parseInt(pid),
+          fornecedor:td[0].textContent.trim(),
+          entrega:td[1].textContent.trim(),
+          pagamento:td[2].textContent.trim(),
+          frete:td[3].textContent.trim(),
+          garantia:td[4].textContent.trim(),
+          vigencia:td[5].textContent.trim(),
+          nroCot:td[6].textContent.trim(),
+          codigo:td[7].textContent.trim(),
+          descricao:td[8].textContent.trim(),
+          unidade:td[9].textContent.trim(),
+          qtd:limparNumero(td[10].textContent),
+          vunit:limparNumero(td[11].textContent),
+          vequalizado:limparNumero(td[13].textContent),
+          apTec:td[14].textContent.trim().toUpperCase()
+        });
+        c++;
+      }
     });
     if(!c) return toast('Aviso','Nada para salvar','warning');
     r.status='Análise técnica'; salvar(); toast('Salvo',`${c} cotações registradas`);
-    document.getElementById('tabela-cotacoes').innerHTML='<tr><td colspan="13" class="empty">Limpo</td></tr>'; document.getElementById('cot-textarea').value='';
+    document.getElementById('tabela-cotacoes').innerHTML='<tr><td colspan="16" class="empty">Limpo</td></tr>'; document.getElementById('cot-textarea').value='';
   });
 
   // =========================================================================
