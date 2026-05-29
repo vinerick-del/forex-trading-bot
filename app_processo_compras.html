@@ -1458,8 +1458,7 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     const tbody = document.getElementById('tabela-fornecedores');
     if(!state.fornecedores.length) return tbody.innerHTML='<tr><td colspan="6" class="empty">Vazio</td></tr>';
     tbody.innerHTML = state.fornecedores.slice().reverse().map(f => {
-      const whatsappUrl = f.tel ? `https://wa.me/55${f.tel.replace(/\D/g, '')}` : '#';
-      const emailUrl = f.email ? `mailto:${f.email}` : '#';
+      const whatsappUrl = f.tel ? `https://whatsa.me/55${f.tel.replace(/\D/g, '')}` : '#';
       const outlookUrl = f.email ? `https://outlook.live.com/mail/deeplink/compose?to=${f.email}` : '#';
       return `<tr>
         <td><b>${f.nome}</b></td>
@@ -1468,11 +1467,11 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
         <td>${f.classif}</td>
         <td><small>${f.email}</small>${f.emails && f.emails.length > 1 ? `<br><small style="color:var(--text-muted)">+${f.emails.length - 1} email(s)</small>` : ''}</td>
         <td style="text-align:center;white-space:nowrap;padding:8px">
-          <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
-            ${f.tel ? `<a href="${whatsappUrl}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white;border:none;font-size:12px;padding:6px 10px;font-weight:600" title="WhatsApp">💬 WA</a>` : ''}
-            <a href="mailto:${f.email}" class="btn btn-sm" style="background:#0078D4;color:white;border:none;font-size:12px;padding:6px 10px;font-weight:600" title="Email">✉️ Email</a>
-            <button class="btn btn-sm" style="background:#FF9500;color:white;border:none;font-size:12px;padding:6px 10px;font-weight:600" onclick="editarForn(${f.id})" title="Editar">✏️ Editar</button>
-            <button class="btn btn-sm" style="background:#E74C3C;color:white;border:none;font-size:12px;padding:6px 10px;font-weight:600" onclick="deletarForn(${f.id})" title="Deletar">🗑️ Deletar</button>
+          <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+            ${f.tel ? `<a href="${whatsappUrl}" target="_blank" class="btn btn-ghost btn-sm" style="padding:6px;color:var(--ambar-orange);border:none" title="WhatsApp"><i class="lucide lucide-message-circle"></i></a>` : ''}
+            ${f.email ? `<a href="${outlookUrl}" target="_blank" class="btn btn-ghost btn-sm" style="padding:6px;color:var(--ambar-orange);border:none" title="Outlook"><i class="lucide lucide-mail"></i></a>` : ''}
+            <button class="btn btn-ghost btn-sm" style="padding:6px;color:var(--ambar-orange);border:none" onclick="editarForn(${f.id})" title="Editar"><i class="lucide lucide-edit-2"></i></button>
+            <button class="btn btn-ghost btn-sm" style="padding:6px;color:var(--danger);border:none" onclick="deletarForn(${f.id})" title="Deletar"><i class="lucide lucide-trash-2"></i></button>
           </div>
         </td>
       </tr>`;
@@ -1694,81 +1693,118 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     </div>
 
     ${(() => {
-      // ANÁLISE DE MATERIAIS DA DEMANDA
-      if(!demandaAtiva || typeof demandaAtiva !== 'object') {
+      // ANÁLISE DE MATERIAIS DA DEMANDA - Baseada nos códigos demandados para este processo
+      if(!demandaAtiva || typeof demandaAtiva !== 'object' || !Object.keys(itensPorCod).length) {
         return '';
       }
 
-      const consumoPorDepto = demandaAtiva.consumoPorDepto || {};
-      const consumoPorProg = demandaAtiva.consumoPorProg || {};
+      // Pegar dados completos da demanda para análise detalhada
+      const dadosDemanda = demandaDadosCompletos[demandaAtiva.id] || [];
 
-      const totalMateriais = demandaAtiva.linhas || 0;
-      const totalDeptos = demandaAtiva.departamentos?.length || 0;
-      const totalProgs = demandaAtiva.programas?.length || 0;
+      // Mapear dados da demanda por código
+      const demandaPorCod = {};
+      dadosDemanda.forEach(row => {
+        const cod = Object.keys(row).find(k => k.toUpperCase().includes('CÓDIGO')) ?
+          row[Object.keys(row).find(k => k.toUpperCase().includes('CÓDIGO'))] : '';
+        const depto = Object.keys(row).find(k => k.toUpperCase().includes('DEPART')) ?
+          row[Object.keys(row).find(k => k.toUpperCase().includes('DEPART'))] : '';
+        const prog = Object.keys(row).find(k => k.toUpperCase().includes('PROGRAMA')) ?
+          row[Object.keys(row).find(k => k.toUpperCase().includes('PROGRAMA'))] : '';
 
-      const totalConsumoDepts = Object.values(consumoPorDepto).reduce((a, b) => a + b, 0) || 1;
-      const totalConsumoProgs = Object.values(consumoPorProg).reduce((a, b) => a + b, 0) || 1;
+        if(cod && (depto || prog)) {
+          if(!demandaPorCod[cod]) demandaPorCod[cod] = { deptos: new Set(), progs: new Set() };
+          if(depto) demandaPorCod[cod].deptos.add(depto);
+          if(prog) demandaPorCod[cod].progs.add(prog);
+        }
+      });
 
-      // Top 3 departamentos por consumo
-      const topDeptos = Object.entries(consumoPorDepto)
+      // Análise dos códigos demandados neste processo
+      const codigosDemandados = Object.keys(itensPorCod);
+      const deptosDistintos = new Set();
+      const progsDistintos = new Set();
+
+      codigosDemandados.forEach(cod => {
+        if(demandaPorCod[cod]) {
+          demandaPorCod[cod].deptos.forEach(d => deptosDistintos.add(d));
+          demandaPorCod[cod].progs.forEach(p => progsDistintos.add(p));
+        }
+      });
+
+      // Calcular valor por departamento e programa (baseado em itensPorCod e ganhadores)
+      const valorPorDepto = {};
+      const valorPorProg = {};
+
+      codigosDemandados.forEach(cod => {
+        const g = ganhadores[cod];
+        if(g && itensPorCod[cod].cotacoes[g]) {
+          const u = itensPorCod[cod].cotacoes[g][itensPorCod[cod].cotacoes[g].length - 1];
+          const fornData = state.fornecedores.find(f => f.nome === g);
+          const precoComDifal = calcularPrecoComDIFAL(u.vunit, fornData?.icms || 18, true);
+          const valorItem = precoComDifal * itensPorCod[cod].qtd;
+
+          if(demandaPorCod[cod]) {
+            demandaPorCod[cod].deptos.forEach(d => {
+              valorPorDepto[d] = (valorPorDepto[d] || 0) + valorItem;
+            });
+            demandaPorCod[cod].progs.forEach(p => {
+              valorPorProg[p] = (valorPorProg[p] || 0) + valorItem;
+            });
+          }
+        }
+      });
+
+      const totalValorDepto = Object.values(valorPorDepto).reduce((a, b) => a + b, 0) || 1;
+      const totalValorProg = Object.values(valorPorProg).reduce((a, b) => a + b, 0) || 1;
+
+      // Top departamentos e programas por valor
+      const topDeptosValor = Object.entries(valorPorDepto)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 3);
+        .slice(0, 5);
 
-      // Top 3 programas por consumo
-      const topProgs = Object.entries(consumoPorProg)
+      const topProgsValor = Object.entries(valorPorProg)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 3);
+        .slice(0, 5);
 
       return `<div class="card">
         <div class="card-title" style="margin-bottom:16px">Análise de Materiais da Demanda</div>
 
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px">
-          <div style="background:var(--bg-app);border-radius:var(--r-md);padding:16px;text-align:center">
-            <div style="font-size:24px;font-weight:700;color:var(--ambar-orange)">${totalMateriais.toLocaleString('pt-BR')}</div>
-            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:8px">Materiais</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px">
+          <div style="background:var(--bg-app);border-radius:var(--r-md);padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--ambar-orange)">${codigosDemandados.length}</div>
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;margin-top:6px">Códigos Distintos</div>
           </div>
-          <div style="background:var(--bg-app);border-radius:var(--r-md);padding:16px;text-align:center">
-            <div style="font-size:24px;font-weight:700;color:var(--info)">${totalDeptos}</div>
-            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:8px">Departamentos</div>
+          <div style="background:var(--bg-app);border-radius:var(--r-md);padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--info)">${deptosDistintos.size}</div>
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;margin-top:6px">Departamentos</div>
           </div>
-          <div style="background:var(--bg-app);border-radius:var(--r-md);padding:16px;text-align:center">
-            <div style="font-size:24px;font-weight:700;color:var(--warning)">${totalProgs}</div>
-            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-top:8px">Programas</div>
+          <div style="background:var(--bg-app);border-radius:var(--r-md);padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--warning)">${progsDistintos.size}</div>
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;margin-top:6px">Programas</div>
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
           <div>
-            <div style="font-weight:600;color:var(--info);margin-bottom:12px;font-size:12px;text-transform:uppercase">Departamentos por Consumo</div>
-            <div style="display:flex;flex-direction:column;gap:8px">
-              ${topDeptos.length ? topDeptos.map(([depto, qtd]) => {
-                const pct = ((qtd / totalConsumoDepts) * 100).toFixed(1);
-                return `
-                <div style="padding:8px;background:var(--info-bg);border-radius:var(--r-md);font-size:11px">
-                  <div style="display:flex;justify-content:space-between;color:var(--info);font-weight:600;margin-bottom:4px">
-                    <span>${depto}</span>
-                    <span>${pct}%</span>
-                  </div>
-                  <div style="color:var(--info);font-size:10px">${qtd.toLocaleString('pt-BR')} unidades</div>
-                </div>
-              `;
+            <div style="font-weight:600;color:var(--info);margin-bottom:12px;font-size:12px;text-transform:uppercase">Departamentos por Valor Compra</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              ${topDeptosValor.length ? topDeptosValor.map(([depto, valor]) => {
+                const pct = ((valor / totalValorDepto) * 100).toFixed(1);
+                return `<div style="padding:8px;background:var(--info-bg);border-radius:var(--r-md);font-size:11px">
+                  <div style="display:flex;justify-content:space-between;color:var(--info);font-weight:600">${depto}: ${pct}%</div>
+                  <div style="color:var(--info);font-size:10px;margin-top:2px">${fmtBRL(valor)}</div>
+                </div>`;
               }).join('') : '<span style="color:var(--text-muted);font-size:12px">Sem dados</span>'}
             </div>
           </div>
           <div>
-            <div style="font-weight:600;color:var(--warning);margin-bottom:12px;font-size:12px;text-transform:uppercase">Programas por Consumo</div>
-            <div style="display:flex;flex-direction:column;gap:8px">
-              ${topProgs.length ? topProgs.map(([prog, qtd]) => {
-                const pct = ((qtd / totalConsumoProgs) * 100).toFixed(1);
-                return `
-                <div style="padding:8px;background:var(--warning-bg);border-radius:var(--r-md);font-size:11px">
-                  <div style="display:flex;justify-content:space-between;color:var(--warning);font-weight:600;margin-bottom:4px">
-                    <span>${prog}</span>
-                    <span>${pct}%</span>
-                  </div>
-                  <div style="color:var(--warning);font-size:10px">${qtd.toLocaleString('pt-BR')} unidades</div>
-                </div>
-              `;
+            <div style="font-weight:600;color:var(--warning);margin-bottom:12px;font-size:12px;text-transform:uppercase">Programas Orçamentários por Valor</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              ${topProgsValor.length ? topProgsValor.map(([prog, valor]) => {
+                const pct = ((valor / totalValorProg) * 100).toFixed(1);
+                return `<div style="padding:8px;background:var(--warning-bg);border-radius:var(--r-md);font-size:11px">
+                  <div style="display:flex;justify-content:space-between;color:var(--warning);font-weight:600"><span style="max-width:150px;overflow:hidden;text-overflow:ellipsis">${prog}</span><span>${pct}%</span></div>
+                  <div style="color:var(--warning);font-size:10px;margin-top:2px">${fmtBRL(valor)}</div>
+                </div>`;
               }).join('') : '<span style="color:var(--text-muted);font-size:12px">Sem dados</span>'}
             </div>
           </div>
