@@ -1502,16 +1502,34 @@ i.lucide{font-size:1.1em;line-height:1;vertical-align:-2px}
     toast('Exemplo','Dados de exemplo inseridos');
   });
 
+  document.getElementById('btn-limpar').addEventListener('click', () => {
+    document.getElementById('cot-textarea').value = '';
+    document.getElementById('tabela-cotacoes').innerHTML = '<tr><td colspan="13"><div class="empty">Cole e processe os dados acima.</div></td></tr>';
+    toast('Limpo', 'Textarea e tabela limpas');
+  });
+
   document.getElementById('btn-processar').addEventListener('click', () => {
     const texto = document.getElementById('cot-textarea').value.trim();
     if(!texto) return toast('Erro', 'Cole dados do Excel', 'error');
     const linhas = texto.split('\n').filter(l => l.trim());
-    document.getElementById('tabela-cotacoes').innerHTML = linhas.map(linha => {
+    const novasLinhas = linhas.map(linha => {
       const [f,e,p,fr,g,v,n,c,d,un,q,vu] = linha.split('\t');
       const qNum=limparNumero(q), vuNum=limparNumero(vu);
       return `<tr><td>${f||''}</td><td>${e||''}</td><td>${p||''}</td><td>${fr||''}</td><td>${g||''}</td><td>${v||''}</td><td>${n||''}</td><td><b>${c||''}</b></td><td>${d||''}</td><td>${un||''}</td><td>${qNum}</td><td>${fmtBRL(vuNum)}</td><td>${fmtBRL(qNum*vuNum)}</td></tr>`;
     }).join('');
-    toast('Processado', `${linhas.length} linhas lidas`);
+
+    const tbody = document.getElementById('tabela-cotacoes');
+    const conteudoAtual = tbody.innerHTML;
+
+    // Se a tabela tem só o placeholder vazio, substituir. Caso contrário, adicionar
+    if(conteudoAtual.includes('class="empty"')) {
+      tbody.innerHTML = novasLinhas;
+    } else {
+      tbody.innerHTML += novasLinhas;
+    }
+
+    document.getElementById('cot-textarea').value = '';
+    toast('Processado', `${linhas.length} novas linhas adicionadas`);
   });
   document.getElementById('btn-salvar-cot').addEventListener('click', () => {
     const pid = document.getElementById('cot-processo').value; const r = state.requisicoes.find(x=>x.id==pid);
